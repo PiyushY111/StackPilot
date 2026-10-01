@@ -162,8 +162,12 @@ One row across the top, on `mantle`:
 - **Left:** `StackPilot`, then the **master annunciator**, then the stack: its name and `● 3/4 ready` (green
   when every process runs, amber `◌` otherwise), `no stack`, or `system monitor` in `stackpilot sm`.
 - **Annunciator:** dark when all is normal. A danger alert lights ` WARNING n ` (black on red); otherwise any
-  warn alert or failing data source lights ` CAUTION n ` (black on amber). Without color both are reverse
-  video. The alert lines under the header (§7, S4) say what each one is.
+  warn alert, failing data source or **crash loop** lights ` CAUTION n ` (black on amber). Without color both
+  are reverse video. The alert lines under the header (§7, S4) say what each alert is.
+- **Crash history:** after the stack, `↻ worker 3 in 5m` names the process that crashed most in the last five
+  minutes (from each entry's `crashTimes`, recorded by the supervisor). Yellow below 3; at 3 or more it is
+  amber and adds 1 to CAUTION, before the supervisor gives up and raises its `errored:` WARNING. It clears
+  by itself five minutes after the last crash.
 - **Right:** `hostname · platform arch`, dropped first when the row is too narrow.
 
 ## 5. Navigation and keys
@@ -178,7 +182,7 @@ One row across the top, on `mantle`:
 | proc · table | `↑↓ select` `/ filter` `s sort` `x kill` `⏎ info` | `S` reverse, `X` SIGKILL, `r` renice, `t` tree, `c` more cores, `PgUp/PgDn/Home/End`, `⇥` next box |
 | proc · tree | `↑↓ select` `←→ fold` `/ filter` `x kill` `t flat` | as table |
 | ports | `x kill owner` `⏎ jump` `↑↓ select` `/ filter` `⇥ next box`: the box is narrow, so the border shows as many as fit, most useful first | — |
-| managed (its own border) | `s start` `x stop` `r restart` `a start all` | `↑↓` select, `X` stop all, `⏎` show in proc (or pick scripts), `n` new process, `e` env, `w` save to kestrel.json |
+| stack (its own border) | `s start` `x stop` `r restart` `a start all` | `↑↓` select, `X` stop all, `⏎` details (or pick scripts), `p` show in proc, `n` new process, `e` env, `w` save to stackpilot.json |
 | managed (logs panel border) | `f follow` `/ search` `v all / one` `PgUp older` `PgDn newer` | `g`/`Home` oldest, `G`/`End` newest |
 | detail drawer | `x kill` `r renice` `Esc close` | — |
 | Everywhere | — | `?` help, `q`/`Ctrl+C` quit (asks first while processes run, S12), `Esc` back/close, `L` logs of the failed process (not in `sm`) |
@@ -221,6 +225,9 @@ the others; each key in the dialog's key line is cyan. `Esc` always cancels.
   `starting 4s`, `not ready :3000`, `retry 3 in 4s`, `crashed (exit 1)`, `errored (exit 2)`,
   `blocked by db, cache`, `stopping…`, `stopped`, `exited (exit 0)`, `idle`. Errors are red, `unready` and
   `blocked` amber, `restarting` yellow; the rest is secondary text.
+- A process the leak detector suspects (`leakSuspect`, `core/sampler/leak.js`) ends its row with `▲ leak?` in
+  amber. The mark takes room from the status label first, then the cpu column. It is advisory: nothing is
+  stopped, and the store's `leak:<id>` alert lights CAUTION.
 - The title is `stack`, with the running count (`3/4`); the header strip names the stack (§4.3).
 - Empty states: no stack (S2) → `No stack here` · `kestrel init · n add a process`. Invalid config (S3) →
   `✕ config has N problems` and the first problems with their paths (`kestrel pm` prints all of them and
@@ -247,6 +254,16 @@ the others; each key in the dialog's key line is cyan. `Esc` always cancels.
   to proc). An invalid pattern shows its error instead of lines.
 - Output is shown as plain text: color codes and terminal control sequences are removed, so a child can't
   move the cursor, retitle the terminal or break the layout. Saved log files keep the original bytes.
+
+### 6.8 Stack details (`⏎` in the stack box)
+- Opens beside the logs, at 40% of the big panel (the whole panel when that would be under 26 columns), with
+  an idle-grey border. It follows the selection (`↑↓`); `Esc` closes it, as does leaving the stack box.
+- Rows, top first: the name and `● status`; `pid · up 2m` (or `not running`); `ready` (target, kind, `✓` when
+  ready), `needs` (dependsOn), `port` (listeners linked to it), `restart` (policy); `crashes` (`n in 5m ·
+  last exit 1`, then how long ago); `memory` (now, amber with `▲ leak?` when suspected), a one-row sparkline
+  of the last 10 minutes averaged to the width, and the change (`+180 MB in 10 min`). The sparkline and
+  change wait for a minute of samples (`collecting… (first minute)`): two points are not a trend.
+- Rows that don't fit go from the bottom; the key line (`p show in proc   Esc close`) always stays.
 
 ## 7. States (each has a UI test)
 

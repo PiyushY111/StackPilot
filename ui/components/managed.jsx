@@ -15,11 +15,15 @@ const SHOW_CPU_FROM = 26; // inner width at which the cpu column fits beside a u
 
 const LABEL_ROLES = { errored: 'danger', crashed: 'danger', unready: 'warn', blocked: 'warn', restarting: 'transient' };
 
+// The memory-leak hint (core/sampler/leak.js): advisory, so a question, in amber.
+const LEAK_MARK = ` ${GLYPHS.alertWarn} leak?`;
+
 function ManagedRow({ m, selected, nameWidth, width, now }) {
     const glyph = STATUS_GLYPHS[m.status] || STATUS_GLYPHS.idle;
-    // Only a live process has a cpu figure; otherwise its label gets the room.
-    const showCpu = width >= SHOW_CPU_FROM && m.pid !== null && Boolean(m.resources);
-    const labelWidth = Math.max(1, width - 2 - 2 - nameWidth - 1 - (showCpu ? CPU_WIDTH : 0));
+    const leak = m.leakSuspect ? LEAK_MARK : '';
+    // Only a live process has a cpu figure; otherwise its label gets the room. The leak mark comes first.
+    const showCpu = width >= SHOW_CPU_FROM + leak.length && m.pid !== null && Boolean(m.resources);
+    const labelWidth = Math.max(1, width - 2 - 2 - nameWidth - 1 - leak.length - (showCpu ? CPU_WIDTH : 0));
     const cpu = showCpu ? padStart(formatPercent(m.resources.cpu), CPU_WIDTH) : '';
     return (
         <text wrapMode="none">
@@ -28,6 +32,7 @@ function ManagedRow({ m, selected, nameWidth, width, now }) {
             <Tone role={selected ? 'focus' : 'primary'} bold={selected}>{padEnd(m.id, nameWidth)} </Tone>
             <Tone role={LABEL_ROLES[m.status] || 'secondary'}>{padEnd(statusLabel(m, now), labelWidth)}</Tone>
             {showCpu ? <Tone role="muted">{cpu}</Tone> : null}
+            {leak ? <Tone role="warn" bold>{leak}</Tone> : null}
         </text>
     );
 }

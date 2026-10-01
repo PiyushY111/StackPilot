@@ -1,8 +1,11 @@
-// Floating panels: safety dialogs, the detail drawer and the help overlay (UI_SPEC §6.2, §6.4).
+// Floating panels: safety dialogs, the detail drawers and the help overlay (UI_SPEC §6.2, §6.4, §6.8).
 import { useTheme } from '../theme/context.js';
 import { Tone } from './primitives.jsx';
 import { canSubmit } from '../logic/dialog.js';
-import { formatDuration, truncateMiddle } from '../logic/format.js';
+import { formatDuration, formatMem, padEnd, truncateEnd, truncateMiddle } from '../logic/format.js';
+import { memTrend, readyTarget, recentCrashes } from '../logic/managed.js';
+import { sparkline } from '../logic/charts.js';
+import { GLYPHS, STATUS_GLYPHS } from '../theme/tokens.js';
 
 const DIALOG_WIDTH = 52;
 
@@ -138,12 +141,13 @@ export function Dialog({ dialog, width, height }) {
 }
 
 export function Drawer({ info, width, height }) {
+    const theme = useTheme();
     if (!info) return null;
     const { process: p, parents, nice } = info;
     const chain = [...parents.map((x) => x.name), p.name].join(' › ');
     const uptime = p.startedAt ? formatDuration((Date.now() - p.startedAt) / 1000) : '—';
     return (
-        <box width={width} height={height} border borderStyle="single" title=" details " flexDirection="column" paddingLeft={1} paddingRight={1}>
+        <box width={width} height={height} border borderStyle="single" borderColor={theme.border.idle} title=" details " flexDirection="column" paddingLeft={1} paddingRight={1}>
             <Line><Tone role="primary" bold>{p.name}</Tone></Line>
             <Line><Tone role="secondary">pid {p.pid} · {p.user} · {p.state}</Tone></Line>
             <Blank />
@@ -154,6 +158,90 @@ export function Drawer({ info, width, height }) {
             <Line><Tone role="muted">nice    </Tone><Tone role="primary">{nice ?? '—'}</Tone></Line>
             <Blank />
             <Keys text="x kill   r renice   Esc close" />
+        </box>
+    );
+}
+
+const LABEL = 8; // "restart " — the label column of the stack drawer
+
+/** A labelled row: `ready   :3000 http ✓`, value parts as [text, role]. */
+const Field = ({ label, parts, room }) => {
+    let left = room - LABEL;
+    return (
+        <Line>
+            <Tone role="muted">{padEnd(label, LABEL)}</Tone>
+            {parts.map(([text, role], i) => {
+                const shown = truncateEnd(text, Math.max(0, left));
+                left -= shown.length;
+                return <Tone key={i} role={role}>{shown}</Tone>;
+            })}
+        </Line>
+    );
+};
+
+const signed = (mb) => `${mb >= 0 ? '+' : '−'}${formatMem(Math.abs(mb))}`;
+
+/** The rows of the stack drawer, top first, each a React line. Pure apart from the clock in `now`. */
+function stackDetailRows(m, ports, now, room) {
+    const glyph = STATUS_GLYPHS[m.status] || STATUS_GLYPHS.idle;
+    const statusText = `${glyph.glyph} ${m.status}`;
+    const live = m.pid !== null;
+    const own = ports.filter((p) => p.managedId === m.id).map((p) => `:${p.port}`);
+    const recent = recentCrashes(m, now);
+    const lastCrash = m.crashTimes?.length ? m.crashTimes[m.crashTimes.length - 1] : null;
+    const exit = m.signal || (m.exitCode !== null ? `exit ${m.exitCode}` : null);
+    const trend = memTrend(m.memHistory);
+    const memRole = m.leakSuspect ? 'warn' : 'primary';
+    const rows = [
+        <Line key="name">
+            <Tone role="primary" bold>{padEnd(truncateEnd(m.id, room - statusText.length - 1), room - statusText.length)}</Tone>
+            <Tone role={glyph.state}>{statusText}</Tone>
+        </Line>,
+        <Line key="pid">
+            <Tone role={live ? 'secondary' : 'muted'}>
+                {live ? truncateEnd(`pid ${m.pid} · up ${formatDuration((now - m.startedAt) / 1000)}`, room) : 'not running'}
+            </Tone>
+        </Line>,
+        <Blank key="b1" />,
+        <Field key="ready" label="ready" room={room} parts={m.ready
+            ? [[`${readyTarget(m.ready) || m.ready.target} ${m.ready.kind} `, 'primary'], [m.ready.ok ? '✓' : '…', m.ready.ok ? 'ok' : 'warn']]
+            : [['no check', 'muted']]} />,
+        <Field key="needs" label="needs" room={room} parts={[[m.dependsOn.length ? m.dependsOn.join(', ') : '—', m.dependsOn.length ? 'primary' : 'muted']]} />,
+        <Field key="port" label="port" room={room} parts={[[own.length ? own.join(' ') : '—', own.length ? 'primary' : 'muted']]} />,
+        <Field key="restart" label="restart" room={room} parts={[[m.restart, 'primary']]} />,
+        <Field key="crashes" label="crashes" room={room} parts={lastCrash === null
+            ? [['none', 'muted']]
+            : [[`${recent} in 5m`, recent ? 'transient' : 'primary'], [exit ? ` · last ${exit}` : '', 'secondary']]} />,
+        ...(lastCrash === null ? [] : [<Field key="ago" label="" room={room} parts={[[`${formatDuration((now - lastCrash) / 1000)} ago`, 'muted']]} />]),
+        <Blank key="b2" />,
+        <Field key="mem" label="memory" room={room} parts={[
+            [m.resources ? formatMem(m.resources.memMB) : '—', memRole],
+            [m.leakSuspect ? ` ${GLYPHS.alertWarn} leak?` : '', 'warn'],
+        ]} />,
+        ...(trend ? [<Line key="spark"><Tone role={m.leakSuspect ? 'warn' : 'ok'}>{sparkline(m.memHistory.map((s) => s.value), room)}</Tone></Line>] : []),
+        <Line key="trend">
+            <Tone role={trend && m.leakSuspect ? 'warn' : 'muted'}>
+                {truncateEnd(trend ? `${signed(trend.deltaMB)} in ${trend.minutes} min` : m.pid !== null ? 'collecting… (first minute)' : 'no samples while stopped', room)}
+            </Tone>
+        </Line>,
+    ];
+    return rows;
+}
+
+/**
+ * The stack drawer (UI_SPEC §6.8): what one managed process is, how it is checked, how it has behaved,
+ * and its memory over the last ten minutes. Rows that don't fit go from the bottom; the keys stay.
+ */
+export function StackDrawer({ entry, ports, now, width, height }) {
+    const theme = useTheme();
+    const room = Math.max(1, width - 4);
+    const rows = stackDetailRows(entry, ports, now, room);
+    const space = Math.max(0, height - 2 - 1);
+    const shown = rows.length > space ? rows.slice(0, space) : [...rows, <Blank key="gap" />].slice(0, space);
+    return (
+        <box width={width} height={height} border borderStyle="single" borderColor={theme.border.idle} title=" details " flexDirection="column" paddingLeft={1} paddingRight={1}>
+            {shown}
+            <Keys text="p show in proc   Esc close" />
         </box>
     );
 }

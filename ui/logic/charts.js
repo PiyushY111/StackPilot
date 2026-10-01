@@ -82,3 +82,30 @@ export function meterSegments(value, width, max = 100) {
     }
     return segments;
 }
+
+const SPARK_LEVELS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
+
+/** `values` averaged into at most `width` buckets, oldest first, so a long history fits a short line. */
+function buckets(values, width) {
+    if (values.length <= width) return values;
+    return Array.from({ length: width }, (_, i) => {
+        const from = Math.floor((i * values.length) / width);
+        const to = Math.floor(((i + 1) * values.length) / width);
+        const slice = values.slice(from, Math.max(to, from + 1));
+        return slice.reduce((sum, v) => sum + v, 0) / slice.length;
+    });
+}
+
+/**
+ * One row of block characters for the whole series (averaged down to `width`), scaled between its own
+ * min and max (memory has no fixed range). A flat series is a low baseline; an empty one is blank.
+ */
+export function sparkline(values, width) {
+    const samples = buckets(values, width);
+    if (!samples.length) return ' '.repeat(width);
+    const min = Math.min(...samples);
+    const span = Math.max(...samples) - min;
+    const top = SPARK_LEVELS.length - 1;
+    const line = samples.map((v) => SPARK_LEVELS[span > 0 ? Math.round(((v - min) / span) * top) : 0]).join('');
+    return line.padEnd(width);
+}

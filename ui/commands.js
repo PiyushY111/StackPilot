@@ -67,6 +67,7 @@ function fold(d, id) {
 function back(d) {
     const { ui } = d.getState();
     if (d.app.drawerPid !== null) d.dispatch({ type: 'drawer/close' });
+    else if (ui.focus === 'managed' && d.app.stackDetails) d.dispatch({ type: 'details/close' });
     else if (ui.focus === 'managed' && ui.logFilter) d.actions.setLogFilter('');
     else if (ui.focus !== 'proc') d.actions.setFocus('proc');
     else if (ui.filterQuery) d.actions.filter('');
@@ -76,6 +77,7 @@ function back(d) {
 function focusNext(d) {
     const order = focusOrder(d.env);
     const current = order.indexOf(d.getState().ui.focus);
+    if (d.app.stackDetails) d.dispatch({ type: 'details/close' });
     d.actions.setFocus(order[(current + 1) % order.length]);
 }
 

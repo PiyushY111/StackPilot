@@ -6,6 +6,8 @@ export const INITIAL_APP_STATE = Object.freeze({
     filtering: false,
     dialog: null,
     drawerPid: null,
+    // The stack details panel (UI_SPEC §6.8), beside the logs while the stack box has focus.
+    stackDetails: false,
     portIndex: 0,
     // Logs panel (M3): `scope` one process or all; paused views are anchored (ui/logic/logs.js).
     logs: Object.freeze({ scope: 'one', anchorTs: null, offset: 0 }),
@@ -36,6 +38,10 @@ export function appReducer(state, action) {
             return { ...state, drawerPid: action.pid };
         case 'drawer/close':
             return { ...state, drawerPid: null };
+        case 'details/open':
+            return { ...state, stackDetails: true };
+        case 'details/close':
+            return { ...state, stackDetails: false };
         case 'logs/scope':
             return { ...state, logs: { ...state.logs, scope: state.logs.scope === 'one' ? 'all' : 'one' } };
         case 'logs/anchor':

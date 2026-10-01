@@ -25,7 +25,7 @@ test('state slices', () => {
 
 test('managed entry fields', () => {
     assert.deepEqual(keys(createManagedEntry({ id: 'x' })), [
-        'blockedBy', 'cmd', 'cwd', 'dependsOn', 'exitCode', 'id', 'leakSuspect', 'logCount', 'memHistory', 'nextRestartAt',
+        'blockedBy', 'cmd', 'crashTimes', 'cwd', 'dependsOn', 'exitCode', 'id', 'leakSuspect', 'logCount', 'memHistory', 'nextRestartAt',
         'pid', 'ready', 'resources', 'restart', 'restartCount', 'signal', 'startedAt', 'status',
     ]);
 });

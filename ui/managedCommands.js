@@ -74,12 +74,20 @@ async function startStack(d) {
     return d.actions.notify(res.data.failed.length ? 'warn' : 'ok', describeStart(res.data));
 }
 
-/** ⏎: pick scripts on a fresh package.json project, otherwise show the process in the proc table. */
+/** ⏎: pick scripts on a fresh package.json project, otherwise open the details panel (UI_SPEC §6.8). */
 function enter(d) {
     const state = d.getState();
     if (!state.managed.length && state.stack.scripts) return d.dispatch({ type: 'dialog/open', dialog: pickerDialog(state.stack.scripts) });
-    const m = selectedManaged(state);
-    if (!m || m.pid === null) return undefined;
+    if (!selectedManaged(state)) return undefined;
+    return d.dispatch({ type: 'details/open' });
+}
+
+/** p: show the selected process in the proc table (it has to be running to have a row). */
+function showInProc(d) {
+    const m = selectedManaged(d.getState());
+    if (!m) return undefined;
+    if (m.pid === null) return d.actions.notify('info', `${m.id} is not running`);
+    d.dispatch({ type: 'details/close' });
     d.actions.filter('');
     d.actions.setFocus('proc');
     return d.actions.select(m.pid);
@@ -112,6 +120,7 @@ export const MANAGED_COMMANDS = {
     }),
     'managed:new': (d) => d.dispatch({ type: 'dialog/open', dialog: newProcessDialog() }),
     'managed:enter': enter,
+    'managed:showInProc': showInProc,
     'stack:start': startStack,
     'stack:stop': async (d) => report(d, await d.actions.stopStack(), 'Stopped the stack'),
     'logs:follow': toggleFollow,

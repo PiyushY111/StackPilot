@@ -186,7 +186,7 @@ export function Dashboard({ state, app, env, width, height, bp, hints, drawerInf
                     <PortsBox state={state} app={app} layout={layout.ports} focused={focus === 'ports'} hints={hints.ports} />
                 </box>
                 {showLogs
-                    ? <LogsBox state={state} view={logView} entry={selectedManaged(state)} scope={app.logs.scope} searching={app.logSearching} layout={layout.proc} hints={hints.logs} />
+                    ? <LogsBox state={state} view={logView} entry={selectedManaged(state)} scope={app.logs.scope} searching={app.logSearching} layout={layout.proc} hints={hints.logs} details={app.stackDetails} />
                     : <ProcBox state={state} app={app} layout={layout.proc} bp={bp} focused={focus === 'proc'} hints={hints.proc} drawerInfo={drawerInfo} />}
             </box>
         </box>

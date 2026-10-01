@@ -2,6 +2,8 @@ import { expect, test } from 'bun:test';
 import * as f from '../../ui/logic/format.js';
 import { breakpoint, processColumns, windowStart } from '../../ui/logic/layout.js';
 import { dialogForTarget, dialogReducer, confirmationFor, canSubmit } from '../../ui/logic/dialog.js';
+import { sparkline } from '../../ui/logic/charts.js';
+import { crashSummary, memTrend, recentCrashes, CRASH_WINDOW_MS, MIN_TREND_SAMPLES } from '../../ui/logic/managed.js';
 
 // ---------- formatting (UI_SPEC §9) ----------
 
@@ -227,4 +229,35 @@ test('the managed box grows with its content, up to half the left column, and po
     }
     expect(dashboardLayout(120, 40, 8, 'standard', 0).managed.height).toBe(0);
     expect(dashboardLayout(120, 40, 8, 'standard', 4).managed.height).toBe(6);
+});
+
+// ---------- stack details and crash history (UI_SPEC §4.3, §6.8) ----------
+
+test('sparkline scales a series between its own min and max, and averages a long one down to the width', () => {
+    expect(sparkline([100, 150, 200], 3)).toBe('▁▅█');
+    expect(sparkline([300, 300, 300], 4)).toBe('▁▁▁ ', 'flat: a low baseline, padded');
+    expect(sparkline([], 3)).toBe('   ');
+    // 120 rising samples into 6 cells: still rising, start to end.
+    const rising = Array.from({ length: 120 }, (_, i) => 200 + i);
+    const line = sparkline(rising, 6);
+    expect(line).toHaveLength(6);
+    expect(line[0]).toBe('▁');
+    expect(line[5]).toBe('█');
+});
+
+test('memTrend is the change from the first to the last sample, once there is a minute of samples', () => {
+    const series = (count, from, to, stepMs = 5000) => Array.from({ length: count }, (_, i) => ({ at: i * stepMs, value: from + ((to - from) * i) / (count - 1) }));
+    expect(memTrend([])).toBeNull();
+    expect(memTrend(series(MIN_TREND_SAMPLES - 1, 400, 380))).toBeNull('two points 5 s apart are noise, not a trend');
+    expect(memTrend(series(121, 230, 410))).toEqual({ deltaMB: 180, minutes: 10 });
+    expect(memTrend(series(MIN_TREND_SAMPLES, 400, 380))).toEqual({ deltaMB: -20, minutes: 1 });
+});
+
+test('recentCrashes counts only the window, and crashSummary picks the worst process', () => {
+    const now = 10_000_000;
+    const m = (id, ago) => ({ id, crashTimes: ago.map((s) => now - s * 1000) });
+    expect(recentCrashes(m('a', [10, 60, CRASH_WINDOW_MS / 1000 + 1]), now)).toBe(2);
+    expect(recentCrashes({ id: 'old' }, now)).toBe(0, 'entries from before crashTimes existed');
+    expect(crashSummary([m('a', [10]), m('b', [5, 50, 100]), m('c', [])], now)).toEqual({ id: 'b', count: 3 });
+    expect(crashSummary([m('a', [9999])], now)).toBeNull();
 });

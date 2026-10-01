@@ -232,3 +232,72 @@ test('killing a managed process from proc offers m: stop it through the manager'
     expect(calls).toEqual([['stop', 'db']]);
     expect(signals).toEqual([]);
 });
+
+// ---------- leak mark, details panel and crash history (UI_SPEC §4.3, §6.5, §6.8) ----------
+
+const rising = Array.from({ length: 120 }, (_, i) => ({ at: NOW - (120 - i) * 5000, value: 230 + i * 1.5 }));
+
+test('a suspected leak is marked ▲ leak? in amber on its stack row', async () => {
+    const managed = [managedEntry('api', { status: 'running', pid: 812, startedAt: NOW - 60_000, resources: { cpu: 2, memMB: 410 }, leakSuspect: true, memHistory: rising })];
+    const { ui } = await stackSetup({ managed });
+    expect(await frame(ui)).toContain('▲ leak?');
+    expect(colorOf(ui, 'leak?')).toBe(PALETTE.amber);
+});
+
+test('⏎ opens the details of the selected process; they follow ↓, p jumps to proc, Esc closes', async () => {
+    const managed = [
+        managedEntry('db', { status: 'running', pid: 812, startedAt: NOW - 60_000, ready: { kind: 'port', target: 5432, ok: true }, resources: { cpu: 1, memMB: 120 } }),
+        managedEntry('api', {
+            status: 'running', pid: 401, startedAt: NOW - 120_000, dependsOn: ['db'], ready: { kind: 'http', target: 'http://localhost:3000/health', ok: true },
+            resources: { cpu: 5, memMB: 410 }, leakSuspect: true, memHistory: rising, exitCode: 1, crashTimes: [NOW - 90_000],
+        }),
+    ];
+    const ports = { items: [{ port: 3000, pid: 401, name: 'node', address: '127.0.0.1', managedId: 'api' }], partial: false };
+    const { ui, store } = await stackSetup({ managed, ports });
+    await focusManaged(ui);
+    let out = await press(ui, 'enter');
+    expect(out).toContain('─ details ');
+    expect(out).toMatch(/ready\s+:5432 port ✓/);
+    expect(out).toContain('pid 812');
+    expect(out).toContain('collecting… (first minute)'); // db has no memory history yet: no trend to show
+    out = await press(ui, 'down');
+    expect(out).toMatch(/needs\s+db/);
+    expect(out).toMatch(/port\s+:3000/);
+    expect(out).toMatch(/crashes 1 in 5m · last exit 1/);
+    expect(out).toMatch(/memory\s+[\d.]+ [MG]B ▲ leak\?/); // the store links pid 401's live figure
+    expect(out).toMatch(/[▁▂▃▄▅▆▇█]{10}/);
+    expect(out).toContain('in 10 min');
+    expect(await press(ui, 'escape')).not.toContain('─ details ');
+    expect(store.getState().ui.focus).toBe('managed');
+    await press(ui, 'enter');
+    await keys(ui, 'p');
+    expect(store.getState().ui.focus).toBe('proc');
+    expect(store.getState().ui.selectedPid).toBe(401);
+    expect(await frame(ui)).not.toContain('─ details ');
+});
+
+test('⏎ on a fresh package.json project still opens the script picker, not details', async () => {
+    const { ui } = await setup({ stack: { ...STACK, scripts: [{ name: 'dev', command: 'vite', checked: true }] }, managed: [] });
+    await focusManaged(ui);
+    const out = await press(ui, 'enter');
+    expect(out).toContain('Which scripts should run?');
+    expect(out).not.toContain('─ details ');
+});
+
+test('repeated crashes show in the header and light CAUTION at three; older ones do not count', async () => {
+    const crashing = (times) => [managedEntry('worker', { status: 'restarting', restartCount: times.length, nextRestartAt: NOW + 4000, crashTimes: times })];
+    const two = await stackSetup({ managed: crashing([NOW - 60_000, NOW - 10_000]) });
+    let top = (await frame(two.ui)).split('\n')[0];
+    expect(top).toContain('↻ worker 2 in 5m');
+    expect(top).not.toContain('CAUTION');
+    await teardown();
+    const three = await stackSetup({ managed: crashing([NOW - 120_000, NOW - 60_000, NOW - 10_000]) });
+    top = (await frame(three.ui)).split('\n')[0];
+    expect(top).toContain('↻ worker 3 in 5m');
+    expect(top).toContain(' CAUTION 1 ');
+    await teardown();
+    const old = await stackSetup({ managed: crashing([NOW - 900_000, NOW - 800_000, NOW - 700_000]) });
+    top = (await frame(old.ui)).split('\n')[0];
+    expect(top).not.toContain('↻');
+    expect(top).not.toContain('CAUTION');
+});

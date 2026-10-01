@@ -60,7 +60,8 @@ export const KEYMAP = Object.freeze({
         k(['a'], 'a start all', 'stack:start', footer),
         k(['up', 'down', 'k', 'j'], '↑↓ select', 'managed:move'),
         k(['X'], 'X stop all', 'stack:stop'),
-        k(['return'], '⏎ show in proc (or pick scripts)', 'managed:enter'),
+        k(['return'], '⏎ details (or pick scripts)', 'managed:enter'),
+        k(['p'], 'p show in proc', 'managed:showInProc'),
         k(['n'], 'n new process', 'managed:new'),
         k(['e'], 'e env', 'managed:env'),
         k(['w'], 'w save to stackpilot.json', 'managed:save'),
@@ -81,7 +82,7 @@ export const KEYMAP = Object.freeze({
 });
 
 const CONTEXT_TITLES = {
-    'proc.table': 'Processes', 'proc.tree': 'Processes (tree)', managed: 'Managed processes and logs', ports: 'Ports', drawer: 'Details', help: 'Help',
+    'proc.table': 'Processes', 'proc.tree': 'Processes (tree)', managed: 'Stack, logs and details', ports: 'Ports', drawer: 'Details', help: 'Help',
 };
 
 const available = (entry, env) => entry.requires !== 'manager' || env.managerAvailable;

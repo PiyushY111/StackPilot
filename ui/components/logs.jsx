@@ -2,6 +2,7 @@
 // output, pauses when scrolled back (counting what arrived), searches, and can interleave all processes.
 import { Box } from './box.jsx';
 import { Tone } from './primitives.jsx';
+import { StackDrawer } from './overlays.jsx';
 import { highlightParts, sanitizeLine } from '../logic/logs.js';
 import { formatClock, formatCount, padEnd, truncateEnd } from '../logic/format.js';
 import { GLYPHS } from '../theme/tokens.js';
@@ -9,6 +10,8 @@ import { GLYPHS } from '../theme/tokens.js';
 const INNER = 4;
 const CLOCK_WIDTH = 9; // "14:02:11 "
 const MAX_ID_WIDTH = 10;
+const DRAWER_SHARE = 0.4; // as the proc box's drawer
+const MIN_DRAWER = 26; // narrower than this, the details take the whole panel instead
 
 function logInfo({ view, follow, filter, searching }) {
     const parts = follow
@@ -51,20 +54,28 @@ function emptyText({ entry, view, filter }) {
 
 /**
  * @param {{ state: any, view: any, entry: any, scope: 'one'|'all', searching: boolean, layout: { width: number, height: number },
- *           hints: any[] }} props
+ *           hints: any[], details?: boolean, now?: number }} props
+ *   `details`: show the selected process's drawer beside the logs (UI_SPEC §6.8).
  */
-export function LogsBox({ state, view, entry, scope, searching, layout, hints }) {
+export function LogsBox({ state, view, entry, scope, searching, layout, hints, details = false, now = Date.now() }) {
     const { logFilter, logFollow } = state.ui;
-    const width = layout.width - INNER;
+    const share = Math.floor(layout.width * DRAWER_SHARE);
+    const drawerWidth = !details || !entry ? 0 : share >= MIN_DRAWER ? share : layout.width - INNER;
+    const width = layout.width - INNER - drawerWidth;
     const idWidth = scope === 'all' ? Math.min(MAX_ID_WIDTH, Math.max(...state.managed.map((m) => m.id.length), 1)) : 0;
     const title = scope === 'all' ? 'logs · all' : entry ? `logs · ${entry.id}` : 'logs';
     const borderHints = searching ? [{ label: '⏎ keep', action: 'k' }, { label: 'Esc clear', action: 'c' }] : hints;
     const status = state.ui.toast || { message: '? help  q quit', role: 'muted' };
     return (
         <Box title={title} info={logInfo({ view, follow: logFollow, filter: logFilter, searching })} hints={borderHints} status={status} focused lit={false} width={layout.width} height={layout.height}>
-            {view.lines.length
-                ? view.lines.map((l) => <LogLine key={`${l.id}:${l.seq}`} line={l} filter={logFilter} idWidth={idWidth} width={width} />)
-                : <text wrapMode="none"><Tone role={view.error ? 'danger' : 'muted'}>{truncateEnd(emptyText({ entry, view, filter: logFilter }), width)}</Tone></text>}
+            <box flexDirection="row" height={layout.height - 2}>
+                {width > 0 ? <box width={width} flexDirection="column">
+                    {view.lines.length
+                        ? view.lines.map((l) => <LogLine key={`${l.id}:${l.seq}`} line={l} filter={logFilter} idWidth={idWidth} width={width} />)
+                        : <text wrapMode="none"><Tone role={view.error ? 'danger' : 'muted'}>{truncateEnd(emptyText({ entry, view, filter: logFilter }), width)}</Tone></text>}
+                </box> : null}
+                {drawerWidth ? <StackDrawer entry={entry} ports={state.ports.items} now={now} width={drawerWidth} height={layout.height - 2} /> : null}
+            </box>
         </Box>
     );
 }

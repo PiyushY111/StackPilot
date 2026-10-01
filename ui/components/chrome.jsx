@@ -3,7 +3,7 @@ import { useTheme } from '../theme/context.js';
 import { paint, chip } from '../theme/paint.js';
 import { Tone } from './primitives.jsx';
 import { MIN_WIDTH, MIN_HEIGHT } from '../logic/layout.js';
-import { readySummary } from '../logic/managed.js';
+import { readySummary, crashSummary, CRASH_CAUTION } from '../logic/managed.js';
 import { truncateEnd } from '../logic/format.js';
 import { GLYPHS } from '../theme/tokens.js';
 
@@ -11,14 +11,21 @@ export const HEADER_HEIGHT = 1;
 
 /**
  * The master annunciator, dark when all is normal (the "dark cockpit"): WARNING for a danger alert,
- * CAUTION for a warning or a failing data source. Null when there is nothing to say.
+ * CAUTION for a warning, a failing data source, or a process crashing repeatedly (`crashes`, from
+ * crashSummary). Null when there is nothing to say.
  */
-export function annunciator(errors, alerts) {
+export function annunciator(errors, alerts, crashes = null) {
     const danger = alerts.filter((a) => a.level === 'danger').length;
     if (danger) return { text: ` WARNING ${danger} `, role: 'danger' };
-    const caution = alerts.length - danger + Object.keys(errors).length;
+    const crashing = crashes && crashes.count >= CRASH_CAUTION ? 1 : 0;
+    const caution = alerts.length - danger + Object.keys(errors).length + crashing;
     return caution ? { text: ` CAUTION ${caution} `, role: 'warn' } : null;
 }
+
+/** `↻ worker 3 in 5m`: who crashed most in the last five minutes, amber once it lights CAUTION. */
+const crashParts = (crashes) => (crashes
+    ? [{ text: '   ', role: 'muted' }, { text: `↻ ${crashes.id} ${crashes.count} in 5m`, role: crashes.count >= CRASH_CAUTION ? 'warn' : 'transient' }]
+    : []);
 
 /** What the stack is doing, as `myapp ● 3/4 ready`, or what to do without one. */
 function stackParts(state) {
@@ -36,17 +43,18 @@ function stackParts(state) {
 }
 
 /**
- * One line across the top: the name, the annunciator, the stack (or "system monitor"), and the machine on
- * the right. The right side gives way first when the terminal is narrow.
+ * One line across the top: the name, the annunciator, the stack (or "system monitor") with any recent
+ * crashes, and the machine on the right. The right side gives way first when the terminal is narrow.
  */
-export function Header({ state, env, width }) {
+export function Header({ state, env, width, now }) {
     const theme = useTheme();
-    const lit = annunciator(state.errors, state.alerts);
+    const crashes = env.managerAvailable ? crashSummary(state.managed, now) : null;
+    const lit = annunciator(state.errors, state.alerts, crashes);
     const left = [
         { text: ' StackPilot ', role: 'primary', bold: true },
         ...(lit ? [{ text: ' ', role: 'muted' }, { text: lit.text, chip: lit.role }] : []),
         { text: '   ', role: 'muted' },
-        ...(env.managerAvailable ? stackParts(state) : [{ text: 'system monitor', role: 'secondary' }]),
+        ...(env.managerAvailable ? [...stackParts(state), ...crashParts(crashes)] : [{ text: 'system monitor', role: 'secondary' }]),
     ];
     const { hostname, platform, arch } = state.meta;
     const machine = `${hostname ? `${hostname} · ` : ''}${platform} ${arch} `;

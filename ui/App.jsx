@@ -87,7 +87,7 @@ export function App({ store, actions, env, onQuit, coalesceMs = 0 }) {
 
     return (
         <box flexDirection="column" width={width} height={height} backgroundColor={theme.bg.app}>
-            <Header state={state} env={env} width={width} />
+            <Header state={state} env={env} width={width} now={Date.now()} />
             <Banners errors={state.errors} alerts={state.alerts} />
             <Dashboard
                 state={state}

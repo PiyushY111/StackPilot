@@ -102,6 +102,7 @@ function createManagedEntry(fields) {
         resources: null,
         memHistory: [],
         leakSuspect: false,
+        crashTimes: [],
         dependsOn: [],
         logCount: 0,
         ...fields,

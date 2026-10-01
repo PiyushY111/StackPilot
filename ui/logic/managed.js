@@ -8,7 +8,7 @@ const seconds = (ms) => Math.max(0, Math.ceil(ms / 1000));
 const exitText = (m) => (m.signal ? m.signal : `exit ${m.exitCode}`);
 
 /** `:3000` for a port or an http URL, '' for a log line. */
-function readyTarget(ready) {
+export function readyTarget(ready) {
     if (ready.kind === 'port') return `:${ready.target}`;
     if (ready.kind === 'http') {
         try {
@@ -48,6 +48,34 @@ export function statusLabel(m, now) {
         default:
             return 'idle';
     }
+}
+
+/** How long crash history counts for the header, and how many crashes in it light CAUTION (UI_SPEC §4.3). */
+export const CRASH_WINDOW_MS = 5 * 60_000;
+export const CRASH_CAUTION = 3;
+
+/** Crashes of `m` within the last `windowMs`. */
+export const recentCrashes = (m, now, windowMs = CRASH_WINDOW_MS) => (m.crashTimes || []).filter((at) => now - at <= windowMs).length;
+
+/** The process that crashed most in the window, as { id, count }; null when nothing crashed. */
+export function crashSummary(managed, now) {
+    let worst = null;
+    for (const m of managed) {
+        const count = recentCrashes(m, now);
+        if (count && (!worst || count > worst.count)) worst = { id: m.id, count };
+    }
+    return worst;
+}
+
+/** A trend needs a minute of samples (one every 5 s); before that, two points are noise, not a trend. */
+export const MIN_TREND_SAMPLES = 12;
+
+/** Memory change over the recorded history: { deltaMB, minutes }, or null before MIN_TREND_SAMPLES. */
+export function memTrend(memHistory) {
+    if (memHistory.length < MIN_TREND_SAMPLES) return null;
+    const first = memHistory[0];
+    const last = memHistory[memHistory.length - 1];
+    return { deltaMB: last.value - first.value, minutes: Math.max(1, Math.round((last.at - first.at) / 60_000)) };
 }
 
 /** "3/4": running processes out of all of them. */

@@ -115,6 +115,9 @@ test('after maxRestarts consecutive crashes the process is errored and a danger 
     await pm.start('crashy');
     const entry = await until(store, 'crashy', 'errored');
     assert.equal(entry.restartCount, 2);
+    // Each crash is timestamped, oldest first, so the UI can count recent crashes.
+    assert.equal(entry.crashTimes.length, 3);
+    assert.ok(entry.crashTimes.every((at, i) => at <= Date.now() && (i === 0 || at >= entry.crashTimes[i - 1])));
     const alert = store.getState().alerts.find((a) => a.id === 'errored:crashy');
     assert.equal(alert.level, 'danger');
     assert.match(alert.message, /crashy stopped after 3 crashes/);

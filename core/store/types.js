@@ -68,6 +68,7 @@
  * @property {Resources|null} resources
  * @property {{ at: number, value: number }[]} memHistory
  * @property {boolean} leakSuspect
+ * @property {number[]} crashTimes  when it crashed (ms), oldest first, at most the last 20
  * @property {string[]} dependsOn
  * @property {number} logCount
  */

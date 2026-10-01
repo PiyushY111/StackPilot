@@ -11,6 +11,8 @@ const { createProbe } = require('./readiness');
 const { resolveEnv } = require('./env');
 const { signalGroup, groupAlive, signalPgid, waitForGroupExit } = require('./groups');
 
+const MAX_CRASH_TIMES = 20;
+
 class Supervisor {
     /**
      * @param {any} def  normalized process definition (core/config/schema.js), plus ad-hoc defaults
@@ -43,6 +45,8 @@ class Supervisor {
         this.startedAt = 0;
         this.restartCount = 0;
         this.crashStreak = 0;
+        /** When it crashed, oldest first (the last MAX_CRASH_TIMES): the UI counts recent crashes from these. */
+        this.crashTimes = [];
         this.ownEnv = { ...(def.env || {}) };
     }
 
@@ -239,8 +243,9 @@ class Supervisor {
     recordCrash(exitCode, signal) {
         const ranFor = Date.now() - this.startedAt;
         this.crashStreak = ranFor >= this.ctx.stableRunMs ? 1 : this.crashStreak + 1;
+        this.crashTimes = [...this.crashTimes, Date.now()].slice(-MAX_CRASH_TIMES);
         this.appendLog(`[stackpilot] crashed (code ${exitCode}, signal ${signal})`);
-        this.ctx.publish({ status: 'crashed', pid: null, exitCode, signal });
+        this.ctx.publish({ status: 'crashed', pid: null, exitCode, signal, crashTimes: this.crashTimes });
         this.ctx.emit('managed:crashed', { id: this.id, exitCode, signal });
     }
 
