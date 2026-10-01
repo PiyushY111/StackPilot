@@ -41,7 +41,7 @@ function openPortKill(d) {
     const item = ports[d.app.portIndex];
     if (!item) return;
     if (item.pid === null) {
-        d.actions.notify('danger', `The owner of port ${item.port} is hidden; run Kestrel with sudo to see it`);
+        d.actions.notify('danger', `The owner of port ${item.port} is hidden; run StackPilot with sudo to see it`);
         return;
     }
     openDialog(d, 'killPort', { pid: item.pid, port: item.port, signal: 'SIGTERM' });
@@ -173,7 +173,7 @@ function handleFilterKey(d, id) {
  */
 export function handleKey(key, d) {
     const id = keyId(key);
-    if (d.app.quitting) return undefined; // the stack is stopping; Kestrel exits when it is done
+    if (d.app.quitting) return undefined; // the stack is stopping; StackPilot exits when it is done
     if (isStackDialog(d.app.dialog)) return handleStackDialogKey(d, id);
     if (d.app.dialog) return handleDialogKey(d, id);
     if (d.getState().orphans.length) return handleOrphansKey(d, id);

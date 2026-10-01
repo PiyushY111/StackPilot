@@ -32,7 +32,8 @@ async function focusManaged(ui) {
 test('the managed box lists the stack with a glyph and a status that says what is going on', async () => {
     const { ui } = await stackSetup();
     const out = await frame(ui);
-    expect(out).toContain('managed · myapp');
+    expect(out).toContain('┌─ stack ');
+    expect(out).toContain('myapp'); // in the header
     expect(out).toContain('1/4');
     expect(out).toMatch(/● db\s+ready :5432/);
     expect(out).toMatch(/↻ api\s+retry 3 in 4s/);
@@ -44,7 +45,7 @@ test('S2/S3: no stack says how to make one; an invalid config shows its problems
     const none = await setup();
     const empty = await frame(none.ui);
     expect(empty).toContain('No stack here');
-    expect(empty).toContain('kestrel init');
+    expect(empty).toContain('stackpilot init');
     await teardown();
 
     const errors = [{ path: 'processes.api.restart', message: 'must be one of: on-failure, always, never' }, { path: 'version', message: 'must be 1' }];
@@ -74,7 +75,7 @@ test('focusing managed turns the big panel into the selected process logs, plain
     expect(out).toContain('slow query 120ms'); // colors stripped
     expect(out).not.toContain('[33m');
     expect(out).toContain('f follow');
-    expect(colorOf(ui, '▎')).toBe(PALETTE.peach);
+    expect(colorOf(ui, '▎')).toBe(PALETTE.yellow);
 });
 
 test('↓ selects the next process and its logs; v interleaves every process', async () => {
@@ -95,7 +96,7 @@ test('/ searches the logs with a match count; Esc clears it', async () => {
     expect(out).toContain('1 match');
     expect(out).toContain('GET /users 200');
     expect(out).not.toContain('listening on 5432');
-    expect(colorOf(ui, 'users')).toBe(PALETTE.mauve);
+    expect(colorOf(ui, 'users')).toBe(PALETTE.cyan); // a search match: what you asked for
     await press(ui, 'enter');
     const cleared = await press(ui, 'escape');
     expect(cleared).toContain('listening on 5432');
@@ -167,7 +168,7 @@ test('S13: processes left by a previous session are shown first; s stops them, E
     const orphans = [{ id: 'api', pid: 4242, pgid: 4242, startedAt: NOW - 90_000 }];
     const stopped = await stackSetup({ orphans });
     const out = await frame(stopped.ui);
-    expect(out).toContain('1 process from a previous Kestrel is still running');
+    expect(out).toContain('1 process from a previous StackPilot is still running');
     expect(out).toContain('s stop it');
     expect(out).toContain('api · pid 4242');
     expect(await keys(stopped.ui, 's')).toContain('Stopped 1 left-over process');
@@ -177,7 +178,7 @@ test('S13: processes left by a previous session are shown first; s stops them, E
     const left = await stackSetup({ orphans });
     await press(left.ui, 'escape');
     expect(left.calls).toEqual([['dismissOrphans']]);
-    expect(await frame(left.ui)).not.toContain('previous Kestrel');
+    expect(await frame(left.ui)).not.toContain('previous StackPilot');
 });
 
 test('n starts an ad-hoc process from "name: command"', async () => {
@@ -226,7 +227,7 @@ test('a package.json project offers the script picker; space toggles, w starts a
 test('killing a managed process from proc offers m: stop it through the manager', async () => {
     const { ui, actions, calls, signals } = await stackSetup();
     actions.select(812);
-    expect(await keys(ui, 'x')).toContain('db is managed by Kestrel');
+    expect(await keys(ui, 'x')).toContain('db is managed by StackPilot');
     await keys(ui, 'm');
     expect(calls).toEqual([['stop', 'db']]);
     expect(signals).toEqual([]);

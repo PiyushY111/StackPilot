@@ -19,7 +19,7 @@ function logInfo({ view, follow, filter, searching }) {
         : `${formatCount(view.total)} line${view.total === 1 ? '' : 's'}`;
     parts.push({ text: ' ─ ', role: 'faint' }, { text: count, role: 'muted' });
     if (filter || searching) {
-        parts.push({ text: ' ─ ', role: 'faint' }, { text: `/${filter}${searching ? '█' : ' ×'}`, role: 'focus' });
+        parts.push({ text: ' ─ ', role: 'faint' }, { text: `/${filter}${searching ? '█' : ' ×'}`, role: 'select' });
     }
     return parts;
 }
@@ -37,7 +37,7 @@ function LogLine({ line, filter, idWidth, width }) {
             {prefix ? <Tone role="managed">{prefix}</Tone> : null}
             {system
                 ? <Tone role="muted">{text}</Tone>
-                : highlightParts(text, filter).map((p, i) => <Tone key={i} role={p.match ? 'focus' : 'primary'} bold={p.match}>{p.text}</Tone>)}
+                : highlightParts(text, filter).map((p, i) => <Tone key={i} role={p.match ? 'select' : 'primary'} bold={p.match}>{p.text}</Tone>)}
         </text>
     );
 }
@@ -61,7 +61,7 @@ export function LogsBox({ state, view, entry, scope, searching, layout, hints })
     const borderHints = searching ? [{ label: '⏎ keep', action: 'k' }, { label: 'Esc clear', action: 'c' }] : hints;
     const status = state.ui.toast || { message: '? help  q quit', role: 'muted' };
     return (
-        <Box title={title} accent="managed" info={logInfo({ view, follow: logFollow, filter: logFilter, searching })} hints={borderHints} status={status} focused width={layout.width} height={layout.height}>
+        <Box title={title} info={logInfo({ view, follow: logFollow, filter: logFilter, searching })} hints={borderHints} status={status} focused lit={false} width={layout.width} height={layout.height}>
             {view.lines.length
                 ? view.lines.map((l) => <LogLine key={`${l.id}:${l.seq}`} line={l} filter={logFilter} idWidth={idWidth} width={width} />)
                 : <text wrapMode="none"><Tone role={view.error ? 'danger' : 'muted'}>{truncateEnd(emptyText({ entry, view, filter: logFilter }), width)}</Tone></text>}

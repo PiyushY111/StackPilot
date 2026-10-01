@@ -186,14 +186,14 @@ test('blockGraph is the no-color fallback: one sample per column, 8 levels per r
     expect(blockGraph([100], 1, 2)).toEqual(['█', '█']);
 });
 
-test('meterSegments colors each filled cell by its own position, like btop', () => {
+test('meterSegments colors each filled cell by its own position, as a tape gauge', () => {
     const segs = meterSegments(100, 8);
     expect(segs.map((s) => s.level)).toEqual(['low', 'mid', 'high', 'max']);
-    expect(segs.map((s) => s.text).join('')).toBe('■■■■■■■■');
+    expect(segs.map((s) => s.text).join('')).toBe('━━━━━━━━');
     const half = meterSegments(50, 8);
-    expect(half.map((s) => [s.level, s.text])).toEqual([['low', '■■'], ['mid', '■■'], ['empty', '────']]);
+    expect(half.map((s) => [s.level, s.text])).toEqual([['low', '━━'], ['mid', '━━'], ['empty', '────']]);
     expect(meterSegments(0, 4)).toEqual([{ level: 'empty', text: '────' }]);
-    expect(meterSegments(150, 4).map((s) => s.text).join('')).toBe('■■■■', 'clamped');
+    expect(meterSegments(150, 4).map((s) => s.text).join('')).toBe('━━━━', 'clamped');
 });
 
 import { dashboardLayout } from '../../ui/logic/layout.js';

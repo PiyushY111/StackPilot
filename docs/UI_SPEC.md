@@ -1,25 +1,25 @@
-# Kestrel — UI & Interaction Spec
+# StackPilot — UI & Interaction Spec
 
 | | |
 |---|---|
-| **Version** | 2.0: the btop-style dashboard (v1.0, with its Overview screen, was replaced after the M2 review) |
-| **Last updated** | 2026-09-29 |
+| **Version** | 3.0: the glass cockpit (v2.0 was a btop-style dashboard in pastels; v1.0, with its Overview screen, was replaced after the M2 review) |
+| **Last updated** | 2026-10-01 |
 | **Implements** | [PRD.md](PRD.md) §5.3 and §6 · built in milestones M2 and M3 of [BUILD_PLAN.md](BUILD_PLAN.md) |
 
 ---
 
 ## 1. Design goals
 
-1. **Familiar to developers.** It looks and works like the tools they already use: **btop's boxed panels** with titles in the border, braille history graphs, and gradient meters, plus htop's dense process table and key conventions. `kestrel` opens straight into the dashboard; there's no separate home screen.
-2. **Real graphs, real meters, real color.** Every figure that has a range gets a meter or a graph, and those are always colored along a gradient. (The M2 review found the v1 "color only when something is wrong" approach flat and hard to read.)
-3. **Still meaningful.** Color always means something (load level, focus, managed, series), and every status also has a glyph. Nothing is decoration only.
+1. **A glass cockpit for your machine.** StackPilot borrows the conventions of avionics displays, which are built to be read at a glance under load: boxed displays with their names in the border, braille history graphs and tape gauges, and one fixed meaning per color. It still works like the tools developers know (htop's dense process table, vim/less keys). `stackpilot` opens straight into the dashboard; there's no separate home screen.
+2. **The dark cockpit.** When everything is normal, the screen is quiet: white text, green gauges, no lit annunciators. Color appears on a *number* or a *title* only when it needs a look. Gauges and graphs still show the whole gradient, so load reads as length and color at once. (The M2 review found a fully colorless v1 flat; v3 keeps color on the instruments and takes it off the labels.)
+3. **Still meaningful.** Each color has one job (§3.1), and every status also has a glyph. Nothing is decoration only.
 4. **Planned.** Every box, state, key, and color is specified here before it's built.
 
 ## 2. Principles → rules
 
-| Principle | Rule in Kestrel |
+| Principle | Rule in StackPilot |
 |---|---|
-| **Jakob's law** (users expect your product to work like the ones they know) | A btop layout (cpu across the top; mem and ports on the left; proc on the right), htop/vim/less keys, and `/` to filter |
+| **Jakob's law** (users expect your product to work like the ones they know) | A familiar monitor layout, as in btop (cpu across the top; mem and ports on the left; proc on the right), htop/vim/less keys, and `/` to filter |
 | **Pre-attentive processing** | Load is shown as color and length at once (gradient meters), so hot spots are visible before any number is read |
 | **Gestalt: common region** | Each subsystem lives in its own titled box, and related numbers stay inside it |
 | **Hick's law** | The focused box shows **at most five** keys in its bottom border. `?` shows everything |
@@ -29,44 +29,44 @@
 
 ## 3. Design tokens
 
-### 3.1 Palette (soft pastel accents on black)
+### 3.1 Palette (avionics colors on black)
 
-The background and surfaces are **neutral** (black and greys, chosen at the M2b review). Only the accents are
-colored. **Components never use hex values directly; they use semantic tokens.** Switching to a more saturated
-theme is a one-file change (`ui/theme/tokens.js`).
+The background and surfaces are black and cool, near-neutral greys, like an unlit display bezel. Each hue has
+**one job**, following the color code of glass-cockpit displays. **Components never use hex values directly;
+they use semantic tokens** (`ui/theme/tokens.js`, the only file with colors).
 
-| Token | Hex | 256-color | Use |
-|---|---|---|---|
-| `base` | `#000000` | 16 | App background: pure black (truecolor only) |
-| `mantle` | `#121212` | 233 | Dialog backgrounds |
-| `surface0` | `#262626` | 235 | Selected row background |
-| `surface1` | `#3a3a3a` | 237 | Box borders (unfocused), empty meter cells |
-| `overlay0` | `#6c7086` | 243 | Muted text: labels, units, hints |
-| `subtext` | `#a6adc8` | 146 | Secondary text |
-| `text` | `#cdd6f4` | 189 | Primary text |
-| `green` | `#a6e3a1` | 151 | Gradient low, ok |
-| `yellow` | `#f9e2af` | 223 | Gradient mid, warn |
-| `peach` | `#fab387` | 216 | Gradient high, restarting |
-| `red` | `#f38ba8` | 211 | Gradient max, danger |
-| `mauve` | `#cba6f7` | 183 | Focus, proc box title |
-| `blue` | `#89b4fa` | 111 | cpu box title and graph, info |
-| `lavender` | `#b4befe` | 147 | mem box title |
-| `teal` | `#94e2d5` | 116 | ports box title, `◆managed` badge |
+| Token | Hex | Job |
+|---|---|---|
+| `base` | `#000000` | App background: pure black (truecolor only); text on lit chips |
+| `mantle` | `#0e1013` | The header strip, dialog backgrounds |
+| `surface0` | `#1a1e23` | Selected row background |
+| `surface1` | `#2b3138` | Box borders (unfocused), empty gauge cells |
+| `overlay0` | `#6f7983` | Muted text: labels, units, hints (4.7:1 on black) |
+| `subtext` | `#a7afb8` | Secondary text |
+| `text` | `#e6e8ea` | **White: what you read.** Titles, names, values while normal |
+| `green` | `#5bd983` | **Normal.** Running, ready, the low gauge band |
+| `yellow` | `#e2d65c` | Transitional: restarting, stderr marks, the second gauge band |
+| `amber` | `#ffaa33` | **Caution.** Starting/unready, crossed warn thresholds, the high band, `CAUTION` |
+| `red` | `#ff5c5c` | **Warning.** Crashed/errored, crossed danger thresholds, the max band, `WARNING`, kill dialogs |
+| `cyan` | `#4fd1e8` | **What you chose.** Keys in hints and dialogs, the sort column, filters, search matches, `◆managed` (yours) |
+| `magenta` | `#f06be6` | **What is active.** The focused box (border and lit title), the selection bar and selected name |
 
-The 256-color column is what the terminal receives. OpenTUI downsamples truecolor by itself when
-`COLORTERM` is absent and `TERM` says 256color (verified in M2: red → 211).
+When `COLORTERM` is absent and `TERM` says 256color, OpenTUI downsamples truecolor itself (verified in M2).
 
-### 3.2 The gradient (UI_SPEC's core color rule)
+### 3.2 Gauges, readouts and titles
 
-A value from 0–100% maps to **green → yellow → peach → red**: under 25% green, 25–50% yellow, 50–75%
-peach, 75% and above red. Meters color **each filled cell by that cell's own position**, so a 90% meter
-shows every color in order, just as btop does. The gradient applies to:
+A value from 0–100% falls in one of four bands: under 25% `green`, 25–50% `yellow`, 50–75% `amber`, 75% and
+above `red`. **Gauges** (`━━━━────`, a heavy rule over a light one, so the fill reads as length without color)
+color **each filled cell by that cell's own position**, so a 90% gauge shows every band in order. The same
+bands color the CPU graph (each row by its height), per-core meters, memory meters and the inline per-process
+CPU meter.
 
-- the CPU graph (each column colored by that sample's value),
-- per-core meters, memory meters, and the inline per-process CPU meter,
-- the CPU% and memory figures in the process table (memory uses the thresholds in `settings.thresholds`: under warn it's green, from warn yellow, from danger red).
+**Readouts** (the numbers beside gauges, the CPU% and memory columns, `CPU nn%`) follow the dark cockpit:
+white while normal, `amber` in the high band or past the memory warn threshold, `red` at max or past danger.
 
-Box **titles** carry the box's accent color (§3.1). **Borders** stay `surface1`, except the focused box, which is `mauve`.
+**Titles** are white. The focused box lights its title as a magenta chip (black text on magenta) and its
+border in magenta; every other border is `surface1`. Only one title is lit at a time: the logs panel, which
+follows the focused stack box, lights its border but not its title.
 
 ### 3.3 Color-depth fallbacks
 
@@ -93,24 +93,33 @@ Box **titles** carry the box's accent color (§3.1). **Borders** stay `surface1`
 
 ## 4. Layout
 
-### 4.1 Boxes (standard, 100–139 columns)
+### 4.1 Boxes
+
+Below the header strip (§4.3), at 92×24:
 
 ```
-╭─ cpu ──────────────────────────────────────────── load 1.2 1.4 1.1 · up 3d 4h ─ 1.0s ─╮
-│⣀⣠⣤⣶⣿⣷⣦⣤⣀⣀⣠⣴⣾⣿⣷⣶⣤⣀⣀⣠⣤⣶⣿⣷⣦⣤⣀⣀⣠⣴⣾⣿⣷⣶⣤⣀   C0 ■■■■■■──── 58%   C4 ■■──────── 12% │
-│⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿   C1 ■■──────── 21%   C5 ■───────── 4% │
-│ CPU 42%                                        C2 ■■■■■■■■■─ 91%   …               │
-╰───────────────────────────────────────────────────────────────────────────────────────╯
-╭─ mem ─────────────────────╮╭─ proc ─────────── filter: node × ── sort: cpu ↓ ── 12/598 ─╮
-│ Used  ■■■■■■■■──── 8.2 G  ││   PID Program            User      Cpu%        Mem  State  │
-│ Cache ■■■────────── 3.1 G  ││▶  812 node ◆api          aryan     12.1 ■■──  412 M  running│
-│ Free  ■■──────────  4.7 G  ││   401 Chrome Helper      aryan      8.4 ■───  1.2 G  sleeping│
-│ Swap  ────────────  0.0 B  ││    99 WindowServer       _ws        5.2 ■───  180 M  running│
-╰────────────────────────────╯│   …                                                       │
-╭─ ports ────────── 14 ─────╮│                                                           │
-│ :3000 node ◆api  127.0.0.1 ││                                                           │
-│ :5432 postgres   *         ││                                                           │
-╰────────────────────────────╯╰─ ↑↓ select ─ / filter ─ s sort ─ x kill ─ ⏎ info ─────────╯
+ StackPilot    myapp  ◌ 2/4 ready                                        mbp · darwin arm64
+┌─ cpu ────────────────────────────────────────────────────── load 1.2 1.4 1.1 · up 3d 4h ─┐
+│⣀⣠⣤⣶⣿⣷⣦⣤⣀⣀⣠⣴⣾⣿⣷⣶⣤⣀⣀⣠⣤⣶⣿⣷⣦⣤⣀⣀⣠⣴⣾⣿⣷⣶⣤⣀⣀⣠⣤⣶⣿⣷⣦⣤⣀⣀⣠⣴⣾⣿⣷⣶  C0  ━───  12%  C3  ────   5%   │
+│⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿  C1  ━━━─  80%                  │
+│ CPU 42%                                                   C2  ━───  30%                  │
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+┌─ mem ──────── 16.0 GB ─┐┌─ proc ───────────────── filter: — ─ sort: cpu ↓ ─ 6 processes ─┐
+│ Used  ━━━━────  8.2 GB ││       PID Program    User          Cpu%↓           Mem State   │
+│ Cache ━━──────  3.1 GB ││ ▌     401 Chrome He… alice          58.4 ━━──   1.2 GB running │
+│ Free  ━━━━────  7.8 GB ││       812 node  ◆api alice          12.1 ────   412 MB running │
+│ Swap  ────────    0 MB ││        99 WindowSer… _windowserver   5.2 ────   180 MB running │
+└────────────────────────┘│                                                                │
+┌─ stack ────────── 2/4 ─┐│                                                                │
+│  ● db     ready :5432  ││                                                                │
+│  ● api    ready :3000  ││                                                                │
+│  ↻ worker retry 2 in…  ││                                                                │
+│  ⊘ cron   blocked by…  ││                                                                │
+└────────────────────────┘│                                                                │
+┌─ ports ──────────── 2 ─┐│                                                                │
+│ :3000  node ◆api 127.0 ││                                                                │
+│ :5432  pos… *          ││                                                                │
+└────────────────────────┘└─ ↑↓ select ─ / filter ─ s sort ─ x kill ─ ⏎ info ──────────────┘
 ```
 
 | Box | Content |
@@ -119,35 +128,43 @@ Box **titles** carry the box's accent color (§3.1). **Borders** stay `surface1`
 | **mem** (left) | Meters for Used, Cache, Free and Swap, each with its size |
 | **ports** (left, below mem) | TCP listeners: `:port name ◆managed address`. The title shows the count. It notes when owners are partial (not root) |
 | **proc** (right, the rest of the height) | The process table or tree. The title shows filter, sort and the visible/total count |
-| **managed** (M3, left column between mem and ports) | The stack, one line per process (§6.5). It grows with the stack, up to half the left column, and ports always keeps 3 rows. `kestrel pm` opens with it focused; `kestrel sm` has no managed box |
+| **stack** (the managed box; M3, left column between mem and ports) | The stack, one line per process (§6.5). It grows with the stack, up to half the left column, and ports always keeps 3 rows; with no room for a single row it is left out. `stackpilot pm` opens with it focused; `stackpilot sm` has no stack box |
 
-**Key hints sit in the focused box's bottom border** (btop style): at most five, generated from the keymap,
+**Key hints sit in the focused box's bottom border**, keys in cyan: at most five, generated from the keymap,
 keeping only whole hints that fit. Toasts appear in the right part of the big panel's bottom border and win
 over hints when space is short. More cores than meter slots end in `+N more`.
 
-**While the managed box has focus, the big panel shows logs** (§6.7) instead of the process table; `Tab`
+**While the stack box has focus, the big panel shows logs** (§6.7) instead of the process table; `Tab`
 on to ports (or `Esc`) brings the table back:
 
 ```
-╭─ mem ──────────────────────╮╭─ logs · api ─────────── following ● ─ 1,932 lines ─╮
-│ Used ■■■■■■■■──── 8.2 GB   ││ 14:02:11  GET /health 200 3ms                      │
-╰────────────────────────────╯│ 14:02:12  GET /users 200 18ms                      │
-╭─ managed · myapp ─── 3/4 ──╮│▎14:02:12  (node) DeprecationWarning: …              │
-│▌● api     ready :3000  12% ││ 14:02:15  POST /login 401 9ms                      │
-│ ● web     ready :5173   4% ││ 14:02:16  [kestrel] crashed (code 1)               │
-│ ↻ worker  retry 3 in 4s    ││                                                    │
-│ ⊘ cron    blocked by db    ││                                                    │
-╰─ s start ─ x stop ─ r restart ╯╰─ f follow ─ / search ─ v all / one ─ PgUp older ╯
+┌─ stack ────────── 2/4 ─┐│  14:02:11 api listening on http://localhost:3000               │
+│  ● db     ready :5432  ││  14:02:12 GET /health 200 2ms                                  │
+│ ▌● api    ready :3000  ││ ▎14:02:13 (node:812) DeprecationWarning: punycode              │
+│  ↻ worker retry 2 in…  ││  14:02:14 POST /login 401 9ms                                  │
+│  ⊘ cron   blocked by…  ││  14:02:15 GET /users/42 200 11ms                               │
+└─ s start ─ x stop ─────┘│                                                                │
 ```
 
 ### 4.2 Breakpoints
 
 | Width | Changes |
 |---|---|
-| < 60 cols or < 16 rows | A centered message: `Kestrel needs 60×16 — currently 52×14` |
+| < 60 cols or < 16 rows | A centered message: `StackPilot needs 60×16 — currently 52×14` |
 | 60–99 (compact) | cpu box 5 rows high with short (4-cell) core meters in up to 3 columns, so an 8-core machine shows every core; the left column is 26 wide; proc hides User and State |
 | 100–139 (standard) | As §4.1 |
 | ≥ 140 (wide) | Up to 3 core-meter columns; proc adds Command |
+
+### 4.3 Header strip and annunciator
+
+One row across the top, on `mantle`:
+
+- **Left:** `StackPilot`, then the **master annunciator**, then the stack: its name and `● 3/4 ready` (green
+  when every process runs, amber `◌` otherwise), `no stack`, or `system monitor` in `stackpilot sm`.
+- **Annunciator:** dark when all is normal. A danger alert lights ` WARNING n ` (black on red); otherwise any
+  warn alert or failing data source lights ` CAUTION n ` (black on amber). Without color both are reverse
+  video. The alert lines under the header (§7, S4) say what each one is.
+- **Right:** `hostname · platform arch`, dropped first when the row is too narrow.
 
 ## 5. Navigation and keys
 
@@ -172,7 +189,7 @@ Arrows and `j`/`k` both move the selection, which is why kill is `x`, not `k`.
 
 ### 6.1 Process table
 - Columns: `PID` (muted, right-aligned) · `Program` (with `◆managed` badge; the badge takes at most half the column) · `User` · `Cpu%` (gradient) + a 4-cell inline meter · `Mem` (gradient by memory thresholds) · `State` · `Command` (wide only, paths cut in the middle).
-- The selected row gets a `surface0` background and a `▌` bar in mauve. Without color: reverse video.
+- The selected row gets a `surface0` background and a `▌` bar in magenta. Without color: reverse video.
 - **Tree** (`t`): `├─` `└─` `│` guides in muted text; `▾` expanded, `▸` folded (`←→`).
 - Empty filter result (S6): `No processes match "nodee" · Esc to clear`.
 
@@ -195,16 +212,16 @@ meantime. When not root: `ℹ your processes only · sudo for all`.
 | blocked | `Can't do that` · reason · `Esc ok` (no confirm option) |
 | renice | `Change priority` · prefilled with the current nice value · range -20…20 checked |
 
-Dialogs float in the center with a `mantle` background. The border is red for kill dialogs and mauve for
-the others. `Esc` always cancels.
+Dialogs float in the center with a `mantle` background. The border is red for kill dialogs and magenta for
+the others; each key in the dialog's key line is cyan. `Esc` always cancels.
 
-### 6.5 Managed box
+### 6.5 Stack box (managed)
 - One line per process: selection bar, status glyph (§3.4), name, what the status means, and CPU for a live
   process: `ready :3000` (the port, or an http check's port), `ready` (log check), `up 2m 5s` (no check),
   `starting 4s`, `not ready :3000`, `retry 3 in 4s`, `crashed (exit 1)`, `errored (exit 2)`,
   `blocked by db, cache`, `stopping…`, `stopped`, `exited (exit 0)`, `idle`. Errors are red, `unready` and
-  `blocked` yellow, `restarting` peach; the rest is secondary text.
-- The title shows `managed · <stack folder>` and the running count (`3/4`).
+  `blocked` amber, `restarting` yellow; the rest is secondary text.
+- The title is `stack`, with the running count (`3/4`); the header strip names the stack (§4.3).
 - Empty states: no stack (S2) → `No stack here` · `kestrel init · n add a process`. Invalid config (S3) →
   `✕ config has N problems` and the first problems with their paths (`kestrel pm` prints all of them and
   exits 2). A fresh package.json project → `package.json: N scripts` · `⏎ pick the ones to run`.
@@ -220,13 +237,13 @@ the others. `Esc` always cancels.
 | Script picker | package.json scripts with checkboxes, long-running ones (`dev`, `start`, `watch`…) preselected · `␣ toggle  ⏎ start  w start + save`. Opens by itself in `kestrel pm` |
 
 ### 6.7 Logs panel
-- The selected process's output, newest at the bottom: `HH:MM:SS text`. A peach `▎` marks stderr; Kestrel's
+- The selected process's output, newest at the bottom: `HH:MM:SS text`. A yellow `▎` marks stderr; StackPilot's
   own lines (`[kestrel] …`) are muted. `v` interleaves every process by time with a name column.
 - **Following** (`following ●`) shows the newest lines. `PgUp`/`g` pause it: the view stays put while new
   lines arrive and the title counts them (`paused · 12 new`). `PgDn` past the newest line, `G` or `f`
   follow again. Selecting another process follows its output.
 - **Search** (`/`): substring or `/regex/`, case-insensitive. The title shows `/query` and the match count,
-  and matches are highlighted in mauve. `⏎` keeps the search, and `Esc` clears it (a second `Esc` goes back
+  and matches are highlighted in cyan. `⏎` keeps the search, and `Esc` clears it (a second `Esc` goes back
   to proc). An invalid pattern shows its error instead of lines.
 - Output is shown as plain text: color codes and terminal control sequences are removed, so a child can't
   move the cursor, retitle the terminal or break the layout. Saved log files keep the original bytes.
@@ -270,7 +287,8 @@ respected. Everything works from the keyboard. Nothing blinks.
 
 ## 11. Review checklist (every UI change)
 - [ ] Semantic tokens only, with no hex values in components.
-- [ ] Every ranged figure has a gradient meter or graph.
+- [ ] Every ranged figure has a gauge or graph; its readout stays white unless it needs a look.
+- [ ] Each color is used only for its job (§3.1); titles stay white and only the focused one is lit.
 - [ ] The focused box shows 5 or fewer border keys, taken from `keymap.js`.
 - [ ] Row order and selection stay stable across refreshes.
 - [ ] Compact, standard and wide are checked, plus the too-small state and no-color.

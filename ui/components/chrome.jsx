@@ -1,9 +1,70 @@
-// Lines above the dashboard (failing sources, alerts) and the too-small screen (UI_SPEC §7).
+// The header strip, the lines under it (failing sources, alerts) and the too-small screen (UI_SPEC §4.3, §7).
 import { useTheme } from '../theme/context.js';
-import { paint } from '../theme/paint.js';
+import { paint, chip } from '../theme/paint.js';
 import { Tone } from './primitives.jsx';
 import { MIN_WIDTH, MIN_HEIGHT } from '../logic/layout.js';
+import { readySummary } from '../logic/managed.js';
+import { truncateEnd } from '../logic/format.js';
 import { GLYPHS } from '../theme/tokens.js';
+
+export const HEADER_HEIGHT = 1;
+
+/**
+ * The master annunciator, dark when all is normal (the "dark cockpit"): WARNING for a danger alert,
+ * CAUTION for a warning or a failing data source. Null when there is nothing to say.
+ */
+export function annunciator(errors, alerts) {
+    const danger = alerts.filter((a) => a.level === 'danger').length;
+    if (danger) return { text: ` WARNING ${danger} `, role: 'danger' };
+    const caution = alerts.length - danger + Object.keys(errors).length;
+    return caution ? { text: ` CAUTION ${caution} `, role: 'warn' } : null;
+}
+
+/** What the stack is doing, as `myapp ● 3/4 ready`, or what to do without one. */
+function stackParts(state) {
+    const { managed, stack } = state;
+    const name = stack.name || 'no stack';
+    if (!managed.length) return [{ text: name, role: stack.errors.length ? 'danger' : 'secondary' }];
+    const ready = readySummary(managed);
+    const all = managed.every((m) => m.status === 'running');
+    return [
+        { text: name, role: 'primary', bold: true },
+        { text: '  ', role: 'muted' },
+        { text: all ? '● ' : '◌ ', role: all ? 'ok' : 'warn' },
+        { text: `${ready} ready`, role: 'secondary' },
+    ];
+}
+
+/**
+ * One line across the top: the name, the annunciator, the stack (or "system monitor"), and the machine on
+ * the right. The right side gives way first when the terminal is narrow.
+ */
+export function Header({ state, env, width }) {
+    const theme = useTheme();
+    const lit = annunciator(state.errors, state.alerts);
+    const left = [
+        { text: ' StackPilot ', role: 'primary', bold: true },
+        ...(lit ? [{ text: ' ', role: 'muted' }, { text: lit.text, chip: lit.role }] : []),
+        { text: '   ', role: 'muted' },
+        ...(env.managerAvailable ? stackParts(state) : [{ text: 'system monitor', role: 'secondary' }]),
+    ];
+    const { hostname, platform, arch } = state.meta;
+    const machine = `${hostname ? `${hostname} · ` : ''}${platform} ${arch} `;
+    const used = left.reduce((n, p) => n + p.text.length, 0);
+    const room = width - used;
+    const right = room > machine.length + 2 ? machine : '';
+    return (
+        <box height={HEADER_HEIGHT} width={width} backgroundColor={theme.bg.bar}>
+            <text wrapMode="none">
+                {left.map((p, i) => (
+                    <span key={i} {...(p.chip ? chip(theme, p.chip) : paint(theme, p.role, { bold: p.bold }))}>{truncateEnd(p.text, Math.max(0, width))}</span>
+                ))}
+                <span>{' '.repeat(Math.max(0, room - right.length))}</span>
+                <Tone role="muted">{right}</Tone>
+            </text>
+        </box>
+    );
+}
 
 const MAX_ALERT_LINES = 2;
 

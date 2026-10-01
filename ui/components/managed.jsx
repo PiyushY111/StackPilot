@@ -50,13 +50,14 @@ export function ManagedBox({ state, layout, focused, hints, now }) {
     const width = layout.width - INNER;
     const rows = Math.max(0, layout.height - 2);
     const selected = selectedManaged(state);
-    const title = stack.name ? `managed · ${stack.name}` : 'managed';
+    // The header names the stack; the box says what it holds.
+    const title = 'stack';
     const info = managed.length ? [{ text: readySummary(managed), role: 'muted' }] : [];
     const nameWidth = Math.min(MAX_NAME, Math.max(MIN_NAME, ...managed.map((m) => m.id.length)));
     const selectedIndex = Math.max(0, managed.indexOf(selected));
     const start = windowStart(selectedIndex, managed.length, rows);
     return (
-        <Box title={title} accent="managed" info={info} hints={hints} focused={focused} width={layout.width} height={layout.height}>
+        <Box title={title} info={info} hints={hints} focused={focused} width={layout.width} height={layout.height}>
             {managed.length
                 ? managed.slice(start, start + rows).map((m) => (
                     <ManagedRow key={m.id} m={m} selected={focused && m === selected} nameWidth={nameWidth} width={width} now={now} />

@@ -18,7 +18,7 @@ export function Panel({ title, borderRole = 'focus', width, height, children, le
             height={height}
             zIndex={10}
             border
-            borderStyle="rounded"
+            borderStyle="single"
             borderColor={border}
             title={` ${title} `}
             titleColor={border}
@@ -34,6 +34,25 @@ export function Panel({ title, borderRole = 'focus', width, height, children, le
 
 export const Line = ({ children }) => <text wrapMode="none">{children}</text>;
 export const Blank = () => <text> </text>;
+
+/** A line of keys, e.g. `y stop   Esc cancel`: each key in cyan (what you can press), its word secondary. */
+export function Keys({ text }) {
+    const items = text.split(/\s{2,}/).filter(Boolean);
+    return (
+        <Line>
+            {items.map((item, i) => {
+                const [key, ...rest] = item.split(' ');
+                return (
+                    <span key={i}>
+                        {i > 0 ? <Tone role="muted">{'   '}</Tone> : null}
+                        <Tone role="select" bold>{key}</Tone>
+                        {rest.length ? <Tone role="secondary"> {rest.join(' ')}</Tone> : null}
+                    </span>
+                );
+            })}
+        </Line>
+    );
+}
 
 function dialogTitle(d) {
     if (d.kind === 'blocked') return "Can't do that";
@@ -113,7 +132,7 @@ export function Dialog({ dialog, width, height }) {
         >
             <DialogBody d={dialog} />
             <Blank />
-            <Line><Tone role="secondary">{dialogKeys(dialog)}</Tone></Line>
+            <Keys text={dialogKeys(dialog)} />
         </Panel>
     );
 }
@@ -124,7 +143,7 @@ export function Drawer({ info, width, height }) {
     const chain = [...parents.map((x) => x.name), p.name].join(' › ');
     const uptime = p.startedAt ? formatDuration((Date.now() - p.startedAt) / 1000) : '—';
     return (
-        <box width={width} height={height} border borderStyle="rounded" title=" DETAILS " flexDirection="column" paddingLeft={1} paddingRight={1}>
+        <box width={width} height={height} border borderStyle="single" title=" details " flexDirection="column" paddingLeft={1} paddingRight={1}>
             <Line><Tone role="primary" bold>{p.name}</Tone></Line>
             <Line><Tone role="secondary">pid {p.pid} · {p.user} · {p.state}</Tone></Line>
             <Blank />
@@ -134,7 +153,7 @@ export function Drawer({ info, width, height }) {
             <Line><Tone role="muted">running </Tone><Tone role="primary">{uptime}</Tone></Line>
             <Line><Tone role="muted">nice    </Tone><Tone role="primary">{nice ?? '—'}</Tone></Line>
             <Blank />
-            <Line><Tone role="secondary">x kill · r renice · Esc close</Tone></Line>
+            <Keys text="x kill   r renice   Esc close" />
         </box>
     );
 }
@@ -144,13 +163,19 @@ export function HelpOverlay({ groups, width, height }) {
     const rows = groups.reduce((n, g) => n + g.entries.length + 2, 0);
     const h = Math.min(height - 2, rows + 3);
     return (
-        <Panel title="KEYS" width={w} height={h} left={Math.floor((width - w) / 2)} top={1}>
+        <Panel title="keys" width={w} height={h} left={Math.floor((width - w) / 2)} top={1}>
             {groups.map((g) => (
                 <box key={g.title} flexDirection="column">
-                    <Line><Tone role="focus" bold>{g.title}</Tone></Line>
-                    {g.entries.map((e) => (
-                        <Line key={e.action + e.label}><Tone role="secondary">  {e.label}</Tone></Line>
-                    ))}
+                    <Line><Tone role="primary" bold>{g.title}</Tone></Line>
+                    {g.entries.map((e) => {
+                        const [key, ...rest] = e.label.split(' ');
+                        return (
+                            <Line key={e.action + e.label}>
+                                <Tone role="select" bold>  {key}</Tone>
+                                <Tone role="secondary">{rest.length ? ` ${rest.join(' ')}` : ''}</Tone>
+                            </Line>
+                        );
+                    })}
                     <Blank />
                 </box>
             ))}

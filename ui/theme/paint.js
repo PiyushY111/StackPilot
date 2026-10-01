@@ -13,9 +13,12 @@ const ROLE_PATHS = {
     inactive: ['state', 'inactive'],
     info: ['state', 'info'],
     focus: ['accent', 'focus'],
+    select: ['accent', 'select'],
     managed: ['accent', 'managed'],
-    cpu: ['series', 'cpu'],
-    mem: ['series', 'mem'],
+    gaugeLow: ['gauge', 'low'],
+    gaugeMid: ['gauge', 'mid'],
+    gaugeHigh: ['gauge', 'high'],
+    gaugeMax: ['gauge', 'max'],
     faint: ['border', 'idle'],
 };
 
@@ -25,6 +28,8 @@ const MONO_ATTRIBUTES = {
     warn: TextAttributes.BOLD,
     danger: TextAttributes.BOLD | TextAttributes.UNDERLINE,
     focus: TextAttributes.BOLD,
+    gaugeHigh: TextAttributes.BOLD,
+    gaugeMax: TextAttributes.BOLD,
     faint: TextAttributes.DIM,
 };
 
@@ -40,6 +45,16 @@ export function paint(theme, role, { bold = false } = {}) {
     return { fg: theme[group][token], attributes: base };
 }
 
+/**
+ * A lit chip: black text on the role's color, like an annunciator or the active display's title.
+ * Reverse video without color.
+ */
+export function chip(theme, role) {
+    if (theme.mono) return { fg: undefined, bg: undefined, attributes: TextAttributes.BOLD | TextAttributes.INVERSE };
+    const [group, token] = ROLE_PATHS[role];
+    return { fg: theme.fg.inverse, bg: theme[group][token], attributes: TextAttributes.BOLD };
+}
+
 /** Role for a VALUE at a threshold level: normal values stay neutral. */
 export const valueRole = (level) => (level === 'danger' ? 'danger' : level === 'warn' ? 'warn' : 'primary');
 
@@ -51,9 +66,15 @@ export function selectedRow(theme) {
     return theme.mono ? { bg: undefined, attributes: TextAttributes.INVERSE } : { bg: theme.bg.selected, attributes: TextAttributes.NONE };
 }
 
-/** Gradient band (ui/logic/charts.gradientLevel) → role: green → yellow → peach → red (UI_SPEC §3.2). */
-const GRADIENT_ROLES = { low: 'ok', mid: 'warn', high: 'transient', max: 'danger', empty: 'faint' };
+/** Gauge band (ui/logic/charts.gradientLevel) → role: green → yellow → amber → red (UI_SPEC §3.2). */
+const GRADIENT_ROLES = { low: 'gaugeLow', mid: 'gaugeMid', high: 'gaugeHigh', max: 'gaugeMax', empty: 'faint' };
 export const gradientRole = (level) => GRADIENT_ROLES[level] || 'primary';
 
-/** Threshold level (core selectors.thresholdLevel) → role, for memory figures. */
-export const thresholdRole = (level) => (level === 'danger' ? 'danger' : level === 'warn' ? 'warn' : 'ok');
+/** Threshold level (core selectors.thresholdLevel) → role, for memory figures: quiet until it crosses one. */
+export const thresholdRole = valueRole;
+
+/**
+ * A percentage READOUT (the number beside a gauge): white while normal, amber in the high band, red at max.
+ * The gauge already shows the whole gradient; the dark cockpit lights a number only when it needs a look.
+ */
+export const readoutRole = (level) => (level === 'max' ? 'danger' : level === 'high' ? 'warn' : 'primary');

@@ -113,7 +113,8 @@ export function dashboardLayout(width, height, coreCount, bp, managedRows = 0) {
     const lowerHeight = height - cpuHeight;
     const memHeight = Math.min(MEM_BOX_HEIGHT, Math.max(3, lowerHeight - 3));
     const managedRoom = Math.max(0, Math.min(Math.floor(lowerHeight / 2), lowerHeight - memHeight - MIN_PORTS_HEIGHT));
-    const managedHeight = managedRows > 0 ? Math.min(managedRows + BORDER, managedRoom) : 0;
+    // A box with no room for a single row is left out rather than drawn as an empty border.
+    const managedHeight = managedRows > 0 && managedRoom > BORDER ? Math.min(managedRows + BORDER, managedRoom) : 0;
     return {
         cpu: { width, height: cpuHeight, graphWidth, graphHeight: Math.max(1, contentRows - 1), coreCols, coreRows: contentRows, coreColWidth, meterWidth },
         left: { width: leftWidth },

@@ -1,7 +1,7 @@
 // Process table (flat and tree), ports table and the per-core row (UI_SPEC §6.2, §6.3).
 import { memo } from 'react';
 import { useTheme } from '../theme/context.js';
-import { paint, selectedRow, gradientRole, thresholdRole } from '../theme/paint.js';
+import { paint, selectedRow, gradientRole, readoutRole, thresholdRole } from '../theme/paint.js';
 // Pure helper shared with the core, so the UI and the store classify thresholds identically.
 import { thresholdLevel } from '../../core/store/selectors.js';
 import { formatCpu, formatMem, padEnd, padStart, truncateEnd, truncateMiddle } from '../logic/format.js';
@@ -67,7 +67,7 @@ export function rowSegments(row, columns, { selected, guide, thresholds }) {
             push('faint', ' ');
             continue;
         }
-        const role = col.key === 'cpu' ? gradientRole(gradientLevel(Math.min(100, row.cpu)))
+        const role = col.key === 'cpu' ? readoutRole(gradientLevel(Math.min(100, row.cpu)))
             : col.key === 'mem' ? thresholdRole(thresholdLevel(row.memMB, thresholds.memMB))
             : CELL_ROLES[col.key];
         push(role, `${cellText(row, col)} `);
@@ -93,15 +93,18 @@ const ProcessRow = memo(
 
 const signatureOf = (segments, selected) => `${selected ? 1 : 0}${segments.map((s) => `${s.role}:${s.text}`).join('|')}`;
 
+/** Column labels, muted; the sorted one in cyan with its arrow (you chose it). */
 function ColumnHeader({ columns, sortBy, sortDir }) {
     const arrow = sortDir === 'desc' ? GLYPHS.sortDesc : GLYPHS.sortAsc;
     const sortCol = { mem: 'mem', cpu: 'cpu', pid: 'pid', name: 'name', user: 'user' }[sortBy];
     return (
-        <text>
-            <Tone role="muted">
-                {'  '}
-                {columns.map((c) => `${pad(c, c.key === sortCol ? `${c.label}${arrow}` : c.label)} `).join('')}
-            </Tone>
+        <text wrapMode="none">
+            <Tone role="muted">{'  '}</Tone>
+            {columns.map((c) => (
+                <Tone key={c.key} role={c.key === sortCol ? 'select' : 'muted'}>
+                    {`${pad(c, c.key === sortCol ? `${c.label}${arrow}` : c.label)} `}
+                </Tone>
+            ))}
         </text>
     );
 }

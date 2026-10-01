@@ -39,7 +39,7 @@ async function download(fetchFn, url, what) {
 }
 
 /** Unpacks the archive and checks that its binary runs and is the expected version. */
-function unpack(tarball, name, expected, tmp) {
+function unpack(tarball, name, _expected, tmp) {
     fs.writeFileSync(path.join(tmp, name), tarball);
     execFileSync('tar', ['-xzf', name], { cwd: tmp });
     const candidateNames = ['stackpilot', 'kestrel'];

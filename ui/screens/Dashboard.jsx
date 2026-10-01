@@ -1,6 +1,6 @@
-// The btop-style dashboard (UI_SPEC §4.1): cpu across the top, mem and ports on the left, proc on the right.
+// The dashboard (UI_SPEC §4.1): cpu across the top, mem and ports on the left, proc on the right.
 import { useTheme } from '../theme/context.js';
-import { gradientRole } from '../theme/paint.js';
+import { readoutRole } from '../theme/paint.js';
 import { Box, Meter, graphRows } from '../components/box.jsx';
 import { Tone } from '../components/primitives.jsx';
 import { ProcessTable, PortsList } from '../components/tables.jsx';
@@ -29,7 +29,7 @@ function coreCell(cores, index, meterWidth, width, lastSlot) {
         <span>
             <Tone role="muted">{padEnd(`C${index}`, 4)}</Tone>
             <Meter value={v} width={meterWidth} />
-            <Tone role={gradientRole(gradientLevel(v))}>{padStart(`${Math.round(v)}%`, 5)}</Tone>
+            <Tone role={readoutRole(gradientLevel(v))}>{padStart(`${Math.round(v)}%`, 5)}</Tone>
             <span>{'  '}</span>
         </span>
     );
@@ -47,9 +47,9 @@ function CpuBox({ state, layout, mono }) {
         ];
     const graph = graphRows(history.cpu, graphWidth, graphHeight, mono);
     const total = sampling ? '—' : formatPercent(system.cpuPercent);
-    const totalRole = sampling ? 'muted' : gradientRole(gradientLevel(system.cpuPercent));
+    const totalRole = sampling ? 'muted' : readoutRole(gradientLevel(system.cpuPercent));
     return (
-        <Box title="cpu" accent="cpu" info={info} width={width} height={height}>
+        <Box title="cpu" info={info} width={width} height={height}>
             {Array.from({ length: coreRows }, (_, r) => (
                 <text key={r}>
                     {r < graphHeight ? (
@@ -84,7 +84,7 @@ function MemBox({ state, layout }) {
     ];
     const meterWidth = Math.max(4, layout.width - INNER - 6 - 8);
     return (
-        <Box title="mem" accent="mem" info={total ? [{ text: formatMem(total), role: 'muted' }] : []} width={layout.width} height={layout.height}>
+        <Box title="mem" info={total ? [{ text: formatMem(total), role: 'muted' }] : []} width={layout.width} height={layout.height}>
             {rows.slice(0, Math.max(0, layout.height - 2)).map(([label, value, of]) => (
                 <text key={label}>
                     <Tone role="secondary">{padEnd(label, 6)}</Tone>
@@ -103,7 +103,7 @@ function PortsBox({ state, app, layout, focused, hints }) {
     const notice = state.ports.partial ? 1 : 0;
     const rows = Math.max(0, layout.height - 2 - notice);
     return (
-        <Box title="ports" accent="managed" info={[{ text: String(items.length), role: 'muted' }]} hints={hints} focused={focused} width={layout.width} height={layout.height}>
+        <Box title="ports" info={[{ text: String(items.length), role: 'muted' }]} hints={hints} focused={focused} width={layout.width} height={layout.height}>
             <PortsList items={items} selectedIndex={Math.min(app.portIndex, Math.max(0, items.length - 1))} rows={rows} width={layout.width - INNER} focused={focused} />
             {notice ? <text><Tone role="info">{truncateEnd(`${GLYPHS.info} yours only · sudo for all`, layout.width - INNER)}</Tone></text> : null}
         </Box>
@@ -117,10 +117,10 @@ function procInfo(ui, count, filtering) {
     const filter = filtering ? `${ui.filterQuery}█` : ui.filterQuery ? `${ui.filterQuery} ×` : '—';
     return [
         { text: 'filter: ', role: 'muted' },
-        { text: filter, role: ui.filterQuery || filtering ? 'focus' : 'secondary' },
+        { text: filter, role: ui.filterQuery || filtering ? 'select' : 'secondary' },
         { text: ' ─ ', role: 'faint' },
         { text: 'sort: ', role: 'muted' },
-        { text: `${ui.sortBy} ${arrow}`, role: 'secondary' },
+        { text: `${ui.sortBy} ${arrow}`, role: 'select' },
         { text: ' ─ ', role: 'faint' },
         { text: count, role: 'muted' },
     ];
@@ -141,7 +141,7 @@ function ProcBox({ state, app, layout, bp, focused, hints, drawerInfo }) {
     const emptyText = ui.filterQuery ? `No processes match "${ui.filterQuery}" · Esc to clear` : 'sampling…';
     const borderHints = app.filtering ? [{ label: '⏎ keep', action: 'k' }, { label: 'Esc clear', action: 'c' }] : hints;
     return (
-        <Box title="proc" accent="focus" info={procInfo(ui, count, app.filtering)} hints={borderHints} status={procStatus(state)} focused={focused || Boolean(drawerInfo)} width={layout.width} height={layout.height}>
+        <Box title="proc" info={procInfo(ui, count, app.filtering)} hints={borderHints} status={procStatus(state)} focused={focused || Boolean(drawerInfo)} width={layout.width} height={layout.height}>
             <box flexDirection="row" height={layout.height - 2}>
                 <box width={tableWidth} flexDirection="column">
                     <ProcessTable

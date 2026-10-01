@@ -29,7 +29,7 @@ const stackDir = (stack) => (stack?.path ? path.dirname(stack.path) : null);
 
 /**
  * @param {{ store: any, pm: any, stack: import('../config').StackResult, cwd: string,
- *           previousRun: { kestrelPid: number, children: any[] } | null, isAlive: (pid: number) => boolean }} deps
+ *           previousRun: { stackpilotPid?: number, kestrelPid?: number, children: any[] } | null, isAlive: (pid: number) => boolean }} deps
  */
 function createStackSession({ store, pm, stack, cwd, previousRun, isAlive }) {
     const dir = stackDir(stack) || cwd;
@@ -131,7 +131,7 @@ function createStackSession({ store, pm, stack, cwd, previousRun, isAlive }) {
         if (!previousRun) return;
         clearTimeout(gateTimer);
         const prevPid = previousRun.stackpilotPid ?? previousRun.kestrelPid;
-        if (isAlive(prevPid)) {
+        if (typeof prevPid === 'number' && isAlive(prevPid)) {
             openGate();
             store.addAlert({
                 id: 'another-stackpilot',

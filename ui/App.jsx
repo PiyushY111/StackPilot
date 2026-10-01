@@ -1,4 +1,4 @@
-// The app shell: banner lines, the btop-style dashboard, and overlays (help, dialogs). Talks to the
+// The app shell: the header strip, banner lines, the dashboard, and overlays (help, dialogs). Talks to the
 // core only through `store` (read) and `actions` (write).
 import { useEffect, useReducer, useRef } from 'react';
 import { useKeyboard } from '@opentui/react';
@@ -11,7 +11,7 @@ import { selectedManaged } from './logic/managed.js';
 import { logView as computeLogView } from './logic/logs.js';
 import { handleKey, contextFor } from './commands.js';
 import { footerFor, helpFor } from './keymap.js';
-import { Banners, TooSmall, bannerCount } from './components/chrome.jsx';
+import { Banners, Header, TooSmall, bannerCount, HEADER_HEIGHT } from './components/chrome.jsx';
 import { Dialog, HelpOverlay } from './components/overlays.jsx';
 import { StackDialog, OrphansPanel, StoppingPanel } from './components/stackOverlays.jsx';
 import { Dashboard, procPageSize, logRows } from './screens/Dashboard.jsx';
@@ -63,7 +63,7 @@ export function App({ store, actions, env, onQuit, coalesceMs = 0 }) {
     usePickerOffer(state, app, dispatch, env);
 
     const banners = bannerCount(state.errors, state.alerts);
-    const bodyHeight = Math.max(1, height - banners);
+    const bodyHeight = Math.max(1, height - HEADER_HEIGHT - banners);
     const cores = state.system.cores.length;
     const showLogs = env.managerAvailable && state.ui.focus === 'managed';
     const logView = showLogs ? logsFor(state, app, actions, logRows(bodyHeight, bp, cores)) : null;
@@ -87,6 +87,7 @@ export function App({ store, actions, env, onQuit, coalesceMs = 0 }) {
 
     return (
         <box flexDirection="column" width={width} height={height} backgroundColor={theme.bg.app}>
+            <Header state={state} env={env} width={width} />
             <Banners errors={state.errors} alerts={state.alerts} />
             <Dashboard
                 state={state}

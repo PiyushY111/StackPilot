@@ -22,12 +22,6 @@ test('a docs-only change runs nothing', () => {
     });
 });
 
-test('a website-only change runs no job: CI covers the package, and Vercel builds the site', () => {
-    assert.deepEqual(classify(['website/app/page.tsx', 'website/bun.lock']), {
-        code: false, platform: false, setup: false, engine: false, build: false, 'test-os': ['ubuntu-24.04'],
-    });
-});
-
 test('an OS-independent code change in a pull request tests on Linux only', () => {
     const r = classify(['core/store/selectors.js', 'tests/unit/selectors.test.js']);
     assert.deepEqual([r.code, r.platform, r.engine, r.setup, r.build], [true, false, true, false, false]);

@@ -13,31 +13,32 @@ project's processes, the way pm2 or foreman do. Because it does both, it can tel
 `api` is the process holding 1.2 GB and climbing, and which port it listens on.
 
 ```text
-╭─ cpu ────────────────────────────────────────────────────────────── load 2.4 2.1 1.9 · up 3d 4h ─╮
-│ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ C0  ■■■───────  34%  C6  ■■■■■■────  63%   │
-│ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ C1  ■■■■■■■───  71%  C7  ■■■───────  27%   │
-│ ⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣠⣶⣿⣿⣿⣶⣤⡀⠀⠀⠀⣀⣠⣤⣤⣄⠀⠀⡄⠀⠀⠀⠀⠀⠀⠀⠀ C2  ■■────────  22%                        │
-│ ⠀⠀⠀⠀⣀⣀⡀⡇⠀⠀⠀⠀⠀⠀⠀⠀⣠⣤⣤⣤⣄⣀⣀⣀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡇⠀⠀⠀⠀⠀⠀⠀⠀ C3  ■─────────   9%                        │
-│ ⣶⣶⣾⣿⣿⣿⣿⣷⣤⣀⣀⣀⣀⣀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣄⣀⣤⣴⣾⣿⣿ C4  ■■■■■─────  48%                        │
-│ CPU 20%                                               C5  ■■────────  15%                        │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ mem ────────────── 16.0 GB ─╮╭─ logs · api ───────────────────────────── following ● ─ 8 lines ─╮
-│ Used  ■■■■■■■■──────  9.6 GB ││  15:33:16 api listening on http://localhost:3000                 │
-│ Cache ■■■───────────  3.1 GB ││  15:33:17 GET /health 200 2ms                                    │
-│ Free  ■■■■■■────────  6.4 GB ││  15:33:19 GET /users 200 18ms                                    │
-│ Swap  ■■────────────  256 MB ││  15:33:20 POST /login 401 9ms                                    │
-╰──────────────────────────────╯│ ▎15:33:22 (node:812) DeprecationWarning: punycode is deprecated  │
-╭─ managed · myapp ────── 2/4 ─╮│  15:33:23 GET /users/42 200 11ms                                 │
-│  ● db     ready :5432    3%  ││  15:33:25 [stackpilot] worker crashed (code 1), restarting in 4s │
-│ ▌● api    ready :3000   18%  ││  15:33:26 GET /health 200 1ms                                    │
+ StackPilot    myapp  ◌ 2/4 ready                                                mbp · darwin arm64
+┌─ cpu ────────────────────────────────────────────────────────────── load 2.4 2.1 1.9 · up 3d 4h ─┐
+│ ⠀⠀⠀⠀⠀⠀⠀⣴⣶⣶⣶⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣶⣶⣶⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣶⣶ C0  ━━━───────  34%  C5  ━━────────  15%   │
+│ ⠀⠀⠀⠀⢀⣠⣾⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣷⣦⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿ C1  ━━━━━━━───  71%  C6  ━━━━━━────  63%   │
+│ ⠀⣠⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿ C2  ━━────────  22%  C7  ━━━───────  27%   │
+│ ⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⣀⠀⠀⠀⠀⠀⢀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⢀⣠⣾⣿⣿⣿⣿⣿⣿⣿ C3  ━─────────   9%                        │
+│ CPU 95%                                               C4  ━━━━━─────  48%                        │
+└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌─ mem ────────────── 16.0 GB ─┐┌─ logs · api ───────────────────────────── following ● ─ 5 lines ─┐
+│ Used  ━━━━━━━━──────  9.6 GB ││  19:06:41 api listening on http://localhost:3000                 │
+│ Cache ━━━───────────  3.1 GB ││  19:06:42 GET /health 200 2ms                                    │
+│ Free  ━━━━━━────────  6.4 GB ││ ▎19:06:43 (node:812) DeprecationWarning: punycode                │
+│ Swap  ━━────────────  256 MB ││  19:06:44 POST /login 401 9ms                                    │
+└──────────────────────────────┘│  19:06:45 GET /users/42 200 11ms                                 │
+┌─ stack ──────────────── 2/4 ─┐│                                                                  │
+│  ● db     ready :5432        ││                                                                  │
+│ ▌● api    ready :3000   12%  ││                                                                  │
 │  ↻ worker retry 2 in 4s      ││                                                                  │
 │  ⊘ cron   blocked by worker  ││                                                                  │
-╰─ s start ─ x stop ───────────╯│                                                                  │
-╭─ ports ────────────────── 2 ─╮│                                                                  │
+└─ s start ─ x stop ───────────┘│                                                                  │
+┌─ ports ────────────────── 2 ─┐│                                                                  │
 │ :3000  node  ◆api 127.0.0.1  ││                                                                  │
-│ :5432  postg… ◆db *          ││                                                                  │
+│ :5432  postgres   *          ││                                                                  │
 │                              ││                                                                  │
-╰──────────────────────────────╯╰─ f follow ─ / search ─ v all / one ─ PgUp older ─ PgDn newer ────╯
+│                              ││                                                                  │
+└──────────────────────────────┘└─ f follow ─ / search ─ v all / one ─ PgUp older ─ PgDn newer ────┘
 ```
 
 ## Features
@@ -187,4 +188,4 @@ problems privately, as described in [SECURITY.md](SECURITY.md).
 
 Created by **Piyush Yadav** ([@piyushy111](https://github.com/piyushy111)).
 
-[MIT](LICENSE) © 2026 Piyush Yadav. Portions © 2026 Aryan Vibhuti.
+[MIT](LICENSE) © 2026 Piyush Yadav

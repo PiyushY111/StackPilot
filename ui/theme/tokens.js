@@ -1,35 +1,36 @@
 // Design tokens (UI_SPEC §3). This is the ONLY file with color values; components use semantic tokens.
 
 /**
- * Soft pastel accents (Catppuccin-Mocha inspired) on a pure black base with neutral grey surfaces
- * (UI_SPEC §3.1; black chosen at the M2b review instead of Catppuccin's bluish base).
+ * The glass cockpit (UI_SPEC §3.1): avionics display colors on a black screen. Each hue has one job,
+ * as on a flight deck: white reads, green is normal, amber is caution, red is warning, cyan is what you
+ * chose, magenta is what is active. Surfaces are cool, near-neutral greys, like an unlit display bezel.
  */
 export const PALETTE = Object.freeze({
     base: '#000000',
-    mantle: '#121212',
-    surface0: '#262626',
-    surface1: '#3a3a3a',
-    overlay0: '#6c7086',
-    subtext: '#a6adc8',
-    text: '#cdd6f4',
-    green: '#a6e3a1',
-    yellow: '#f9e2af',
-    peach: '#fab387',
-    red: '#f38ba8',
-    mauve: '#cba6f7',
-    blue: '#89b4fa',
-    lavender: '#b4befe',
-    teal: '#94e2d5',
+    mantle: '#0e1013',
+    surface0: '#1a1e23',
+    surface1: '#2b3138',
+    overlay0: '#6f7983',
+    subtext: '#a7afb8',
+    text: '#e6e8ea',
+    green: '#5bd983',
+    yellow: '#e2d65c',
+    amber: '#ffaa33',
+    red: '#ff5c5c',
+    cyan: '#4fd1e8',
+    magenta: '#f06be6',
 });
 
 /** Meaning → palette name (UI_SPEC §3.2). Color carries meaning, never decoration. */
 export const SEMANTIC = Object.freeze({
-    fg: { primary: 'text', secondary: 'subtext', muted: 'overlay0' },
-    state: { ok: 'green', warn: 'yellow', danger: 'red', transient: 'peach', inactive: 'overlay0', info: 'blue' },
-    accent: { focus: 'mauve', managed: 'teal' },
-    series: { cpu: 'blue', mem: 'lavender' },
+    fg: { primary: 'text', secondary: 'subtext', muted: 'overlay0', inverse: 'base' },
+    state: { ok: 'green', warn: 'amber', danger: 'red', transient: 'yellow', inactive: 'overlay0', info: 'cyan' },
+    // focus: the active box and row. select: what you set (keys, sort, filter). managed: your processes.
+    accent: { focus: 'magenta', select: 'cyan', managed: 'cyan' },
+    // Gauge bands, low to high (ui/logic/charts.js GRADIENT_BANDS).
+    gauge: { low: 'green', mid: 'yellow', high: 'amber', max: 'red' },
     bg: { app: 'base', bar: 'mantle', selected: 'surface0' },
-    border: { idle: 'surface1', focus: 'mauve' },
+    border: { idle: 'surface1', focus: 'magenta' },
 });
 
 /** Every status has a glyph, so color is never the only signal (UI_SPEC §3.4). */

@@ -1,4 +1,4 @@
-// Text charts: braille graphs and gradient meters, btop-style (UI_SPEC §3.2, §4.1). Pure.
+// Text charts: braille graphs and gauge meters (UI_SPEC §3.2, §4.1). Pure.
 
 const GRADIENT_BANDS = [[75, 'max'], [50, 'high'], [25, 'mid'], [0, 'low']];
 
@@ -60,7 +60,8 @@ export function blockGraph(values, width, height) {
     return rows;
 }
 
-const FILLED = '■';
+// A tape gauge: a heavy rule over a light one, so the fill reads as length even without color.
+const FILLED = '━';
 const UNFILLED = '─';
 
 /**

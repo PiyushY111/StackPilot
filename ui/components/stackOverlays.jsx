@@ -1,6 +1,6 @@
 // Stack dialogs (UI_SPEC §6.6, M3): quit with a running stack (S12) and its progress, children left by a
 // previous session (S13), a new ad-hoc process, a process's env, and the package.json script picker.
-import { Panel, Line, Blank } from './overlays.jsx';
+import { Panel, Line, Blank, Keys } from './overlays.jsx';
 import { Tone } from './primitives.jsx';
 import { canSubmit } from '../logic/dialog.js';
 import { padEnd, truncateEnd } from '../logic/format.js';
@@ -19,8 +19,6 @@ function centered({ title, borderRole = 'focus', width, height, rows, children }
         </Panel>
     );
 }
-
-const Keys = ({ text }) => <Line><Tone role="secondary">{text}</Tone></Line>;
 
 const Input = ({ typed, room }) => (
     <Line>

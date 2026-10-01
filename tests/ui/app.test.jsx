@@ -1,7 +1,7 @@
-// Frame tests for the btop-style dashboard against UI_SPEC v2 (§4–§7).
+// Frame tests for the glass-cockpit dashboard against UI_SPEC v3 (§4–§7).
 import { afterEach, expect, test } from 'bun:test';
 import { PALETTE } from '../../ui/theme/tokens.js';
-import { setup, teardown, frame, keys, press, colorOf, allColors, PROCS } from './helpers.jsx';
+import { setup, teardown, frame, keys, press, colorOf, allColors, managedEntry, PROCS } from './helpers.jsx';
 
 afterEach(teardown);
 
@@ -12,7 +12,7 @@ const BRAILLE = /[⠁-⣿]/;
 test('the dashboard shows the cpu, mem, ports and proc boxes', async () => {
     const { ui } = await setup();
     const out = await frame(ui);
-    for (const title of ['cpu', 'mem', 'ports', 'proc']) expect(out).toMatch(new RegExp(`╭─ ${title} `));
+    for (const title of ['cpu', 'mem', 'ports', 'proc']) expect(out).toMatch(new RegExp(`┌─ ${title} `));
     expect(out).toContain('load 1.2 1.4 1.1');
     expect(out).toContain('up 3d 4h');
 });
@@ -26,7 +26,7 @@ test('cpu box: braille history graph, total, and a gradient meter per core', asy
     expect(out).toContain('80%');
     // An 80% core meter shows every gradient color, ending in red (UI_SPEC §3.2).
     const colors = allColors(ui);
-    for (const c of [PALETTE.green, PALETTE.yellow, PALETTE.peach, PALETTE.red]) expect(colors.has(c)).toBe(true);
+    for (const c of [PALETTE.green, PALETTE.yellow, PALETTE.amber, PALETTE.red]) expect(colors.has(c)).toBe(true);
 });
 
 test('mem box: used, cache, free and swap meters with sizes', async () => {
@@ -67,15 +67,15 @@ test('Tab moves focus proc → managed → ports; each border shows its keys', a
 test('? opens the help generated from the keymap; Esc closes it', async () => {
     const { ui } = await setup();
     const help = await keys(ui, '?');
-    expect(help).toContain('KEYS');
+    expect(help).toMatch(/┌─ keys ─/);
     expect(help).toContain('r renice');
     expect(help).toContain('Everywhere');
-    expect(await press(ui, 'escape')).not.toContain('KEYS');
+    expect(await press(ui, 'escape')).not.toMatch(/┌─ keys ─/);
 });
 
 test('S9: a terminal below 60×16 shows the size message', async () => {
     const { ui } = await setup({ width: 50, height: 14 });
-    expect(await frame(ui)).toContain('Kestrel needs 60×16 — currently 50×14');
+    expect(await frame(ui)).toContain('StackPilot needs 60×16 — currently 50×14');
 });
 
 test('S4 and alerts: problems appear as lines above the boxes while everything keeps working', async () => {
@@ -99,12 +99,13 @@ test('proc lists processes by CPU with sort and count in its title', async () =>
     expect(out.indexOf('Chrome Helper')).toBeLessThan(out.indexOf('node'));
 });
 
-test('CPU% and memory are gradient-colored on every row', async () => {
+test('CPU% and memory figures stay white until they need a look (the dark cockpit)', async () => {
     const { ui } = await setup();
     await frame(ui);
-    expect(colorOf(ui, '58.4')).toBe(PALETTE.peach); // 50–75 %
-    expect(colorOf(ui, '12.1')).toBe(PALETTE.green); // < 25 %
-    expect(colorOf(ui, '1.2 GB')).toBe(PALETTE.yellow); // between the memory warn and danger thresholds
+    expect(colorOf(ui, '58.4')).toBe(PALETTE.amber); // 50–75 %: the high band
+    expect(colorOf(ui, '12.1')).toBe(PALETTE.text); // < 25 %: normal is quiet
+    expect(colorOf(ui, '1.2 GB')).toBe(PALETTE.amber); // between the memory warn and danger thresholds
+    expect(colorOf(ui, '412 MB')).toBe(PALETTE.text);
 });
 
 test('s cycles the sort key and S reverses it', async () => {
@@ -159,9 +160,9 @@ test('⏎ opens the detail drawer with the parent chain; Esc closes it', async (
     const { ui, actions } = await setup();
     actions.select(812);
     const out = await press(ui, 'enter');
-    expect(out).toContain('DETAILS');
+    expect(out).toContain(' details ');
     expect(out).toContain('launchd › Terminal › zsh › node');
-    expect(await press(ui, 'escape')).not.toContain('DETAILS');
+    expect(await press(ui, 'escape')).not.toContain(' details ');
 });
 
 // ---------- ports (§6.3) ----------
@@ -266,7 +267,7 @@ test('a managed process offers stop via manager (M3) or kill anyway', async () =
     store.upsertManaged({ id: 'api', pid: 812 });
     actions.select(812);
     const out = await keys(ui, 'x');
-    expect(out).toContain('api is managed by Kestrel');
+    expect(out).toContain('api is managed by StackPilot');
     expect(out).toContain('kill anyway');
 });
 
@@ -299,4 +300,52 @@ test('q quits', async () => {
     await keys(ui, 'q');
     await new Promise((r) => setTimeout(r, 5));
     expect(quits()).toBe(1);
+});
+
+// ---------- header strip and annunciator (§4.3) ----------
+
+/** Background color (hex) of the first span containing `needle`. */
+function bgOf(ui, needle) {
+    for (const line of ui.captureSpans().lines) {
+        const span = line.spans.find((s) => s.text.includes(needle));
+        if (span) return `#${span.bg.toInts().slice(0, 3).map((n) => Math.round(n).toString(16).padStart(2, '0')).join('')}`;
+    }
+    return null;
+}
+
+test('the header names the app, the stack and its readiness, and the machine', async () => {
+    const { ui } = await setup({
+        stack: { name: 'myapp', errors: [], scripts: null },
+        managed: [managedEntry('db', { status: 'running', pid: 900 }), managedEntry('api', { status: 'starting', pid: 901, startedAt: Date.now() })],
+    });
+    const top = (await frame(ui)).split('\n')[0];
+    expect(top).toContain('StackPilot');
+    expect(top).toContain('myapp');
+    expect(top).toContain('1/2 ready');
+    expect(top).toContain('mbp · darwin arm64');
+});
+
+test('the system monitor header says so instead of naming a stack', async () => {
+    const { ui } = await setup({ env: { managerAvailable: false } });
+    expect((await frame(ui)).split('\n')[0]).toContain('system monitor');
+});
+
+test('the annunciator is dark when all is normal, CAUTION for a warning and WARNING for danger', async () => {
+    const { ui, store } = await setup();
+    const top = async () => (await frame(ui)).split('\n')[0];
+    expect(await top()).not.toMatch(/CAUTION|WARNING/);
+    store.addAlert({ id: 'leak:api', level: 'warn', message: 'api memory keeps growing' });
+    expect(await top()).toContain(' CAUTION 1 ');
+    expect(bgOf(ui, 'CAUTION')).toBe(PALETTE.amber);
+    store.addAlert({ id: 'errored:worker', level: 'danger', message: 'worker errored' });
+    expect(await top()).toContain(' WARNING 1 ');
+    expect(bgOf(ui, 'WARNING')).toBe(PALETTE.red);
+});
+
+test('only the focused box lights its title, and key hints are cyan', async () => {
+    const { ui } = await setup();
+    await frame(ui);
+    expect(bgOf(ui, ' proc ')).toBe(PALETTE.magenta);
+    expect(colorOf(ui, ' mem ')).toBe(PALETTE.text);
+    expect(colorOf(ui, '↑↓')).toBe(PALETTE.cyan);
 });

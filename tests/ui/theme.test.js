@@ -20,11 +20,11 @@ test('every semantic token points at a palette color', () => {
     }
 });
 
-test('the app background is pure black, and the dark surfaces are neutral grey (no blue tint)', () => {
+test('the app background is pure black, and the dark surfaces are near-neutral greys (a cool bezel, not a tint)', () => {
     expect(PALETTE.base).toBe('#000000');
     for (const name of ['mantle', 'surface0', 'surface1']) {
         const [r, g, b] = [1, 3, 5].map((i) => parseInt(PALETTE[name].slice(i, i + 2), 16));
-        expect(r === g && g === b, name).toBe(true);
+        expect(Math.max(r, g, b) - Math.min(r, g, b), name).toBeLessThanOrEqual(16);
     }
 });
 
@@ -33,7 +33,8 @@ test('truecolor resolves every token to hex and paints the app background', () =
     expect(theme.mono).toBe(false);
     expect(theme.bg.app).toBe(PALETTE.base);
     expect(theme.state.danger).toBe(PALETTE.red);
-    expect(theme.accent.focus).toBe(PALETTE.mauve);
+    expect(theme.accent.focus).toBe(PALETTE.magenta);
+    expect(theme.accent.select).toBe(PALETTE.cyan);
 });
 
 test('256-color mode leaves the terminal background alone (UI_SPEC §3.3)', () => {
@@ -53,7 +54,7 @@ test('no-color mode has no colors at all, so attributes and glyphs carry meaning
 test('valueColor keeps normal values quiet and colors only crossed thresholds', () => {
     const theme = resolveTheme('truecolor');
     expect(valueColor(theme, 'ok')).toBe(PALETTE.text);
-    expect(valueColor(theme, 'warn')).toBe(PALETTE.yellow);
+    expect(valueColor(theme, 'warn')).toBe(PALETTE.amber);
     expect(valueColor(theme, 'danger')).toBe(PALETTE.red);
 });
 
@@ -74,7 +75,7 @@ function contrast(a, b) {
 }
 
 test('text and every state color reach 4.5:1 on the app background (UI_SPEC §10)', () => {
-    for (const name of ['text', 'subtext', 'green', 'yellow', 'peach', 'red', 'mauve', 'blue', 'lavender', 'teal']) {
+    for (const name of ['text', 'subtext', 'green', 'yellow', 'amber', 'red', 'cyan', 'magenta']) {
         expect(contrast(PALETTE[name], PALETTE.base)).toBeGreaterThanOrEqual(4.5);
         expect(contrast(PALETTE[name], PALETTE.surface0)).toBeGreaterThanOrEqual(3); // selected row
     }

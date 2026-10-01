@@ -54,7 +54,7 @@ export async function runInteractive({ kestrel, env, colorEnv, noColor, stderr =
                 await kestrel.stop();
             } finally {
                 renderer.destroy();
-                if (error) stderr.write(`kestrel: the interface crashed: ${error.message}\n`);
+                if (error) stderr.write(`stackpilot: the interface crashed: ${error.message}\n`);
                 resolve(code);
             }
         };
