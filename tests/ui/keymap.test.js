@@ -52,7 +52,7 @@ test('help lists the focused box first, then global keys', () => {
     expect(helpFor('ports', env)[0].title).toBe('Ports');
 });
 
-test('managed: process keys in its own border, log keys in the logs panel border (M3)', () => {
+test('managed: process keys in its own border, log keys in the logs panel border', () => {
     expect(footerFor('managed', env).map((e) => e.label)).toEqual(['s start', 'x stop', 'r restart', 'a start all']);
     expect(footerFor('managed', env, 'logs').map((e) => e.label)).toEqual(['f follow', '/ search', 'v all / one', 'PgUp older', 'PgDn newer']);
     expect(resolveKey('managed', 's', env)).toBe('managed:start');

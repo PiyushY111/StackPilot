@@ -6,7 +6,7 @@ Made by **Piyush Yadav** ([@piyushy111](https://github.com/piyushy111))
 
 [![CI](https://github.com/piyushy111/StackPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/piyushy111/StackPilot/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Status: active](https://img.shields.io/badge/status-active-brightgreen.svg)
+[![npm](https://img.shields.io/npm/v/stackpilot-tui.svg)](https://www.npmjs.com/package/stackpilot-tui)
 
 StackPilot shows what is using your machine, the way htop and btop do. It also starts and supervises your
 project's processes, the way pm2 or foreman do. Because it does both, it can tell you that *your*
@@ -133,11 +133,17 @@ because npm took `--pm`. Put StackPilot's flags after `--`: `npm start -- pm --c
 ### What the process manager looks like
 
 The process manager is part of the dashboard, not a separate screen. `stackpilot pm` opens the dashboard
-with the stack starting and the **managed box** (left column) focused. While it has focus, the big
+with the stack starting and the **stack box** (left column) focused. While it has focus, the big
 panel shows that process's **logs** instead of the process table. Keys:
 - `↑↓` pick a process; `s` start, `x` stop, `r` restart, `a` start all.
+- `⏎` opens its details (readiness, dependencies, ports, recent crashes, memory over ten minutes);
+  `p` shows it in the process table.
 - `v` shows every process's logs interleaved; `/` searches.
 - `Tab` moves on to ports, then back to the process table.
+
+The header line warns you when something needs a look: `CAUTION` or `WARNING` lights up for alerts,
+and a process that keeps crashing shows as `↻ worker 3 in 5m`. A process whose memory keeps climbing
+is marked `▲ leak?`.
 
 Press `?` anywhere for every key.
 
@@ -173,9 +179,9 @@ StackPilot's own footprint is about 3% of one core and 80 MB for the full dashbo
 | Document | What it covers |
 |---|---|
 | [docs/CONFIG.md](docs/CONFIG.md) | Every `stackpilot.json` option |
-| [docs/PRD.md](docs/PRD.md) | What StackPilot is for, and the product decisions |
+| [docs/PRD.md](docs/PRD.md) | What StackPilot is for, its requirements, and the product decisions |
 | [docs/UI_SPEC.md](docs/UI_SPEC.md) | Layout, keys, colours and every screen state |
-| [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md) | Architecture, the engine/UI contract, performance, distribution |
+| [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md) | The technical design: architecture, the engine/UI contract, performance, distribution |
 | [docs/DEV.md](docs/DEV.md) | Development commands, Linux testing on a Mac, measuring |
 | [RELEASING.md](RELEASING.md) | How a release is built, rehearsed, approved and verified |
 

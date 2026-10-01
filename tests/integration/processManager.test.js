@@ -46,7 +46,7 @@ test('spawn emits managed:started, streams structured log lines and counts them'
     assert.equal('logs' in store.getManaged('w1'), false, 'log lines are not kept in state');
 });
 
-test('log-only updates reach the store batched, however chatty the process (M3 perf)', async (t) => {
+test('log-only updates reach the store batched, however chatty the process', async (t) => {
     const { store, pm } = setup(t);
     let logOnlyCommits = 0;
     const upsert = store.upsertManaged.bind(store);

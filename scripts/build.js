@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// Builds the standalone `stackpilot` binary (BUILD_PLAN §13): one file with the Bun runtime, the UI and
+// Builds the standalone `stackpilot` binary (BUILD_PLAN §12): one file with the Bun runtime, the UI and
 // OpenTUI's native core inside, so a machine needs nothing installed to run it.
 //
 //   bun scripts/build.js              dist/stackpilot-<os>-<arch>, smoke-tested

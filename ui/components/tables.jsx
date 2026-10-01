@@ -42,7 +42,7 @@ function cellText(row, col) {
 const CELL_ROLES = { pid: 'muted', user: 'secondary', state: 'secondary', command: 'muted' };
 
 /**
- * A row as a flat list of { role, text } segments, adjacent same-role text merged. Measured in M2:
+ * A row as a flat list of { role, text } segments, adjacent same-role text merged. Measured:
  * per-span React updates dominated the UI's CPU, so fewer spans (and memoized rows) matter.
  */
 export function rowSegments(row, columns, { selected, guide, thresholds }) {

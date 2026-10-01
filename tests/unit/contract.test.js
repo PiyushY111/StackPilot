@@ -46,7 +46,7 @@ test('actions', () => {
     ]);
 });
 
-test('dashboard defaults (M2b)', () => {
+test('dashboard defaults', () => {
     const { ui } = createInitialState();
     assert.deepEqual([ui.screen, ui.monitorView, ui.focus], ['dashboard', 'table', 'proc']);
 });

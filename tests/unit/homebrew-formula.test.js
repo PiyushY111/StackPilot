@@ -1,4 +1,4 @@
-// Homebrew formula generation (M4): one URL + checksum per OS/arch from the release's SHA256SUMS.
+// Homebrew formula generation: one URL + checksum per OS/arch from the release's SHA256SUMS.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { formula } = require('../../scripts/homebrew-formula');

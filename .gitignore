@@ -1,7 +1,7 @@
 node_modules/
+.claude/
 dist/
 coverage/
 .stackpilot/
 *.log
 .DS_Store
-.vercel/

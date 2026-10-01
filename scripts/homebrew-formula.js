@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Writes the Homebrew formula for a release from its SHA256SUMS (BUILD_PLAN §13). The release workflow
-// commits the result to the piyushy111/homebrew-tap repository, so `brew install piyushy111/tap/stackpilot`
-// installs the prebuilt binary (no build from source, no dependencies).
+// Writes the Homebrew formula for a release from its SHA256SUMS (BUILD_PLAN §12). Commit the result to
+// the piyushy111/homebrew-tap repository as Formula/stackpilot.rb (RELEASING.md), so
+// `brew install piyushy111/tap/stackpilot` installs the prebuilt binary (no build from source, no dependencies).
 //
 //   node scripts/homebrew-formula.js <version> <SHA256SUMS> > Formula/stackpilot.rb
 const fs = require('node:fs');

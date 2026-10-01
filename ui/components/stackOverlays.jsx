@@ -1,4 +1,4 @@
-// Stack dialogs (UI_SPEC §6.6, M3): quit with a running stack (S12) and its progress, children left by a
+// Stack dialogs (UI_SPEC §6.6): quit with a running stack (S12) and its progress, children left by a
 // previous session (S13), a new ad-hoc process, a process's env, and the package.json script picker.
 import { Panel, Line, Blank, Keys } from './overlays.jsx';
 import { Tone } from './primitives.jsx';

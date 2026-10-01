@@ -1,4 +1,4 @@
-// The stack through the public contract (createStackPilot + actions), as `stackpilot pm` uses it (M3 E7/E8).
+// The stack through the public contract (createStackPilot + actions), as `stackpilot pm` uses it.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');

@@ -1,4 +1,4 @@
-// UI render cost (BUILD_PLAN §11.3): the real App in OpenTUI's test renderer, fed realistic ticks.
+// UI render cost (BUILD_PLAN §11): the real App in OpenTUI's test renderer, fed realistic ticks.
 // Everything is laid out and drawn into the frame buffer; only the terminal write is skipped. Reports
 // CPU per frame, so changes to the UI can be compared quickly and repeatably.
 //

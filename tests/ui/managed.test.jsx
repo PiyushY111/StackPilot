@@ -1,4 +1,4 @@
-// Frame tests for the process manager UI (M3): managed box, logs panel, stack dialogs (UI_SPEC §6.5–§6.7).
+// Frame tests for the process manager UI: managed box, logs panel, stack dialogs (UI_SPEC §6.5–§6.7).
 import { afterEach, expect, test } from 'bun:test';
 import { setup, teardown, frame, keys, press, colorOf, managedEntry } from './helpers.jsx';
 import { PALETTE } from '../../ui/theme/tokens.js';

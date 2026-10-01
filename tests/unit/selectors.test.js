@@ -99,7 +99,7 @@ test('deriveProcessRows tags managedId and level, in table and tree views', () =
     assert.equal(table.resources.get('api').procCount, 3);
 });
 
-// ---------- M4 performance (exact same results, less work) ----------
+// ---------- performance (exact same results, less work) ----------
 
 test('topBy returns exactly what a full sort would, ties included', () => {
     const { topBy, comparator } = sel;

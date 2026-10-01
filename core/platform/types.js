@@ -63,7 +63,7 @@
  * @property {() => CpuTimes[]} cpuTimes
  * @property {() => number[]} loadAverage
  * @property {number} [clockTicks]  units of cpuTicks per second (Linux: USER_HZ; native macOS: 1e9, ns)
- * @property {'native'|'ps'} [sampling]  macOS: libproc via FFI, or the ps/lsof fallback (M4)
+ * @property {'native'|'ps'} [sampling]  macOS: libproc via FFI, or the ps/lsof fallback
  */
 
 /**

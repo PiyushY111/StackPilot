@@ -9,7 +9,7 @@ export const INITIAL_APP_STATE = Object.freeze({
     // The stack details panel (UI_SPEC §6.8), beside the logs while the stack box has focus.
     stackDetails: false,
     portIndex: 0,
-    // Logs panel (M3): `scope` one process or all; paused views are anchored (ui/logic/logs.js).
+    // Logs panel: `scope` one process or all; paused views are anchored (ui/logic/logs.js).
     logs: Object.freeze({ scope: 'one', anchorTs: null, offset: 0 }),
     logSearching: false,
     quitting: false,

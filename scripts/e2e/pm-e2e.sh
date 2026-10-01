@@ -1,5 +1,5 @@
 #!/bin/sh
-# End-to-end check of `stackpilot pm` in a real pseudo-terminal (the M3 exit demo, automated): the fixture
+# End-to-end check of `stackpilot pm` in a real pseudo-terminal: the fixture
 # stack starts in dependency order and gets ready, the UI shows it, q → y stops everything, and no
 # process is left behind. Needs bun, node, python3 and pgrep. Runs in place; cleans up after itself.
 set -eu

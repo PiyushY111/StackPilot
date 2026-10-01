@@ -21,12 +21,12 @@ export function dialogForTarget({ action, process, classification, signal = 'SIG
     return { ...base, kind: KIND_BY_TIER[classification.tier], typed: '' };
 }
 
-// ---------- stack dialogs (M3, UI_SPEC §6.6) ----------
+// ---------- stack dialogs (UI_SPEC §6.6) ----------
 
 const INPUT_MAX = 500;
 const STACK_DIALOG_KINDS = new Set(['quit', 'input', 'env', 'picker']);
 
-/** Dialogs of the stack (handled by ui/managedCommands.js), as opposed to the M2 safety dialogs. */
+/** Dialogs of the stack (handled by ui/managedCommands.js), as opposed to the safety dialogs. */
 export const isStackDialog = (dialog) => Boolean(dialog && STACK_DIALOG_KINDS.has(dialog.kind));
 
 /** `n`: a new ad-hoc process, typed as "name: command" or just a command. */

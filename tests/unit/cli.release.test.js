@@ -1,4 +1,4 @@
-// Release helpers and `stackpilot update` (M4): install detection, versions, checksums, self-replacement.
+// Release helpers and `stackpilot update`: install detection, versions, checksums, self-replacement.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');

@@ -4,7 +4,7 @@ const HISTORY_CAPACITY = 240; // one sample per tick → the cpu box graph shows
 const MANAGED_MEM_CAPACITY = 120; // one sample per 5 s → the last 10 minutes
 const MAX_FILTER_LENGTH = 200;
 
-// M2b: one btop-style dashboard (the Overview/Monitor screens were dropped at the M2 review).
+// One dashboard screen.
 const SCREENS = Object.freeze(['dashboard']);
 const MONITOR_VIEWS = Object.freeze(['table', 'tree']);
 const FOCUS_BOXES = Object.freeze(['proc', 'managed', 'ports']);
@@ -18,7 +18,7 @@ function createStackState(fields = {}) {
     return { name: null, source: null, path: null, errors: [], warnings: [], scripts: null, phase: 'idle', stopProgress: {}, ...fields };
 }
 
-// Every event the store emits (BUILD_PLAN §6.2). `managed:ready` is reserved for M3 readiness checks.
+// Every event the store emits (BUILD_PLAN §6.2). `managed:ready` fires when a readiness check passes.
 const STORE_EVENTS = Object.freeze([
     'change', 'stats:update', 'processes:update', 'ports:update', 'ui:update', 'alert', 'collector:error',
     'managed:status', 'managed:log', 'managed:ready', 'managed:started', 'managed:crashed',

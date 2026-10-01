@@ -1,4 +1,4 @@
-// npm distribution (M4): the generated launcher + per-platform packages, installed into a real
+// npm distribution: the generated launcher + per-platform packages, installed into a real
 // node_modules layout and run.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');

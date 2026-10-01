@@ -4,9 +4,9 @@
 
 | Tool | Version | Why |
 |---|---|---|
-| Bun | ≥ 1.3 | Runs the CLI and (from M2) the OpenTUI interface |
+| Bun | ≥ 1.3 | Runs the CLI and the OpenTUI interface, and builds the binary |
 | Node.js | ≥ 20 | Runs the core test suite; the core must work on both runtimes |
-| Docker | any | Linux testing on a Mac (optional, but required before a milestone review) |
+| Docker | any | Linux testing on a Mac (optional) |
 
 ```sh
 ./setup.sh          # checks the tools, installs Bun and the dependencies (plus the husky pre-commit hook), a `stackpilot` command
@@ -22,7 +22,7 @@ On Windows use WSL2 for everything below (see CONTRIBUTING.md); Git Bash covers 
 | `npm run test:bun` | The same suite under Bun |
 | `npm run test:coverage` | Node's coverage report (target ≥ 80% for `core/` and `cli/`) |
 | `npm run typecheck` | `tsc` over the JSDoc types in `core/` and `cli/` (strict) |
-| `npm start` | The btop-style dashboard, React production build (a stack here is shown idle) |
+| `npm start` | The dashboard, React production build (a stack here is shown idle) |
 | `npm run demo` | The process manager on the demo stack: db (port), api (http, needs db), worker (log line), flaky (crash loop) |
 | `npm run pm` / `npm run sm` / `npm run doctor` | The process manager for this folder / the monitor only / the environment check |
 | `npm run pm -- --only api` | Flags go after `--`: npm keeps the ones before it (`npm start --pm` opens the plain dashboard) |
@@ -72,19 +72,19 @@ images with `STACKPILOT_TEST_IMAGES="ubuntu:24.04 debian:12" scripts/docker-test
 
 The UI needs a real terminal, so it is measured in a pseudo-terminal with the cumulative CPU time from
 `ps -o time=` over 60 s. That figure covers StackPilot's own process only. Add the cost of the processes it
-spawns, which `scripts/bench.js` measures for the engine. Before M4 they were most of the total, and
-leaving them out once made a real ~5% look like 2.6%. **Always set `NODE_ENV=production` at process start** (as `npm start` does): Bun
+spawns, which `scripts/bench.js` measures for the engine: leaving them out can make a real ~5% look like
+2.6%. **Always set `NODE_ENV=production` at process start** (as `npm start` does): Bun
 fixes the JSX transform when the process starts, so changing it later crashes the UI. Check the capture
 shows the screen actually rendered: a crashed UI costs almost nothing and makes the numbers look great.
-Current numbers: BUILD_PLAN §11.1 (dashboard) and §11.2 (`stackpilot pm` with streaming logs).
+Current numbers: [BUILD_PLAN §11](BUILD_PLAN.md#11-quality-testing-and-performance).
 
 ## Where things live
 
-See [BUILD_PLAN.md §5](BUILD_PLAN.md#5-repository-structure-target). In short:
+See [BUILD_PLAN.md §5](BUILD_PLAN.md#5-repository-structure). In short:
 
 - `core/` is the engine and has no UI dependencies. The only way in is `core/index.js` → `createStackPilot()`, which returns `{ store, actions }`.
 - `cli/` handles argument parsing and command dispatch.
-- `ui/` is the OpenTUI interface: a btop-style dashboard (`ui/screens/Dashboard.jsx`). It talks only to `store` and `actions`.
+- `ui/` is the OpenTUI interface: one dashboard (`ui/screens/Dashboard.jsx`). It talks only to `store` and `actions`.
 
 ## Rules for changes
 

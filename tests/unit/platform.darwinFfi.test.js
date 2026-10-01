@@ -1,4 +1,4 @@
-// The real native layer against the real system tools (M4). Only meaningful under Bun on macOS
+// The real native layer against the real system tools. Only meaningful under Bun on macOS
 // (`npm run test:bun`); under Node, or on Linux, these tests pass without checking anything.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');

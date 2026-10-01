@@ -1,4 +1,4 @@
-// Managed box and logs panel commands (M3): process control through the manager, the stack dialogs
+// Managed box and logs panel commands: process control through the manager, the stack dialogs
 // and log scrolling/search. Every outcome is reported as a toast; nothing here fails silently.
 import { selectedManaged, isActive, parseAdHoc } from './logic/managed.js';
 import { newProcessDialog, quitDialog, envDialog, pickerDialog, canSubmit } from './logic/dialog.js';

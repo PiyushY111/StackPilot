@@ -1,4 +1,4 @@
-// The store contract (BUILD_PLAN §6.1) as types. Frozen at the end of M1: changing it is a deliberate
+// The store contract (BUILD_PLAN §6.1) as types. Frozen: changing it is a deliberate
 // act checked by tests/unit/contract.test.js. No runtime code.
 
 /** @typedef {'ok'|'warn'|'danger'} Level */
@@ -28,9 +28,9 @@
  * @property {number[]} load
  * @property {number|null} memUsedMB
  * @property {number|null} memTotalMB
- * @property {number|null} memCachedMB  file cache (reclaimable), for the mem box (M2b)
+ * @property {number|null} memCachedMB  file cache (reclaimable), for the mem box
  * @property {number|null} swapUsedMB
- * @property {number|null} swapTotalMB  (M2b)
+ * @property {number|null} swapTotalMB  total swap, for the mem box
  * @property {number} uptimeSec
  */
 
@@ -86,7 +86,7 @@
  * @typedef {Object} UiState
  * @property {'dashboard'} screen
  * @property {'table'|'tree'} monitorView
- * @property {'proc'|'managed'|'ports'} focus  the focused dashboard box (M2b; managed in M3)
+ * @property {'proc'|'managed'|'ports'} focus  the focused dashboard box
  * @property {number|null} selectedPid
  * @property {'cpu'|'mem'|'pid'|'name'|'user'} sortBy
  * @property {'asc'|'desc'} sortDir
@@ -99,7 +99,7 @@
  */
 
 /**
- * The project's stack (M3). `scripts` lists package.json candidates for the first-run picker.
+ * The project's stack. `scripts` lists package.json candidates for the first-run picker.
  * @typedef {Object} StackState
  * @property {string|null} name    folder name of the config
  * @property {'stackpilot.json'|'Procfile'|'package.json'|null} source
@@ -123,7 +123,7 @@
  * @property {SystemStats} system
  * @property {{ cpu: number[], mem: number[] }} history   last 240 samples, % values
  * @property {ProcessRow[]} processes                      already filtered, sorted and tagged
- * @property {ProcessRow[]} topConsumers                   top 5 by CPU, unfiltered (Overview; added in M2)
+ * @property {ProcessRow[]} topConsumers                   top 5 by CPU, unfiltered
  * @property {{ items: PortRow[], partial: boolean, updatedAt: number|null }} ports
  * @property {ManagedEntry[]} managed
  * @property {StackState} stack

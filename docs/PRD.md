@@ -2,10 +2,8 @@
 
 | | |
 |---|---|
-| **Version** | 2.0 (supersedes the v1 PRD in `docs/archive/`) |
-| **Status** | Approved for build |
-| **Last updated** | 2026-09-28 |
-| **Companion docs** | [BUILD_PLAN.md](BUILD_PLAN.md) (architecture and milestones) · [UI_SPEC.md](UI_SPEC.md) (design system and screens) |
+| **Covers** | StackPilot 0.1 |
+| **Companion docs** | [BUILD_PLAN.md](BUILD_PLAN.md) (technical design) · [UI_SPEC.md](UI_SPEC.md) (the interface) · [CONFIG.md](CONFIG.md) (`stackpilot.json`) |
 
 ---
 
@@ -45,17 +43,17 @@ Switching between these costs attention every time. A crash in one terminal tab 
 
 ## 4. Goals and non-goals
 
-### Goals (v1)
+### Goals
 - G1: Replace `htop` for day-to-day monitoring on macOS and Linux.
 - G2: Replace `foreman`/`overmind`/"many tabs" for running a local dev stack.
 - G3: Replace `pm2` for simple interactive supervision on a single server.
 - G4: Install on any supported machine in **under 30 seconds** with **no runtime dependencies**.
 - G5: Make switching free: read the user's existing Procfile, `package.json` scripts, or pm2 config.
 
-### Non-goals (v1)
+### Non-goals
 - Windows support.
 - Remote or multi-machine monitoring, and web dashboards.
-- A background daemon. Managed processes live only as long as StackPilot runs; v1.1 hands long-lived supervision to systemd instead (§9).
+- A background daemon. Managed processes live only as long as StackPilot runs; long-lived supervision is planned through systemd instead (§9).
 - Containers, Kubernetes, and cluster mode (pm2 `instances`).
 - Disk I/O and network throughput graphs (roadmap).
 
@@ -65,9 +63,9 @@ Switching between these costs attention every time. A crash in one terminal tab 
 
 | Command | Aliases | Behavior |
 |---|---|---|
-| `stackpilot` | — | Opens the **dashboard** (btop-style: cpu, mem, managed, ports, proc). The stack is shown `idle`: nothing starts until you press `a` (all) or `s` (the selected process). |
-| `stackpilot pm` | `-pm`, `--pm` | Finds the stack config, **starts the stack**, and opens the dashboard with the **managed box** focused |
-| `stackpilot sm` | `-sm`, `--sm` | Opens the dashboard **without** the managed box. Never reads or runs a stack config. |
+| `stackpilot` | — | Opens the **dashboard** (cpu, mem, stack, ports, proc). The stack is shown `idle`: nothing starts until you press `a` (all) or `s` (the selected process). |
+| `stackpilot pm` | `-pm`, `--pm` | Finds the stack config, **starts the stack**, and opens the dashboard with the **stack box** focused |
+| `stackpilot sm` | `-sm`, `--sm` | Opens the dashboard **without** the stack box. Never reads or runs a stack config. |
 | `stackpilot init` | — | Detects a Procfile or `package.json` scripts, lets you pick processes, and writes `stackpilot.json` |
 | `stackpilot import pm2 [file]` | — | Converts a running pm2 setup (`pm2 jlist`) or an ecosystem file into `stackpilot.json` |
 | `stackpilot doctor` | — | Checks platform support, required system tools, terminal color depth, and config validity |
@@ -86,27 +84,27 @@ Running `stackpilot pm` with none of these shows a guided empty state. It never 
 
 ### 5.3 Screens (details in [UI_SPEC.md](UI_SPEC.md))
 
-One **btop-style dashboard** (decided at the M2 review, replacing the Overview/Monitor/Manager screens):
+One **dashboard**, styled as a glass cockpit, with a header strip on top (the stack's readiness, recent crashes, and a CAUTION/WARNING annunciator):
 
 | Box | Purpose |
 |---|---|
-| **cpu** | Braille history graph of total CPU plus gradient meters per core |
-| **mem** | Used / cache / free / swap meters |
+| **cpu** | Braille history graph of total CPU plus a gauge per core |
+| **mem** | Used / cache / free / swap gauges |
+| **stack** | The stack: status, readiness and resources per process, and a details panel (`⏎`). While it has focus, the big panel shows its logs (follow, search, all processes) |
 | **ports** | TCP listeners, kill by port |
 | **proc** | The full process table (flat or tree), filter, sort, details, kill and renice |
-| **managed** (M3) | The stack: status, readiness and resources per process. While it has focus, the big panel shows its logs (follow, search, all processes) |
 
 ## 6. Features and requirements
 
-Priority: **P0** is needed for v1 to ship, **P1** is planned for v1 and can slip to v1.1, **P2** is on the roadmap.
+Priority: **P0** is core to the product, **P1** completes it, **P2** is on the roadmap. Everything listed here ships in 0.1.
 
 ### 6.1 System Monitor
 
 | ID | Feature | Pri | Acceptance criteria |
 |---|---|---|---|
 | M1 | Live CPU and memory | P0 | Refreshes every 1 s by default. Values within ±5 percentage points of Activity Monitor or `htop` under steady load |
-| M2 | History sparklines | P0 | The last 60 samples of CPU% and MEM% are drawn on the Overview and in the Monitor header |
-| M3 | Per-core CPU | P0 | One meter per logical core. Wraps into a grid on narrow terminals |
+| M2 | CPU history | P0 | A braille graph of total CPU over the last 4 minutes (240 samples) |
+| M3 | Per-core CPU | P0 | One gauge per logical core, in up to three columns; more cores than fit end in `+N more` |
 | M4 | Process table | P0 | Sort by cpu/mem/pid/name/user, filter live by name/command/PID, keep the selection across refreshes, and keep row order stable |
 | M5 | Threshold highlights | P0 | Rows and meters change color at warn/danger thresholds (defaults: CPU 50/80%, process MEM 500 MB/1.5 GB), configurable in `stackpilot.json` |
 | M6 | Process tree | P0 | Toggle between the flat and tree views. Subtrees can collapse. Sorting applies among siblings |
@@ -125,7 +123,7 @@ Priority: **P0** is needed for v1 to ship, **P1** is planned for v1 and can slip
 | P5 | Saved logs | P0 | Written to `.stackpilot/logs/<name>.log` with file mode 0600, rotated at 10 MB with 3 files kept |
 | P6 | Log search | P0 | `/` filters the visible log to lines matching a substring or `/regex/`, with a match count and highlighting |
 | P7 | Resource link | P0 | CPU%, RSS, and child-process count for each managed process, **summed over its whole process tree** (so `npm run dev` includes node, esbuild, and the rest). Managed processes are marked in the Monitor table |
-| P8 | Memory-leak hint | P1 | Flags a managed process whose memory has risen steadily for ≥10 minutes (thresholds in BUILD_PLAN §8.5). It is advisory only and never kills anything |
+| P8 | Memory-leak hint | P1 | Flags a managed process whose memory has risen steadily for ≥10 minutes (thresholds in BUILD_PLAN §8.5), as `▲ leak?` in the stack box and in its details. It is advisory only and never kills anything |
 | P9 | Env loading | P0 | Precedence, lowest to highest: inherited environment, then `envFile` (default `.env`), then inline `env`. Values are masked in the UI unless you choose to reveal them |
 | P10 | Manual control | P0 | Start, stop, and restart one process or all of them. Add a one-off command during a session; it isn't saved unless you save it |
 | P11 | Clean shutdown | P0 | On quit, Ctrl+C, SIGTERM, or SIGHUP (such as an SSH disconnect), processes stop in reverse dependency order: SIGTERM to each process group, then SIGKILL after `stopTimeoutMs` |
@@ -146,10 +144,10 @@ Priority: **P0** is needed for v1 to ship, **P1** is planned for v1 and can slip
 |---|---|---|---|
 | D1 | Single binary | P0 | Self-contained builds for `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`. Nothing else needs to be installed |
 | D2 | Install script | P0 | `curl -fsSL <url>/install.sh \| sh` detects the platform, checks the SHA-256 checksum, and installs to `~/.local/bin` without sudo |
-| D3 | Homebrew tap | P0 | `brew install piyushy111/tap/stackpilot`, with the formula updated automatically on each release |
+| D3 | Homebrew tap | P1 | `brew install piyushy111/tap/stackpilot`. `scripts/homebrew-formula.js` writes the formula for each release from its `SHA256SUMS` |
 | D4 | npm wrapper | P0 | `npm i -g stackpilot-tui` or `npx stackpilot-tui` installs the prebuilt binary for the platform. The npm package contains no source code |
-| D5 | `stackpilot update` | P1 | Updates the binary in place after a checksum check. Shows at most one new-version notice per day, and it can be turned off |
-| D6 | Provenance | P0 | Every release has `checksums.txt` and a GitHub artifact attestation |
+| D5 | `stackpilot update` | P1 | Updates a standalone binary in place after checking its checksum and its version. For npm, Homebrew and source installs it prints the right update command instead |
+| D6 | Provenance | P0 | Every release has `SHA256SUMS`, GitHub build attestations for its archives, and npm provenance for its packages |
 
 ## 7. Non-functional requirements
 
@@ -176,11 +174,11 @@ Priority: **P0** is needed for v1 to ship, **P1** is planned for v1 and can slip
 
 | Release | Scope |
 |---|---|
-| **v1.0** | Everything marked P0 in §6. Built in the four milestones in BUILD_PLAN §12 (about 5 weeks) |
-| **v1.1** | P1 items that slipped. `stackpilot export systemd`, which generates unit files so the OS keeps processes alive after SSH ends. musl/Alpine builds. Light theme. Reloading the config while running |
-| **v2** | Optional daemon mode (pm2-style reattach). Disk and network I/O graphs. Remote attach over SSH. Windows only if users ask for it |
+| **0.1** | Everything marked P0 in §6, and the P1 items above |
+| **Next** | `stackpilot export systemd`, which generates unit files so the OS keeps processes alive after SSH ends. musl/Alpine builds. Light theme. Reloading the config while running |
+| **Later** | Optional daemon mode (pm2-style reattach). Disk and network I/O graphs. Remote attach over SSH. Windows only if users ask for it |
 
-**Servers in v1:** processes live as long as StackPilot does. The documented pattern is:
+**Servers today:** processes live as long as StackPilot does. The documented pattern is:
 `tmux new -s stackpilot` → `stackpilot pm` → detach with `Ctrl-b d`. The processes keep running after you log out.
 
 ## 10. Competitive positioning
@@ -193,7 +191,7 @@ Priority: **P0** is needed for v1 to ship, **P1** is planned for v1 and can slip
 | Readiness and start order | ✘ | ✘ | partial | ✘ | ✔ |
 | Resource use per managed app | ✘ | ✘ | ✔ | ✘ | ✔ (whole process tree) |
 | Runtime needed | none | none | Node | Ruby / Go | **none** |
-| Keeps running after logout | n/a | n/a | daemon | ✘ | tmux (v1), systemd (v1.1) |
+| Keeps running after logout | n/a | n/a | daemon | ✘ | tmux today, systemd export planned |
 
 ## 11. Risks
 
@@ -203,27 +201,24 @@ Priority: **P0** is needed for v1 to ship, **P1** is planned for v1 and can slip
 | macOS and Linux data sources behave differently (e.g. Linux `ps %cpu` is a lifetime average) | Certain | Platform adapter with fixture-based tests for each OS. Linux reads `/proc` directly (BUILD_PLAN §7) |
 | The ports view needs root to see other users' processes | Certain | Degrade gracefully and explain on screen. Never ask for sudo inside the TUI |
 | The binary is large (about 70 MB, mostly the bundled Bun runtime) | Medium | Accepted for zero dependencies. Downloads are compressed. Size is tracked per release |
-| Scope is about 5 weeks against the original 2-week estimate | High | Each milestone produces something usable on its own. P1 items can slip to v1.1 without blocking v1 |
 | Commands in a cloned repo's config run when the user types `stackpilot pm` | Low | This is the same trust model as `npm run`. Plain `stackpilot` runs them only when you press `a` or `s`; `stackpilot sm` never reads the config. `stackpilot import pm2` executes a `.js` ecosystem file only after a yes |
 
 ## 12. Decision log
 
-| Date | Decision | Reason |
-|---|---|---|
-| 2026-09-28 | Monitor-first product, with an Overview home screen and drill-in | The #1 daily job is "see what's eating my machine" |
-| 2026-09-28 | macOS **and Linux** in v1 | Being able to run it on EC2 is central to the product |
-| 2026-09-28 | Ship a compiled binary. npm is a wrapper only | OpenTUI needs Bun ≥1.3 or Node ≥26.4, which most machines don't have. Verified: `bun build --compile` produces a working 73 MB standalone binary |
-| 2026-09-28 | Package name `stackpilot-tui` on npm, command name `stackpilot` | `stackpilot` and `stackpilot-cli` are taken on npm |
-| 2026-09-28 | Subcommands (`pm`, `sm`) with `-pm` and `-sm` accepted as aliases | Under Unix conventions, `-pm` reads as `-p -m` |
-| 2026-09-28 | No daemon in v1. tmux now, systemd export in v1.1 | A daemon is the largest and riskiest part to build; systemd already solves supervision after logout |
-| 2026-09-28 | Quitting stops all managed processes | Predictable, and nothing is left orphaned. Same as `docker compose up` |
-| 2026-09-28 | Procfile support and pm2 import in v1 | Makes switching free for existing users, and costs about a day |
-| 2026-09-28 | Persistence in scope (`stackpilot.json`, saved logs) | Reverses the v1 PRD. Needed for "one command starts everything" |
-| 2026-09-28 | Soft-pastel semantic palette, dark theme first | Calm enough to leave open all day. Color carries meaning, not decoration |
-| 2026-09-29 | **btop-style dashboard; Overview dropped**; gradient-colored meters and graphs everywhere | M2 review: the v1 UI had no real graphs, felt muted and unfamiliar to developers |
-| 2026-09-29 | **Black background**, neutral grey surfaces; pastel accents kept | M2b review: the bluish Catppuccin base was not wanted |
-| 2026-09-29 | Managed is a **box** on the dashboard; **its logs take the big panel** while it has focus | M3 plan: one familiar screen instead of a separate Manager screen; logs need the width |
-| 2026-09-29 | Plain `stackpilot` shows the stack **idle**; `a`/`s` start it | M3 plan: opening the dashboard must never start things by surprise |
-| 2026-09-29 | After a hard crash the stack **waits for the orphan question** before starting | Found in M3 E2E testing: a new db would race the left-over one for its port |
-| 2026-09-29 | **Ship first.** The < 1% CPU target is deferred: CI guards against regressions (4%), and 1% is the next optimisation goal | Measured 3.1–3.4% for the dashboard after the native sampler, which is fine to leave running. Installable packages matter more now |
-| 2026-09-29 | Other users' processes on macOS refresh every 5 s (a trimmed `ps`); your own processes refresh every second, natively | macOS only exposes CPU/memory of other users' processes to root (`ps` is setuid) |
+| Decision | Reason |
+|---|---|
+| Monitor and process manager in **one dashboard** | The #1 daily job is "see what's eating my machine"; the stack is part of that picture, not a separate screen |
+| macOS **and Linux** | Being able to run it on EC2 is central to the product |
+| Ship a compiled binary; npm is a wrapper only | OpenTUI needs Bun ≥1.3 or Node ≥26.4, which most machines don't have. `bun build --compile` produces a working standalone binary |
+| Package name `stackpilot-tui` on npm, command name `stackpilot` | `stackpilot` is taken on npm |
+| Subcommands (`pm`, `sm`) with `-pm` and `-sm` accepted as aliases | Under Unix conventions, `-pm` reads as `-p -m` |
+| No daemon; tmux now, a systemd export next | A daemon is the largest and riskiest part to build; systemd already solves supervision after logout |
+| Quitting stops all managed processes | Predictable, and nothing is left orphaned. Same as `docker compose up` |
+| Procfile support and pm2 import | Makes switching free for existing users |
+| Persistence (`stackpilot.json`, saved logs) | Needed for "one command starts everything" |
+| A glass-cockpit look: dark, quiet when normal, one meaning per color | Calm enough to leave open all day; color appears only when something needs a look (UI_SPEC §1) |
+| The stack is a **box** on the dashboard; **its logs take the big panel** while it has focus | One familiar screen instead of a separate manager screen; logs need the width |
+| Plain `stackpilot` shows the stack **idle**; `a`/`s` start it | Opening the dashboard must never start things by surprise |
+| After a hard crash the stack **waits for the orphan question** before starting | A new db would otherwise race the left-over one for its port |
+| The < 1% CPU budget is a goal, with a 4% regression guard in CI | The dashboard measures 3.1–3.4%, which is fine to leave running; getting under 1% needs structural changes (BUILD_PLAN §11) |
+| Other users' processes on macOS refresh every 5 s (a trimmed `ps`); your own refresh every second, natively | macOS only exposes CPU/memory of other users' processes to root (`ps` is setuid) |

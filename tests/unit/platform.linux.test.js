@@ -110,7 +110,7 @@ test('adapter.listProcesses reads /proc, resolves users and skips vanished pids'
         assert.equal(adapter.clockTicks, CLK);
     }));
 
-test('per tick only stat is re-read: identity (user, command) is read once per process (M4 perf)', () =>
+test('per tick only stat is re-read: identity (user, command) is read once per process', () =>
     withFakeRoot({ processes: PROCESSES }, async ({ procRoot, etcRoot }) => {
         const fs = require('node:fs');
         const path = require('node:path');

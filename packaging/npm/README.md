@@ -65,7 +65,9 @@ project's processes, the way pm2 or foreman do. Because it does both, it can tel
   with backoff, and stops everything cleanly in reverse order.
 - **Follow it.** A live logs panel per process, or all of them interleaved, with pause and search.
   Logs are also saved to `.stackpilot/logs/`, and each managed process shows the CPU and memory of its
-  whole process tree, with a hint when its memory keeps climbing.
+  whole process tree, with a `▲ leak?` mark when its memory keeps climbing and a details panel with
+  its memory over the last ten minutes. A header line lights CAUTION or WARNING when something needs
+  a look, including a process that keeps crashing.
 - **Stay safe.** Every kill and renice goes through confirmations: one key for your own processes, the
   exact name typed for system processes, and StackPilot itself and PID 1 are blocked. After a crash,
   StackPilot finds the processes it left running and offers to stop them.
@@ -178,7 +180,7 @@ To keep a stack running after you log out of a server, run `stackpilot pm` insid
 | Everywhere | `Tab` next box · `?` help · `Esc` back · `q` quit (asks before stopping a running stack) · `L` logs of a failed process |
 | Process table | `↑↓` select · `/` filter · `s` sort (`S` reverse) · `t` tree · `⏎` details · `x` kill (`X` force) · `r` renice |
 | Ports | `↑↓` select · `⏎` jump to the owner · `x` kill the owner · `/` filter |
-| Managed box | `↑↓` select · `s` start · `x` stop · `r` restart · `a` start all · `X` stop all · `n` new · `e` env · `w` save |
+| Stack box | `↑↓` select · `⏎` details · `p` show in the process table · `s` start · `x` stop · `r` restart · `a` start all · `X` stop all · `n` new · `e` env · `w` save |
 | Logs panel | `f` follow · `/` search · `v` all processes or one · `PgUp`/`PgDn` scroll · `g`/`G` oldest/newest |
 
 The help screen (`?`) is generated from the key bindings, so it always matches what the keys do.

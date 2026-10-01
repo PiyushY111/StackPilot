@@ -2,16 +2,15 @@
 
 | | |
 |---|---|
-| **Version** | 3.0: the glass cockpit (v2.0 was a btop-style dashboard in pastels; v1.0, with its Overview screen, was replaced after the M2 review) |
-| **Last updated** | 2026-10-01 |
-| **Implements** | [PRD.md](PRD.md) §5.3 and §6 · built in milestones M2 and M3 of [BUILD_PLAN.md](BUILD_PLAN.md) |
+| **Covers** | StackPilot 0.1 |
+| **Implements** | [PRD.md](PRD.md) §5.3 and §6 · the UI layer of [BUILD_PLAN.md](BUILD_PLAN.md) |
 
 ---
 
 ## 1. Design goals
 
 1. **A glass cockpit for your machine.** StackPilot borrows the conventions of avionics displays, which are built to be read at a glance under load: boxed displays with their names in the border, braille history graphs and tape gauges, and one fixed meaning per color. It still works like the tools developers know (htop's dense process table, vim/less keys). `stackpilot` opens straight into the dashboard; there's no separate home screen.
-2. **The dark cockpit.** When everything is normal, the screen is quiet: white text, green gauges, no lit annunciators. Color appears on a *number* or a *title* only when it needs a look. Gauges and graphs still show the whole gradient, so load reads as length and color at once. (The M2 review found a fully colorless v1 flat; v3 keeps color on the instruments and takes it off the labels.)
+2. **The dark cockpit.** When everything is normal, the screen is quiet: white text, green gauges, no lit annunciators. Color appears on a *number* or a *title* only when it needs a look. Gauges and graphs still show the whole gradient, so load reads as length and color at once: color stays on the instruments and off the labels.
 3. **Still meaningful.** Each color has one job (§3.1), and every status also has a glyph. Nothing is decoration only.
 4. **Planned.** Every box, state, key, and color is specified here before it's built.
 
@@ -51,7 +50,7 @@ they use semantic tokens** (`ui/theme/tokens.js`, the only file with colors).
 | `cyan` | `#4fd1e8` | **What you chose.** Keys in hints and dialogs, the sort column, filters, search matches, `◆managed` (yours) |
 | `magenta` | `#f06be6` | **What is active.** The focused box (border and lit title), the selection bar and selected name |
 
-When `COLORTERM` is absent and `TERM` says 256color, OpenTUI downsamples truecolor itself (verified in M2).
+When `COLORTERM` is absent and `TERM` says 256color, OpenTUI downsamples truecolor itself.
 
 ### 3.2 Gauges, readouts and titles
 
@@ -128,7 +127,7 @@ Below the header strip (§4.3), at 92×24:
 | **mem** (left) | Meters for Used, Cache, Free and Swap, each with its size |
 | **ports** (left, below mem) | TCP listeners: `:port name ◆managed address`. The title shows the count. It notes when owners are partial (not root) |
 | **proc** (right, the rest of the height) | The process table or tree. The title shows filter, sort and the visible/total count |
-| **stack** (the managed box; M3, left column between mem and ports) | The stack, one line per process (§6.5). It grows with the stack, up to half the left column, and ports always keeps 3 rows; with no room for a single row it is left out. `stackpilot pm` opens with it focused; `stackpilot sm` has no stack box |
+| **stack** (the managed box; left column between mem and ports) | The stack, one line per process (§6.5). It grows with the stack, up to half the left column, and ports always keeps 3 rows; with no room for a single row it is left out. `stackpilot pm` opens with it focused; `stackpilot sm` has no stack box |
 
 **Key hints sit in the focused box's bottom border**, keys in cyan: at most five, generated from the keymap,
 keeping only whole hints that fit. Toasts appear in the right part of the big panel's bottom border and win
@@ -172,18 +171,18 @@ One row across the top, on `mantle`:
 
 ## 5. Navigation and keys
 
-- There's one screen, the **dashboard**. `stackpilot pm` opens it with the managed box focused and the stack
+- There's one screen, the **dashboard**. `stackpilot pm` opens it with the stack box focused and the stack
   starting; plain `stackpilot` shows the stack `idle` (nothing runs until you press `a` or `s`).
-- **`Tab`** moves focus proc → managed → ports. Keys act on the focused box.
-- `stackpilot sm` is the same dashboard without the managed box (Tab: proc → ports).
+- **`Tab`** moves focus proc → stack → ports. Keys act on the focused box.
+- `stackpilot sm` is the same dashboard without the stack box (Tab: proc → ports).
 
 | Context | Border keys (≤ 5) | More (help only) |
 |---|---|---|
-| proc · table | `↑↓ select` `/ filter` `s sort` `x kill` `⏎ info` | `S` reverse, `X` SIGKILL, `r` renice, `t` tree, `c` more cores, `PgUp/PgDn/Home/End`, `⇥` next box |
+| proc · table | `↑↓ select` `/ filter` `s sort` `x kill` `⏎ info` | `S` reverse, `X` SIGKILL, `r` renice, `t` tree, `PgUp/PgDn/Home/End`, `⇥` next box |
 | proc · tree | `↑↓ select` `←→ fold` `/ filter` `x kill` `t flat` | as table |
 | ports | `x kill owner` `⏎ jump` `↑↓ select` `/ filter` `⇥ next box`: the box is narrow, so the border shows as many as fit, most useful first | — |
 | stack (its own border) | `s start` `x stop` `r restart` `a start all` | `↑↓` select, `X` stop all, `⏎` details (or pick scripts), `p` show in proc, `n` new process, `e` env, `w` save to stackpilot.json |
-| managed (logs panel border) | `f follow` `/ search` `v all / one` `PgUp older` `PgDn newer` | `g`/`Home` oldest, `G`/`End` newest |
+| stack (logs panel border) | `f follow` `/ search` `v all / one` `PgUp older` `PgDn newer` | `g`/`Home` oldest, `G`/`End` newest |
 | detail drawer | `x kill` `r renice` `Esc close` | — |
 | Everywhere | — | `?` help, `q`/`Ctrl+C` quit (asks first while processes run, S12), `Esc` back/close, `L` logs of the failed process (not in `sm`) |
 
@@ -192,7 +191,7 @@ Arrows and `j`/`k` both move the selection, which is why kill is `x`, not `k`.
 ## 6. Panels in detail
 
 ### 6.1 Process table
-- Columns: `PID` (muted, right-aligned) · `Program` (with `◆managed` badge; the badge takes at most half the column) · `User` · `Cpu%` (gradient) + a 4-cell inline meter · `Mem` (gradient by memory thresholds) · `State` · `Command` (wide only, paths cut in the middle).
+- Columns: `PID` (muted, right-aligned) · `Program` (with `◆managed` badge; the badge takes at most half the column) · `User` · `Cpu%` (a readout, §3.2) + a 4-cell inline gauge · `Mem` (white, amber or red by the memory thresholds) · `State` · `Command` (wide only, paths cut in the middle).
 - The selected row gets a `surface0` background and a `▌` bar in magenta. Without color: reverse video.
 - **Tree** (`t`): `├─` `└─` `│` guides in muted text; `▾` expanded, `▸` folded (`←→`).
 - Empty filter result (S6): `No processes match "nodee" · Esc to clear`.
@@ -276,9 +275,9 @@ the others; each key in the dialog's key line is cyan. `Esc` always cancels.
 | S9 | Terminal too small | Centered size message |
 | S10/S11 | Action failed / succeeded | A toast in the proc border (danger 6 s / muted 3 s) |
 | S14 | No color | Attributes, glyphs and block-character graphs only |
-| S2 | No stack here | Managed box empty state (§6.5) |
-| S3 | Invalid config | Managed box lists the problems; `stackpilot pm` prints them and exits 2 |
-| S7 | A managed process restarting | `↻ retry 3 in 4s` in the managed box |
+| S2 | No stack here | Stack box empty state (§6.5) |
+| S3 | Invalid config | Stack box lists the problems; `stackpilot pm` prints them and exits 2 |
+| S7 | A managed process restarting | `↻ retry 3 in 4s` in the stack box, and `↻ name n in 5m` in the header (§4.3) |
 | S8 | A process gave up (`maxRestarts`) | Danger line at the top: `api stopped after 11 crashes (last exit 1) · see its logs · L show logs` |
 | S12 | Quit with processes running | Quit dialog, then the stop progress (§6.6) |
 | S13 | Processes left by a previous session | The left-running dialog (§6.6) |

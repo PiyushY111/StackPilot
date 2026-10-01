@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Configurable fixture process for M3 tests and the demo stack. Everything is opt-in:
+// Configurable fixture process for the process-manager tests and the demo stack. Everything is opt-in:
 //
 //   --tcp <port>          listen on a raw TCP port (after --delay)
 //   --http <port>         serve HTTP; GET /health → 200 "ok", anything else → 404

@@ -5,14 +5,14 @@
 //
 //   node scripts/bench.js [seconds=30]          bun scripts/bench.js 60
 //
-// Why a child shell: process.cpuUsage() only sees this process, and before M4 most of the cost was in
+// Why a child shell: process.cpuUsage() only sees this process, and much of the cost can be in
 // the ps/lsof children it spawned (a 1.5% "engine" was really ~5%). Each measurement runs in
 // `sh -c '<runtime> bench.js --engine N; times'`: the shell's `times` reports the CPU of every descendant
 // it waited for, children included. A run with a 0 s window measures start-up alone and is subtracted.
 const { spawnSync } = require('node:child_process');
 
 // The product target (PRD §7, all of StackPilot's CPU, children included) is reported; CI fails only
-// above the regression guard, set above today's measurements (BUILD_PLAN §11.3). The target is
+// above the regression guard, set above today's measurements (BUILD_PLAN §11). The target is
 // deferred while shipping comes first (decision 2026-09-29).
 const TARGET = { cpuPercent: 1, rssMB: 80 };
 const GUARD = { cpuPercent: Number(process.env.STACKPILOT_BENCH_MAX_CPU || 4), rssMB: 120 };

@@ -173,8 +173,8 @@ async function readOptional(fs, file) {
 }
 
 // One reused buffer for the per-tick /proc reads. Synchronous on purpose: an async readFile is three
-// thread-pool round trips (open, read, close), and 600 processes × 3 files cost 170 ms of CPU per tick in
-// M3. One open/read/close into this buffer costs about 2.5 µs (measured in a Debian container).
+// thread-pool round trips (open, read, close), and 600 processes × 3 files cost 170 ms of CPU
+// per tick that way. One open/read/close into this buffer costs about 2.5 µs (measured in a Debian container).
 const PROC_TEXT_MAX = 64 * 1024;
 const scratch = Buffer.allocUnsafe(PROC_TEXT_MAX);
 

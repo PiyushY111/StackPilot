@@ -1,4 +1,4 @@
-// The only file that calls macOS directly, through Bun's FFI (M4): libproc for processes and sockets,
+// The only file that calls macOS directly, through Bun's FFI: libproc for processes and sockets,
 // Mach and sysctl for memory. Every call returns plain values or null.
 //
 // Struct offsets and constants come from the SDK headers, not from memory: regenerate them with

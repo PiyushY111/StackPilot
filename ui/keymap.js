@@ -52,7 +52,7 @@ export const KEYMAP = Object.freeze({
         k(['/'], '/ filter', 'filter:open', footer),
         k(['tab'], '⇥ next box', 'focus:next', footer),
     ],
-    // The managed box (M3). Its border shows the process keys; the logs panel shows the log keys.
+    // The managed box. Its border shows the process keys; the logs panel shows the log keys.
     managed: [
         k(['s'], 's start', 'managed:start', footer),
         k(['x'], 'x stop', 'managed:stop', footer),

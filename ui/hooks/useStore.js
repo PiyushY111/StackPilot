@@ -4,7 +4,7 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react';
 // so reference equality is enough for React to detect updates.
 //
 // One sampling tick commits several times (system, processes, ports). With `coalesceMs > 0` those
-// notifications are merged into a single render — measured in M2 to cut the UI's CPU use roughly
+// notifications are merged into a single render — measured to cut the UI's CPU use roughly
 // in half. Tests pass 0 so every change renders synchronously.
 export function useStore(store, coalesceMs = 0) {
     // Stable identity: a new subscribe function would make React resubscribe on every render and

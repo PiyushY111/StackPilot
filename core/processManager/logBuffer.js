@@ -29,7 +29,7 @@ function compileFilter(filter) {
 /** @param {{ maxLines?: number, now?: () => number }} [options] */
 function createLogBuffer({ maxLines = DEFAULT_MAX_LINES, now = Date.now } = {}) {
     // Private, append-only storage: copying the whole buffer for every line (as an immutable update
-    // would) cost ~1M element copies/s for a process printing 500 lines/s (measured in M3). Lines are
+    // would) cost ~1M element copies/s for a process printing 500 lines/s. Lines are
     // appended and the oldest dropped in amortized chunks; readers only ever get copies.
     /** @type {LogLine[]} */
     let buffer = [];

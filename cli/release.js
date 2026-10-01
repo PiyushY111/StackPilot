@@ -1,4 +1,4 @@
-// Release plumbing shared by `stackpilot update` and `stackpilot doctor` (BUILD_PLAN §13): where releases
+// Release plumbing shared by `stackpilot update` and `stackpilot doctor` (BUILD_PLAN §12): where releases
 // live, what this machine downloads, and how this copy of StackPilot was installed.
 const REPO = 'piyushy111/StackPilot';
 const LATEST_RELEASE_URL = `https://api.github.com/repos/${REPO}/releases/latest`;

@@ -1,4 +1,4 @@
-// stackpilot pm / init / import pm2 through main() (M3 C1–C3). No UI: pm is checked up to the terminal check.
+// stackpilot pm / init / import pm2 through main(). No UI: pm is checked up to the terminal check.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');

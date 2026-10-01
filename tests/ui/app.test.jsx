@@ -262,7 +262,7 @@ test('renice: prefilled value, success, and a readable error toast (S10)', async
     expect(await frame(ui)).toContain('needs sudo');
 });
 
-test('a managed process offers stop via manager (M3) or kill anyway', async () => {
+test('a managed process offers stop via manager or kill anyway', async () => {
     const { ui, store, actions } = await setup();
     store.upsertManaged({ id: 'api', pid: 812 });
     actions.select(812);

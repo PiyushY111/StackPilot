@@ -35,7 +35,7 @@ async function runUi(mode, parsed, io, stack = undefined) {
     }
     // NODE_ENV must be decided at PROCESS START, never here: Bun picks the JSX transform (jsx vs
     // jsxDEV) at startup, so flipping React to production mid-run crashes with "jsxDEV is not a
-    // function" (found in M2). `npm start` and the release build set NODE_ENV=production up front.
+    // function". `npm start` and the release build set NODE_ENV=production up front.
     // A literal specifier, so `bun build --compile` bundles the UI. It is imported lazily: JSX and
     // OpenTUI only load under Bun, after the checks above (never in the Node test run).
     // @ts-expect-error -- the UI is JSX, outside the type-checked core

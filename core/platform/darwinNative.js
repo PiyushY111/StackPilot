@@ -1,4 +1,4 @@
-// Native macOS sampling (M4): processes, memory and listening ports from libproc and Mach calls
+// Native macOS sampling: processes, memory and listening ports from libproc and Mach calls
 // (darwinFfi.js) instead of spawning ps, vm_stat, sysctl and lsof. Spawning `ps` every second cost about
 // 2.5% of a core on its own; a native sample of ~600 processes costs about 1 ms.
 //

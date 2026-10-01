@@ -71,10 +71,3 @@ test('no stack source at all is a normal, empty result', (t) => {
     const stack = loadStack({ cwd: root, stopAt: root });
     assert.deepEqual(stack, { source: null, path: null, config: null, errors: [], warnings: [], detected: null });
 });
-
-test('a kestrel.json from before the rename is not read: the stack falls through to the next source', (t) => {
-    const root = tempTree(t, { 'kestrel.json': STACKPILOT, Procfile: 'web: npm run dev' });
-    const stack = loadStack({ cwd: root });
-    assert.equal(stack.source, 'Procfile');
-    assert.equal(loadStack({ cwd: tempTree(t, { 'kestrel.json': STACKPILOT }) }).source, null);
-});

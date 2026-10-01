@@ -41,5 +41,11 @@ Working as designed:
 `stackpilot update` and the installer download over HTTPS from GitHub Releases and check each archive's
 SHA-256 against the release's `SHA256SUMS` before installing. The update also runs the new binary once
 and checks its version before replacing the old one. Because the checksum file comes from the same
-release, this protects against corrupted or tampered downloads in transit. Signed provenance
-attestations are planned for authenticating the release itself.
+release, this protects against corrupted or tampered downloads in transit. To authenticate the release
+itself, every archive has a GitHub build attestation and every npm package has npm provenance, both
+linking it to the workflow run and commit that built it:
+
+```sh
+gh attestation verify stackpilot-v<version>-<os>-<arch>.tar.gz --repo piyushy111/StackPilot
+npm audit signatures            # in a project with stackpilot-tui installed
+```

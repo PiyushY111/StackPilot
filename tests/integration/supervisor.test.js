@@ -1,4 +1,4 @@
-// M3 supervisor behaviour against real child processes (BUILD_PLAN §8.4).
+// Supervisor behaviour against real child processes (BUILD_PLAN §8.4).
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');

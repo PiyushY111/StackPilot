@@ -1,4 +1,4 @@
-// `stackpilot doctor` (M4): every check reports ok / warn / fail with a fix; only failures exit 1.
+// `stackpilot doctor`: every check reports ok / warn / fail with a fix; only failures exit 1.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
