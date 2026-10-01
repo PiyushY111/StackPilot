@@ -22,7 +22,7 @@ Options
 Developer
   stackpilot sm --dump [--ticks N]   Print N JSON snapshots and exit (no UI)
 
-Docs: https://github.com/piyushy111/StackPilot  ·  config: https://github.com/piyushy111/StackPilot/blob/main/docs/CONFIG.md
+Docs: https://github.com/PiyushY111/StackPilot  ·  config: https://github.com/PiyushY111/StackPilot/blob/main/docs/CONFIG.md
 `;
 
 /** @param {any} _parsed @param {{ stdout: { write: (s: string) => void } }} io */

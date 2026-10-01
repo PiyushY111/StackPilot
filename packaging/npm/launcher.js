@@ -8,7 +8,7 @@ const path = require('node:path');
 
 const target = `${process.platform}-${process.arch}`;
 const pkg = `stackpilot-tui-${target}`;
-const INSTALLER = 'curl -fsSL https://raw.githubusercontent.com/piyushy111/StackPilot/main/packaging/install.sh | sh';
+const INSTALLER = 'curl -fsSL https://raw.githubusercontent.com/PiyushY111/StackPilot/main/packaging/install.sh | sh';
 
 function binaryPath() {
     try {

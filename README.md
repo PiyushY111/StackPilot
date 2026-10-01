@@ -3,7 +3,7 @@
 **htop and pm2 in one terminal app: see what is using your machine, and run your project's processes, from one screen.**
 
 [![npm](https://img.shields.io/npm/v/stackpilot-tui.svg)](https://www.npmjs.com/package/stackpilot-tui)
-[![CI](https://github.com/piyushy111/StackPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/piyushy111/StackPilot/actions/workflows/ci.yml)
+[![CI](https://github.com/PiyushY111/StackPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/PiyushY111/StackPilot/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Platforms: macOS · Linux](https://img.shields.io/badge/platforms-macOS%20%C2%B7%20Linux-lightgrey.svg)
 
@@ -103,15 +103,15 @@ npm install -g stackpilot-tui
 **Without npm** (a checksum-verifying installer, into `~/.local/bin`; set `STACKPILOT_INSTALL_DIR` to change it):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/piyushy111/StackPilot/main/packaging/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/PiyushY111/StackPilot/main/packaging/install.sh | sh
 ```
 
-Or download an archive from the [releases page](https://github.com/piyushy111/StackPilot/releases/latest).
+Or download an archive from the [releases page](https://github.com/PiyushY111/StackPilot/releases/latest).
 Every release is built in GitHub Actions from a tagged commit, and you can check where it came from:
 
 ```sh
 npm audit signatures                                   # an npm install
-gh attestation verify stackpilot-v<version>-<os>-<arch>.tar.gz --repo piyushy111/StackPilot
+gh attestation verify stackpilot-v<version>-<os>-<arch>.tar.gz --repo PiyushY111/StackPilot
 ```
 
 To update: `npm install -g stackpilot-tui@latest`, or `stackpilot update` for a curl install.
@@ -265,7 +265,7 @@ distributions such as Alpine aren't supported yet.
 
 - **Something looks wrong:** run `stackpilot doctor`. It checks the platform, sampling, ports, the terminal
   and your config, and says how to fix each problem. Include its output when you
-  [open an issue](https://github.com/piyushy111/StackPilot/issues/new/choose).
+  [open an issue](https://github.com/PiyushY111/StackPilot/issues/new/choose).
 - **Other users' processes show no CPU or memory on macOS, or ports have no owner:** macOS only shares
   those with root. Run StackPilot with `sudo` to see everything.
 - **`stackpilot-tui-<platform> is not installed`:** npm skipped the platform package because optional
@@ -283,7 +283,7 @@ as described in [SECURITY.md](SECURITY.md).
 ## Building from source
 
 ```sh
-git clone https://github.com/piyushy111/StackPilot.git && cd StackPilot
+git clone https://github.com/PiyushY111/StackPilot.git && cd StackPilot
 ./setup.sh                 # macOS, Linux, Windows WSL2   ·   PowerShell: .\setup.ps1
 npm run demo               # the process manager on a demo stack
 ```
@@ -321,4 +321,4 @@ Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.
 
 ## License
 
-Created by **Piyush Yadav** ([@piyushy111](https://github.com/piyushy111)). [MIT](LICENSE) © 2026 Piyush Yadav.
+Created by **Piyush Yadav** ([@PiyushY111](https://github.com/PiyushY111)). [MIT](LICENSE) © 2026 Piyush Yadav.

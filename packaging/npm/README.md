@@ -4,8 +4,8 @@
 
 [![npm version](https://img.shields.io/npm/v/stackpilot-tui.svg)](https://www.npmjs.com/package/stackpilot-tui)
 [![npm downloads](https://img.shields.io/npm/dm/stackpilot-tui.svg)](https://www.npmjs.com/package/stackpilot-tui)
-[![CI](https://github.com/piyushy111/StackPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/piyushy111/StackPilot/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/piyushy111/StackPilot/blob/main/LICENSE)
+[![CI](https://github.com/PiyushY111/StackPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/PiyushY111/StackPilot/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/PiyushY111/StackPilot/blob/main/LICENSE)
 
 StackPilot shows what is using your machine, the way htop and btop do. It also starts and supervises your
 project's processes, the way pm2 or foreman do. Because it does both, it can tell you that *your*
@@ -98,7 +98,7 @@ not supported (use WSL2), and neither are musl-based distributions such as Alpin
 **Without npm**, the same binary installs with a checksum-verifying script:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/piyushy111/StackPilot/main/packaging/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/PiyushY111/StackPilot/main/packaging/install.sh | sh
 ```
 
 ## Quick start
@@ -169,7 +169,7 @@ A stack is the set of processes a project needs, described in `stackpilot.json`:
 - An invalid config is reported with every problem and its path, and `stackpilot pm` exits with code 2,
   so the same check works in CI.
 
-Every option and its default: [configuration reference](https://github.com/piyushy111/StackPilot/blob/main/docs/CONFIG.md).
+Every option and its default: [configuration reference](https://github.com/PiyushY111/StackPilot/blob/main/docs/CONFIG.md).
 To keep a stack running after you log out of a server, run `stackpilot pm` inside `tmux`.
 
 ## Keys
@@ -205,7 +205,7 @@ passing through arguments, signals and the exit code. All five packages always h
 ## Verifying what you installed
 
 Every release is built by GitHub Actions from a tagged commit of
-[piyushy111/StackPilot](https://github.com/piyushy111/StackPilot), and published with
+[PiyushY111/StackPilot](https://github.com/PiyushY111/StackPilot), and published with
 [npm provenance](https://docs.npmjs.com/generating-provenance-statements): the npm page of each package
 links to the exact workflow run and commit it came from. To check the signatures and provenance of an
 install:
@@ -215,7 +215,7 @@ npm audit signatures        # in a project that depends on stackpilot-tui
 ```
 
 The release archives on GitHub carry build attestations too
-(`gh attestation verify <archive> --repo piyushy111/StackPilot`).
+(`gh attestation verify <archive> --repo PiyushY111/StackPilot`).
 
 ## Updating and uninstalling
 
@@ -243,7 +243,7 @@ StackPilot samples them every 5 seconds from `ps`; run it with `sudo` to see eve
 
 **Anything else.** Run `stackpilot doctor`: it checks the runtime, sampling, ports, the terminal and your
 config, and says how to fix each problem. When you
-[open an issue](https://github.com/piyushy111/StackPilot/issues/new/choose), include its output.
+[open an issue](https://github.com/PiyushY111/StackPilot/issues/new/choose), include its output.
 
 ## Privacy
 
@@ -253,12 +253,12 @@ GitHub for the latest release.
 
 ## Links
 
-- Source and issues: https://github.com/piyushy111/StackPilot
-- Changelog: https://github.com/piyushy111/StackPilot/blob/main/CHANGELOG.md
-- Configuration reference: https://github.com/piyushy111/StackPilot/blob/main/docs/CONFIG.md
-- Security policy: https://github.com/piyushy111/StackPilot/blob/main/SECURITY.md
-- Contributing: https://github.com/piyushy111/StackPilot/blob/main/CONTRIBUTING.md
+- Source and issues: https://github.com/PiyushY111/StackPilot
+- Changelog: https://github.com/PiyushY111/StackPilot/blob/main/CHANGELOG.md
+- Configuration reference: https://github.com/PiyushY111/StackPilot/blob/main/docs/CONFIG.md
+- Security policy: https://github.com/PiyushY111/StackPilot/blob/main/SECURITY.md
+- Contributing: https://github.com/PiyushY111/StackPilot/blob/main/CONTRIBUTING.md
 
 ## License
 
-[MIT](https://github.com/piyushy111/StackPilot/blob/main/LICENSE) © 2026 Piyush Yadav
+[MIT](https://github.com/PiyushY111/StackPilot/blob/main/LICENSE) © 2026 Piyush Yadav

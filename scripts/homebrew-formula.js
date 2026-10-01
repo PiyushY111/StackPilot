@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 // Writes the Homebrew formula for a release from its SHA256SUMS (BUILD_PLAN §12). Commit the result to
-// the piyushy111/homebrew-tap repository as Formula/stackpilot.rb (RELEASING.md), so
-// `brew install piyushy111/tap/stackpilot` installs the prebuilt binary (no build from source, no dependencies).
+// the PiyushY111/homebrew-tap repository as Formula/stackpilot.rb (RELEASING.md), so
+// `brew install PiyushY111/tap/stackpilot` installs the prebuilt binary (no build from source, no dependencies).
 //
 //   node scripts/homebrew-formula.js <version> <SHA256SUMS> > Formula/stackpilot.rb
 const fs = require('node:fs');
 const { parseSums } = require('../cli/release');
 
-const REPO = 'https://github.com/piyushy111/StackPilot';
+const REPO = 'https://github.com/PiyushY111/StackPilot';
 const BLOCKS = [
     ['on_macos', [['on_arm', 'darwin-arm64'], ['on_intel', 'darwin-x64']]],
     ['on_linux', [['on_arm', 'linux-arm64'], ['on_intel', 'linux-x64']]],

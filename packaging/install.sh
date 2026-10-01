@@ -2,7 +2,7 @@
 # StackPilot installer: downloads the standalone binary for this machine from GitHub Releases,
 # verifies its SHA-256 checksum and installs it. No sudo needed with the default directory.
 #
-#   curl -fsSL https://raw.githubusercontent.com/piyushy111/StackPilot/main/packaging/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/PiyushY111/StackPilot/main/packaging/install.sh | sh
 #
 # Environment:
 #   STACKPILOT_VERSION       version to install, e.g. v0.2.0 (default: the latest release)
@@ -10,7 +10,7 @@
 #   STACKPILOT_DOWNLOAD_BASE download from here instead of GitHub (mirrors, tests)
 set -eu
 
-REPO="piyushy111/StackPilot"
+REPO="PiyushY111/StackPilot"
 INSTALL_DIR="${STACKPILOT_INSTALL_DIR:-$HOME/.local/bin}"
 
 say() { printf '%s\n' "$*"; }

@@ -144,7 +144,7 @@ Priority: **P0** is core to the product, **P1** completes it, **P2** is on the r
 |---|---|---|---|
 | D1 | Single binary | P0 | Self-contained builds for `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`. Nothing else needs to be installed |
 | D2 | Install script | P0 | `curl -fsSL <url>/install.sh \| sh` detects the platform, checks the SHA-256 checksum, and installs to `~/.local/bin` without sudo |
-| D3 | Homebrew tap | P1 | `brew install piyushy111/tap/stackpilot`. `scripts/homebrew-formula.js` writes the formula for each release from its `SHA256SUMS` |
+| D3 | Homebrew tap | P1 | `brew install PiyushY111/tap/stackpilot`. `scripts/homebrew-formula.js` writes the formula for each release from its `SHA256SUMS` |
 | D4 | npm wrapper | P0 | `npm i -g stackpilot-tui` or `npx stackpilot-tui` installs the prebuilt binary for the platform. The npm package contains no source code |
 | D5 | `stackpilot update` | P1 | Updates a standalone binary in place after checking its checksum and its version. For npm, Homebrew and source installs it prints the right update command instead |
 | D6 | Provenance | P0 | Every release has `SHA256SUMS`, GitHub build attestations for its archives, and npm provenance for its packages |

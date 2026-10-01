@@ -21,7 +21,7 @@ This guide covers what you need to work on it and what a change needs before it 
 | Docker | any | Only for testing Linux from a Mac |
 
 ```sh
-git clone https://github.com/piyushy111/StackPilot.git && cd StackPilot
+git clone https://github.com/PiyushY111/StackPilot.git && cd StackPilot
 ./setup.sh           # macOS, Linux, Windows WSL2   ·   Windows PowerShell: .\setup.ps1
 ```
 

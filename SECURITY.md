@@ -10,7 +10,7 @@ StackPilot is before 1.0. Fixes go into the latest release and `main`; older ver
 ## Reporting a vulnerability
 
 **Please don't open a public issue.** Report it privately through GitHub:
-[Report a vulnerability](https://github.com/piyushy111/StackPilot/security/advisories/new).
+[Report a vulnerability](https://github.com/PiyushY111/StackPilot/security/advisories/new).
 
 Include what you found, how to reproduce it (the StackPilot version and `stackpilot doctor` output help),
 and what an attacker could achieve. You can expect:
@@ -46,6 +46,6 @@ itself, every archive has a GitHub build attestation and every npm package has n
 linking it to the workflow run and commit that built it:
 
 ```sh
-gh attestation verify stackpilot-v<version>-<os>-<arch>.tar.gz --repo piyushy111/StackPilot
+gh attestation verify stackpilot-v<version>-<os>-<arch>.tar.gz --repo PiyushY111/StackPilot
 npm audit signatures            # in a project with stackpilot-tui installed
 ```

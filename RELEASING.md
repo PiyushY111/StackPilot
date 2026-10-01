@@ -81,6 +81,6 @@ stackpilot-tui` (workflow file, repository and environment must match exactly), 
 ## Checking a release as a user
 
 ```sh
-gh attestation verify stackpilot-v0.1.0-darwin-arm64.tar.gz --repo piyushy111/StackPilot
+gh attestation verify stackpilot-v0.1.0-darwin-arm64.tar.gz --repo PiyushY111/StackPilot
 npm audit signatures            # in a project with stackpilot-tui installed
 ```

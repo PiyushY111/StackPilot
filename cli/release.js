@@ -1,6 +1,6 @@
 // Release plumbing shared by `stackpilot update` and `stackpilot doctor` (BUILD_PLAN §12): where releases
 // live, what this machine downloads, and how this copy of StackPilot was installed.
-const REPO = 'piyushy111/StackPilot';
+const REPO = 'PiyushY111/StackPilot';
 const LATEST_RELEASE_URL = `https://api.github.com/repos/${REPO}/releases/latest`;
 const TARGETS = Object.freeze(['darwin-arm64', 'darwin-x64', 'linux-x64', 'linux-arm64']);
 // A compiled binary runs its bundled code from Bun's virtual filesystem.

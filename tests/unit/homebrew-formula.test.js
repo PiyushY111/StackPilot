@@ -12,7 +12,7 @@ test('the formula pins every platform archive to its checksum', () => {
     assert.match(rb, /version "0\.2\.0"/);
     assert.match(rb, /license "MIT"/);
     for (const [target, digit] of [['darwin-arm64', 1], ['darwin-x64', 2], ['linux-x64', 3], ['linux-arm64', 4]]) {
-        const block = new RegExp(`url "https://github\\.com/piyushy111/StackPilot/releases/download/v0\\.2\\.0/stackpilot-v0\\.2\\.0-${target}\\.tar\\.gz"\\n\\s+sha256 "${String(digit).repeat(64)}"`);
+        const block = new RegExp(`url "https://github\\.com/PiyushY111/StackPilot/releases/download/v0\\.2\\.0/stackpilot-v0\\.2\\.0-${target}\\.tar\\.gz"\\n\\s+sha256 "${String(digit).repeat(64)}"`);
         assert.match(rb, block, target);
     }
     assert.match(rb, /bin\.install "stackpilot"/);

@@ -12,7 +12,7 @@
 set -eu
 
 NPM=npm@11.20.0 # `npm trust` needs npm 11.15 or newer; npx fetches it, your global npm is untouched
-REPO=piyushy111/StackPilot
+REPO=PiyushY111/StackPilot
 WORKFLOW=release.yml
 ENVIRONMENT=release
 PACKAGES='stackpilot-tui stackpilot-tui-darwin-arm64 stackpilot-tui-darwin-x64 stackpilot-tui-linux-x64 stackpilot-tui-linux-arm64'

@@ -20,11 +20,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/piyushy111/StackPilot.git"
+    "url": "git+https://github.com/PiyushY111/StackPilot.git"
   },
-  "homepage": "https://github.com/piyushy111/StackPilot#readme",
+  "homepage": "https://github.com/PiyushY111/StackPilot#readme",
   "bugs": {
-    "url": "https://github.com/piyushy111/StackPilot/issues"
+    "url": "https://github.com/PiyushY111/StackPilot/issues"
   },
   "bin": {
     "stackpilot": "cli/index.js"
