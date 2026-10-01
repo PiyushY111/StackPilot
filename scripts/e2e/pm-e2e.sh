@@ -19,7 +19,9 @@ PTY_SECONDS=20 PTY_SNAPSHOTS='[5]' PTY_SCRIPT='[[5.5,"q"],[6.5,"y"]]' NODE_ENV=p
   python3 scripts/e2e/pty-frames.py bun cli/index.js pm --config "$STACK/stackpilot.json" > "$OUT" \
   || { echo "FAIL stackpilot did not exit cleanly"; status=1; }
 
-for needle in 'managed · stack' '4/4' 'ready :4610' 'ready :4611' 'logs · db' 'following ●'; do
+# The stack box and its title, the header naming the stack (the fixture folder) with every process ready,
+# the processes' readiness, and the logs panel that the focused stack box opens.
+for needle in '┌─ stack ' 'stack  ● 4/4 ready' 'ready :4610' 'ready :4611' 'logs · db' 'following ●'; do
   if grep -qF "$needle" "$OUT"; then echo "ok   $needle"; else echo "FAIL $needle"; status=1; fi
 done
 sleep 1
