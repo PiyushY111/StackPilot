@@ -1,0 +1,72 @@
+{
+  "name": "stackpilot",
+  "version": "0.1.1",
+  "private": true,
+  "description": "A portable ops cockpit for the terminal: system monitor and process manager in one binary",
+  "keywords": [
+    "terminal",
+    "tui",
+    "system-monitor",
+    "process-manager",
+    "htop",
+    "btop",
+    "pm2",
+    "procfile",
+    "devtools",
+    "macos",
+    "linux"
+  ],
+  "author": "Piyush Yadav",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/piyushy111/StackPilot.git"
+  },
+  "homepage": "https://github.com/piyushy111/StackPilot#readme",
+  "bugs": {
+    "url": "https://github.com/piyushy111/StackPilot/issues"
+  },
+  "bin": {
+    "stackpilot": "cli/index.js",
+    "kestrel": "cli/index.js"
+  },
+  "scripts": {
+    "start": "NODE_ENV=production bun cli/index.js",
+    "dev": "bun cli/index.js",
+    "pm": "NODE_ENV=production bun cli/index.js pm",
+    "sm": "NODE_ENV=production bun cli/index.js sm",
+    "demo": "NODE_ENV=production bun cli/index.js pm --config tests/fixtures/stack/kestrel.json",
+    "doctor": "bun cli/index.js doctor",
+    "test": "node --test --test-timeout=20000 tests/unit/*.test.js tests/integration/*.test.js",
+    "test:bun": "bun test --timeout 20000 ./tests/unit ./tests/integration",
+    "test:ui": "bun test ./tests/ui",
+    "test:coverage": "node --test --test-timeout=20000 --experimental-test-coverage tests/unit/*.test.js tests/integration/*.test.js",
+    "typecheck": "tsc -p tsconfig.core.json",
+    "build": "bun scripts/build.js",
+    "website:generate": "TZ=UTC NODE_ENV=production bun scripts/website/generate.jsx",
+    "build:archive": "bun scripts/build.js --archive",
+    "lint": "biome lint",
+    "setup": "sh ./setup.sh",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@opentui/core": "0.5.12",
+    "@opentui/react": "0.5.12",
+    "react": "19.3.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "@types/node": "20.19.43",
+    "husky": "9.1.7",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=20",
+    "bun": ">=1.3.0"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "packageManager": "bun@1.4.0"
+}
