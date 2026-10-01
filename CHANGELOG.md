@@ -6,6 +6,12 @@ All notable changes to StackPilot are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-01
+
+### Changed
+
+- The npm package page shows a screenshot of the dashboard, and the README is reorganised.
+
 ## [0.1.0] - 2026-10-01
 
 The first release, for macOS and Linux on arm64 and x64.
@@ -36,5 +42,6 @@ The first release, for macOS and Linux on arm64 and x64.
   install scripts, published with npm provenance), a checksum-verifying `curl | sh` installer, and
   release archives with `SHA256SUMS` and GitHub build attestations.
 
-[Unreleased]: https://github.com/PiyushY111/StackPilot/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/PiyushY111/StackPilot/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/PiyushY111/StackPilot/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/PiyushY111/StackPilot/releases/tag/v0.1.0
