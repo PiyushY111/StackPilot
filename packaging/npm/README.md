@@ -11,34 +11,9 @@ StackPilot shows what is using your machine, the way htop and btop do. It also s
 project's processes, the way pm2 or foreman do. Because it does both, it can tell you that *your*
 `api` is the process holding 1.2 GB and climbing, and which port it listens on.
 
-```text
- StackPilot    myapp  ◌ 2/4 ready                                                mbp · darwin arm64
-┌─ cpu ────────────────────────────────────────────────────────────── load 2.4 2.1 1.9 · up 3d 4h ─┐
-│ ⠀⠀⠀⠀⠀⠀⠀⣴⣶⣶⣶⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣶⣶⣶⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣶⣶ C0  ━━━───────  34%  C5  ━━────────  15%   │
-│ ⠀⠀⠀⠀⢀⣠⣾⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣷⣦⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿ C1  ━━━━━━━───  71%  C6  ━━━━━━────  63%   │
-│ ⠀⣠⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿ C2  ━━────────  22%  C7  ━━━───────  27%   │
-│ ⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⣀⠀⠀⠀⠀⠀⢀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⢀⣠⣾⣿⣿⣿⣿⣿⣿⣿ C3  ━─────────   9%                        │
-│ CPU 95%                                               C4  ━━━━━─────  48%                        │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
-┌─ mem ────────────── 16.0 GB ─┐┌─ logs · api ───────────────────────────── following ● ─ 5 lines ─┐
-│ Used  ━━━━━━━━──────  9.6 GB ││  19:06:41 api listening on http://localhost:3000                 │
-│ Cache ━━━───────────  3.1 GB ││  19:06:42 GET /health 200 2ms                                    │
-│ Free  ━━━━━━────────  6.4 GB ││ ▎19:06:43 (node:812) DeprecationWarning: punycode                │
-│ Swap  ━━────────────  256 MB ││  19:06:44 POST /login 401 9ms                                    │
-└──────────────────────────────┘│  19:06:45 GET /users/42 200 11ms                                 │
-┌─ stack ──────────────── 2/4 ─┐│                                                                  │
-│  ● db     ready :5432        ││                                                                  │
-│ ▌● api    ready :3000   12%  ││                                                                  │
-│  ↻ worker retry 2 in 4s      ││                                                                  │
-│  ⊘ cron   blocked by worker  ││                                                                  │
-└─ s start ─ x stop ───────────┘│                                                                  │
-┌─ ports ────────────────── 2 ─┐│                                                                  │
-│ :3000  node  ◆api 127.0.0.1  ││                                                                  │
-│ :5432  postgres   *          ││                                                                  │
-│                              ││                                                                  │
-│                              ││                                                                  │
-└──────────────────────────────┘└─ f follow ─ / search ─ v all / one ─ PgUp older ─ PgDn newer ────┘
-```
+<p align="center">
+  <img src="https://raw.githubusercontent.com/PiyushY111/StackPilot/main/docs/assets/dashboard.png" alt="The StackPilot dashboard: CPU history and per-core gauges, memory, the project's stack and ports, and the process table." width="900">
+</p>
 
 ## Contents
 
