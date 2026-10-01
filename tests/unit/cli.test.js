@@ -71,7 +71,7 @@ test('main prints the version and help', async () => {
 test('under npm, a usage error explains that flags before "--" go to npm itself', async () => {
     const f = fakeIo();
     f.io.env = { npm_lifecycle_event: 'start' };
-    assert.equal(await main(['tests/fixtures/stack/kestrel.json'], f.io), 2);
+    assert.equal(await main(['tests/fixtures/stack/stackpilot.json'], f.io), 2);
     assert.match(f.err(), /npm keeps the flags that come before "--"/);
     assert.match(f.err(), /npm start -- pm --config stackpilot\.json/);
     assert.match(f.err(), /npm run pm/);

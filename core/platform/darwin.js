@@ -29,8 +29,8 @@ async function run(exec, tool, args) {
     }
 }
 
-/** libproc via Bun's FFI, unless disabled with KESTREL_NATIVE=0 (then ps/lsof, as under Node). */
-const defaultNative = () => (process.env.KESTREL_NATIVE === '0' ? null : loadDarwinNative());
+/** libproc via Bun's FFI, unless disabled with STACKPILOT_NATIVE=0 (then ps/lsof, as under Node). */
+const defaultNative = () => (process.env.STACKPILOT_NATIVE === '0' ? null : loadDarwinNative());
 
 /**
  * @param {{ exec?: ExecFn, now?: () => number, isRoot?: boolean, totalMemBytes?: number, native?: any }} [deps]
@@ -47,7 +47,7 @@ function createDarwinAdapter({
     let swap = { usedMB: 0, totalMB: 0 };
     let swapAt = -Infinity;
 
-    // Swap changes slowly; spawning sysctl once per SWAP_TTL_MS keeps Kestrel's own CPU low.
+    // Swap changes slowly; spawning sysctl once per SWAP_TTL_MS keeps StackPilot's own CPU low.
     async function currentSwap() {
         if (now() - swapAt < SWAP_TTL_MS) return swap;
         const text = await run(exec, 'sysctl', ['vm.swapusage']);

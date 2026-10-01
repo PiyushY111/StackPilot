@@ -1,4 +1,4 @@
-// kestrel pm / init / import pm2 through main() (M3 C1–C3). No UI: pm is checked up to the terminal check.
+// stackpilot pm / init / import pm2 through main() (M3 C1–C3). No UI: pm is checked up to the terminal check.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -8,7 +8,7 @@ const { Readable } = require('node:stream');
 const { main } = require('../../cli');
 
 function project(t, files = {}) {
-    const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-cli-')));
+    const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-cli-')));
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
     for (const [name, content] of Object.entries(files)) {
         const file = path.join(dir, name);
@@ -33,17 +33,17 @@ function run(cwd, argv, answers = []) {
 }
 
 const readConfig = (dir) => {
-    const file = fs.existsSync(path.join(dir, 'stackpilot.json')) ? path.join(dir, 'stackpilot.json') : path.join(dir, 'kestrel.json');
+    const file = path.join(dir, 'stackpilot.json');
     return JSON.parse(fs.readFileSync(file, 'utf-8'));
 };
 
 // ---------- pm ----------
 
 test('pm lists every config problem with its path and exits 2 (usable as a CI check)', async (t) => {
-    const dir = project(t, { 'kestrel.json': { version: 1, processes: { api: { cmd: 'x', restart: 'sometimes', ready: { port: 0 } } } } });
+    const dir = project(t, { 'stackpilot.json': { version: 1, processes: { api: { cmd: 'x', restart: 'sometimes', ready: { port: 0 } } } } });
     const { code, err } = await run(dir, ['pm']);
     assert.equal(code, 2);
-    assert.match(err, /kestrel\.json has 2 problems/);
+    assert.match(err, /stackpilot\.json has 2 problems/);
     assert.match(err, /processes\.api\.restart\s+must be one of/);
     assert.match(err, /processes\.api\.ready\.port\s+must be a port number/);
 });

@@ -31,7 +31,7 @@ function logsFor(state, app, actions, rows) {
     });
 }
 
-/** A fresh package.json project in `kestrel pm`: offer the script picker once (UI_SPEC §6.6). */
+/** A fresh package.json project in `stackpilot pm`: offer the script picker once (UI_SPEC §6.6). */
 function usePickerOffer(state, app, dispatch, env) {
     const shouldOffer = env.managerAvailable && !app.pickerOffered && Boolean(state.stack.scripts)
         && !state.managed.length && state.ui.focus === 'managed' && !app.dialog;

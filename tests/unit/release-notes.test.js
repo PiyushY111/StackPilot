@@ -24,8 +24,8 @@ Intro text.
 
 - Everything.
 
-[0.2.0]: https://github.com/3ncryptor/kestrel/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/3ncryptor/kestrel/releases/tag/v0.1.0
+[0.2.0]: https://github.com/piyushy111/StackPilot/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/piyushy111/StackPilot/releases/tag/v0.1.0
 `;
 
 test('releaseNotes returns the body of the version section, up to the next section', () => {

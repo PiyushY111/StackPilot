@@ -1,4 +1,4 @@
-# Releasing Kestrel
+# Releasing StackPilot
 
 Releases are built and published by [`.github/workflows/release.yml`](.github/workflows/release.yml),
 never from a laptop. A `v*.*.*` tag on `main` starts it; nothing is published until a maintainer
@@ -8,8 +8,8 @@ approves the `release` environment.
 |---|---|
 | verify | The tag equals `v` + the `package.json` version, the commit is on `main`, `CHANGELOG.md` has a dated section for the version (it becomes the release notes), and lint, types and every test suite pass |
 | build | The standalone binary, compiled and smoke-tested natively on each target: darwin-arm64, darwin-x64, linux-x64, linux-arm64 |
-| assemble | `kestrel-v<version>-<os>-<arch>.tar.gz` for each target, `SHA256SUMS`, `install.sh`, and the five npm tarballs (`kestrel-tui` and `kestrel-tui-<os>-<arch>`) |
-| rehearse | On all four targets: `install.sh` against a local copy of the release, and [`scripts/npm-rehearse.sh`](scripts/npm-rehearse.sh), which publishes the exact tarballs to a throwaway local registry, installs `kestrel-tui` from it and runs it |
+| assemble | `stackpilot-v<version>-<os>-<arch>.tar.gz` for each target, `SHA256SUMS`, `install.sh`, and the five npm tarballs (`stackpilot-tui` and `stackpilot-tui-<os>-<arch>`) |
+| rehearse | On all four targets: `install.sh` against a local copy of the release, and [`scripts/npm-rehearse.sh`](scripts/npm-rehearse.sh), which publishes the exact tarballs to a throwaway local registry, installs `stackpilot-tui` from it and runs it |
 | publish | Waits for approval. Then: build provenance attestations for the archives, a draft GitHub Release with the archives, then npm with provenance ([`scripts/npm-publish.sh`](scripts/npm-publish.sh): platform packages first, then the launcher), and only then the release goes live |
 | live | Fresh macOS and Linux runners install the published release with `curl \| sh` and `npm install -g`, and verify the attestation and the npm signatures |
 
@@ -40,12 +40,12 @@ skipped. Run one before tagging.
 
    ```sh
    git switch main && git pull
-   git tag -a v0.1.0 -m "Kestrel 0.1.0"
+   git tag -a v0.1.0 -m "StackPilot 0.1.0"
    git push origin v0.1.0
    ```
 
 4. When verify, build, assemble and rehearse are green, approve the `release` deployment.
-5. Watch the live stage, then check <https://www.npmjs.com/package/kestrel-tui> and the release page.
+5. Watch the live stage, then check <https://www.npmjs.com/package/stackpilot-tui> and the release page.
 
 ## After the first release: trusted publishing
 
@@ -66,7 +66,7 @@ Then:
 The next release publishes through OIDC with no change to the workflow: with the secret gone,
 `NODE_AUTH_TOKEN` is empty and npm falls through to trusted publishing. That release is the first real
 test of it, so watch its publish job; if npm answers 401/403 there, check `npx npm@11.20.0 trust list
-kestrel-tui` (workflow file, repository and environment must match exactly), fix it, and re-run the job.
+stackpilot-tui` (workflow file, repository and environment must match exactly), fix it, and re-run the job.
 
 ## When something fails
 
@@ -81,6 +81,6 @@ kestrel-tui` (workflow file, repository and environment must match exactly), fix
 ## Checking a release as a user
 
 ```sh
-gh attestation verify kestrel-v0.1.0-darwin-arm64.tar.gz --repo 3ncryptor/kestrel
-npm audit signatures            # in a project with kestrel-tui installed
+gh attestation verify stackpilot-v0.1.0-darwin-arm64.tar.gz --repo piyushy111/StackPilot
+npm audit signatures            # in a project with stackpilot-tui installed
 ```

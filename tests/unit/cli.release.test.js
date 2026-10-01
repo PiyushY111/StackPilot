@@ -1,4 +1,4 @@
-// Release helpers and `kestrel update` (M4): install detection, versions, checksums, self-replacement.
+// Release helpers and `stackpilot update` (M4): install detection, versions, checksums, self-replacement.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
@@ -35,13 +35,13 @@ test('asset names and SHA256SUMS', () => {
 
 // ---------- stackpilot update against a fake GitHub release ----------
 
-function fakeRelease(t, newVersion = '0.2.0') {
+function fakeRelease(t, newVersion = '0.2.0', reports = `stackpilot ${newVersion}`) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-update-'));
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
     const target = `${process.platform}-${process.arch}`;
     const name = `stackpilot-v${newVersion}-${target}`;
     fs.mkdirSync(path.join(dir, name));
-    fs.writeFileSync(path.join(dir, name, 'stackpilot'), `#!/bin/sh\necho "stackpilot ${newVersion}"\n`, { mode: 0o755 });
+    fs.writeFileSync(path.join(dir, name, 'stackpilot'), `#!/bin/sh\necho "${reports}"\n`, { mode: 0o755 });
     execFileSync('tar', ['-czf', `${name}.tar.gz`, name], { cwd: dir });
     const tarball = fs.readFileSync(path.join(dir, `${name}.tar.gz`));
     const sums = `${crypto.createHash('sha256').update(tarball).digest('hex')}  ${name}.tar.gz\n`;
@@ -85,6 +85,15 @@ test('update downloads, verifies the checksum, and replaces the binary in place'
     assert.equal(fs.statSync(r.exe).mode & 0o777, 0o755);
 });
 
+test('update refuses a binary that does not report the release it came from', async (t) => {
+    const r = fakeRelease(t, '0.2.0', 'stackpilot 0.1.9');
+    const o = io();
+    const code = await update(parsed(), o, { fetch: r.fetch, currentVersion: '0.1.0', method: 'binary', execPath: r.exe });
+    assert.equal(code, 1);
+    assert.match(o.err(), /reports "stackpilot 0\.1\.9", not stackpilot 0\.2\.0/);
+    assert.match(execFileSync(r.exe, { encoding: 'utf-8' }), /stackpilot 0\.1\.0/, 'the installed binary is untouched');
+});
+
 test('update refuses an archive whose checksum does not match', async (t) => {
     const r = fakeRelease(t);
     r.assets.SHA256SUMS = Buffer.from(`${'0'.repeat(64)}  ${r.tarballName}\n`);
@@ -101,7 +110,7 @@ test('update says when you are up to date, and defers to Homebrew, npm and git i
     assert.equal(await update(parsed(), latest, { fetch: r.fetch, currentVersion: '0.1.0', method: 'binary', execPath: r.exe }), 0);
     assert.match(latest.out(), /stackpilot 0\.1\.0 is the latest/);
 
-    for (const [method, hint] of [['homebrew', /brew upgrade stackpilot/], ['npm', /npm install -g stackpilot@latest/], ['source', /git pull/]]) {
+    for (const [method, hint] of [['homebrew', /brew upgrade stackpilot/], ['npm', /npm install -g stackpilot-tui@latest/], ['source', /git pull/]]) {
         const o = io();
         assert.equal(await update(parsed(), o, { fetch: r.fetch, currentVersion: '0.1.0', method, execPath: r.exe }), 0);
         assert.match(o.out(), hint, method);

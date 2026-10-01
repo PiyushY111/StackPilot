@@ -27,7 +27,7 @@ const STORE_EVENTS = Object.freeze([
 
 /**
  * @param {{ meta?: Partial<import('./types').Meta>, thresholds?: import('./types').Thresholds }} [options]
- * @returns {import('./types').KestrelState}
+ * @returns {import('./types').StackPilotState}
  */
 function createInitialState({ meta = {}, thresholds = DEFAULT_THRESHOLDS } = {}) {
     return {

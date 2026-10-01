@@ -1,4 +1,4 @@
-// `kestrel update [--check]`: replaces a standalone binary with the latest GitHub release, after
+// `stackpilot update [--check]`: replaces a standalone binary with the latest GitHub release, after
 // checking the archive's SHA-256 against the release's SHA256SUMS and running the new binary once.
 // Homebrew, npm and source installs are pointed at their own update command instead.
 const crypto = require('node:crypto');
@@ -39,19 +39,13 @@ async function download(fetchFn, url, what) {
 }
 
 /** Unpacks the archive and checks that its binary runs and is the expected version. */
-function unpack(tarball, name, _expected, tmp) {
+function unpack(tarball, name, expected, tmp) {
     fs.writeFileSync(path.join(tmp, name), tarball);
     execFileSync('tar', ['-xzf', name], { cwd: tmp });
-    const candidateNames = ['stackpilot', 'kestrel'];
-    let binary = null;
-    for (const cand of candidateNames) {
-        const p = path.join(tmp, name.replace(/\.tar\.gz$/, ''), cand);
-        if (fs.existsSync(p)) { binary = p; break; }
-    }
-    if (!binary) binary = path.join(tmp, name.replace(/\.tar\.gz$/, ''), 'stackpilot');
+    const binary = path.join(tmp, name.replace(/\.tar\.gz$/, ''), 'stackpilot');
     const reported = execFileSync(binary, ['--version'], { encoding: 'utf-8' }).trim();
-    if (!reported.startsWith('stackpilot ') && !reported.startsWith('kestrel ')) {
-        throw new Error(`The downloaded binary reports "${reported}"; not installing it`);
+    if (reported !== `stackpilot ${expected}`) {
+        throw new Error(`The downloaded binary reports "${reported}", not stackpilot ${expected}; not installing it`);
     }
     return binary;
 }

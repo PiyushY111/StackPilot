@@ -1,4 +1,4 @@
-# Developing Kestrel
+# Developing StackPilot
 
 ## Requirements
 
@@ -9,7 +9,7 @@
 | Docker | any | Linux testing on a Mac (optional, but required before a milestone review) |
 
 ```sh
-./setup.sh          # checks the tools, installs Bun and the dependencies (plus the husky pre-commit hook), a `kestrel` command
+./setup.sh          # checks the tools, installs Bun and the dependencies (plus the husky pre-commit hook), a `stackpilot` command
 ```
 
 On Windows use WSL2 for everything below (see CONTRIBUTING.md); Git Bash covers lint and types.
@@ -26,7 +26,7 @@ On Windows use WSL2 for everything below (see CONTRIBUTING.md); Git Bash covers 
 | `npm run demo` | The process manager on the demo stack: db (port), api (http, needs db), worker (log line), flaky (crash loop) |
 | `npm run pm` / `npm run sm` / `npm run doctor` | The process manager for this folder / the monitor only / the environment check |
 | `npm run pm -- --only api` | Flags go after `--`: npm keeps the ones before it (`npm start --pm` opens the plain dashboard) |
-| `kestrel …` | After `./setup.sh` (bun link): the real command, running this checkout in production mode |
+| `stackpilot …` | After `./setup.sh` (bun link): the real command, running this checkout in production mode |
 | `npm run dev` | Same UI with React's development build (clearer errors, ~2× the CPU) |
 | `npm run test:ui` | UI frame tests (Bun + OpenTUI test renderer) |
 | `bun cli/index.js sm --dump --ticks 3` | Headless: prints 3 JSON snapshots of the live system |
@@ -49,7 +49,7 @@ artifact: `sh scripts/npm-rehearse.sh <dir>/npm`. It uses a throwaway local regi
 ## End to end, in a real terminal
 
 ```sh
-scripts/e2e/pm-e2e.sh      # kestrel pm on the demo stack in a PTY: ready → q → y → nothing left running
+scripts/e2e/pm-e2e.sh      # stackpilot pm on the demo stack in a PTY: ready → q → y → nothing left running
 ```
 
 `scripts/e2e/pty-frames.py` drives any command in a pseudo-terminal and prints the screen at chosen
@@ -65,24 +65,24 @@ scripts/capture-linux-fixtures.sh   # refresh tests/fixtures/linux/captured/ fro
 ```
 
 Neither image ships `ss`, so both exercise the `/proc/net/tcp` fallback for the ports view. Try other
-images with `KESTREL_TEST_IMAGES="ubuntu:24.04 debian:12" scripts/docker-test.sh` (the image needs
+images with `STACKPILOT_TEST_IMAGES="ubuntu:24.04 debian:12" scripts/docker-test.sh` (the image needs
 `node`, or `dnf` to install it).
 
 ## Measuring the interactive UI
 
 The UI needs a real terminal, so it is measured in a pseudo-terminal with the cumulative CPU time from
-`ps -o time=` over 60 s. That figure covers Kestrel's own process only. Add the cost of the processes it
+`ps -o time=` over 60 s. That figure covers StackPilot's own process only. Add the cost of the processes it
 spawns, which `scripts/bench.js` measures for the engine. Before M4 they were most of the total, and
 leaving them out once made a real ~5% look like 2.6%. **Always set `NODE_ENV=production` at process start** (as `npm start` does): Bun
 fixes the JSX transform when the process starts, so changing it later crashes the UI. Check the capture
 shows the screen actually rendered: a crashed UI costs almost nothing and makes the numbers look great.
-Current numbers: BUILD_PLAN §11.1 (dashboard) and §11.2 (`kestrel pm` with streaming logs).
+Current numbers: BUILD_PLAN §11.1 (dashboard) and §11.2 (`stackpilot pm` with streaming logs).
 
 ## Where things live
 
 See [BUILD_PLAN.md §5](BUILD_PLAN.md#5-repository-structure-target). In short:
 
-- `core/` is the engine and has no UI dependencies. The only way in is `core/index.js` → `createKestrel()`, which returns `{ store, actions }`.
+- `core/` is the engine and has no UI dependencies. The only way in is `core/index.js` → `createStackPilot()`, which returns `{ store, actions }`.
 - `cli/` handles argument parsing and command dispatch.
 - `ui/` is the OpenTUI interface: a btop-style dashboard (`ui/screens/Dashboard.jsx`). It talks only to `store` and `actions`.
 
@@ -90,7 +90,7 @@ See [BUILD_PLAN.md §5](BUILD_PLAN.md#5-repository-structure-target). In short:
 
 - Write tests first. Parsers are tested against fixture text, so tests never depend on what the machine is doing.
 - **The store and actions contract is frozen** (`core/store/types.js`, checked by `tests/unit/contract.test.js`). To change it, update BUILD_PLAN §6, the types and the contract test together.
-- Kestrel's own OS calls use `execFile` with argument arrays and never a shell. Only commands from the user's stack config run through a shell.
+- StackPilot's own OS calls use `execFile` with argument arrays and never a shell. Only commands from the user's stack config run through a shell.
 - Child output is untrusted text: the UI strips escape sequences before drawing it (`ui/logic/logs.js`).
 - A managed process's state lives in its `Supervisor` (`core/processManager/supervisor.js`); stack-wide
   ordering in `core/stack/orchestrator.js`; config, orphans and stack state in `core/stack/session.js`.

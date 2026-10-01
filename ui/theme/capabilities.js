@@ -2,7 +2,7 @@
 //
 // Verified in M2 (spike): OpenTUI downsamples truecolor to xterm-256 on its own when COLORTERM is
 // absent and TERM says 256color (e.g. red #f38ba8 → 211, as UI_SPEC §3.1 predicts), but it ignores
-// NO_COLOR. So Kestrel only decides WHICH tokens get a color; mapping colors is left to OpenTUI.
+// NO_COLOR. So StackPilot only decides WHICH tokens get a color; mapping colors is left to OpenTUI.
 import { PALETTE, SEMANTIC } from './tokens.js';
 
 /** @typedef {'truecolor'|'256'|'16'|'none'} ColorDepth */

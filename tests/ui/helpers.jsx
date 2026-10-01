@@ -68,7 +68,7 @@ function fakeEngine(store, { logs, envs, calls }) {
         },
         saveAdHoc: (id) => {
             calls.push(['saveAdHoc', id]);
-            return { path: '/work/app/kestrel.json' };
+            return { path: '/work/app/stackpilot.json' };
         },
         stopOrphans: async () => {
             calls.push(['stopOrphans']);
@@ -118,7 +118,7 @@ export async function setup({
         context: { selfPid: 500, parentPid: 499, currentUser: 'alice' },
         onQuit: async () => {
             quits += 1;
-            await session.stopStack(); // as createKestrel's stop() does
+            await session.stopStack(); // as createStackPilot's stop() does
         },
         sampler: { requestPorts: () => {} },
     });

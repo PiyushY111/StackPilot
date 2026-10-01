@@ -12,10 +12,10 @@
 set -eu
 
 NPM=npm@11.20.0 # `npm trust` needs npm 11.15 or newer; npx fetches it, your global npm is untouched
-REPO=3ncryptor/kestrel
+REPO=piyushy111/StackPilot
 WORKFLOW=release.yml
 ENVIRONMENT=release
-PACKAGES='kestrel-tui kestrel-tui-darwin-arm64 kestrel-tui-darwin-x64 kestrel-tui-linux-x64 kestrel-tui-linux-arm64'
+PACKAGES='stackpilot-tui stackpilot-tui-darwin-arm64 stackpilot-tui-darwin-x64 stackpilot-tui-linux-x64 stackpilot-tui-linux-arm64'
 
 dry_run=''
 case "${1:-}" in
@@ -36,4 +36,4 @@ for pkg in $PACKAGES; do
     npx --yes "$NPM" trust github "$pkg" --file "$WORKFLOW" --repo "$REPO" --env "$ENVIRONMENT" --allow-publish --yes $dry_run
 done
 
-echo "npm-trust: done. Check with: npx $NPM trust list kestrel-tui"
+echo "npm-trust: done. Check with: npx $NPM trust list stackpilot-tui"

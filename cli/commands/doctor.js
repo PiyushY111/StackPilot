@@ -26,7 +26,7 @@ function runtimeCheck({ bun, node }) {
 function samplingCheck(platform) {
     if (platform.id === 'linux') return ok('sampling', 'Linux, /proc');
     if (platform.sampling === 'native') return ok('sampling', 'macOS, native (libproc)');
-    return warn('sampling', 'macOS, ps/lsof fallback: uses more CPU; the StackPilot binary samples natively (unless STACKPILOT_NATIVE=0 or KESTREL_NATIVE=0)');
+    return warn('sampling', 'macOS, ps/lsof fallback: uses more CPU; the StackPilot binary samples natively (unless STACKPILOT_NATIVE=0)');
 }
 
 async function processesCheck(platform) {
@@ -90,7 +90,7 @@ function stackChecks(cwd) {
     const names = stack.config ? stack.config.processes.map((p) => p.name) : stack.detected.scripts.map((s) => s.name);
     const what = stack.config ? `${names.length} processes (${names.join(', ')})` : `${names.length} scripts to pick from in stackpilot pm`;
     const dir = path.dirname(stack.path || path.join(cwd, 'stackpilot.json'));
-    const stateName = fs.existsSync(path.join(dir, '.kestrel')) ? '.kestrel' : '.stackpilot';
+    const stateName = '.stackpilot';
     try {
         fs.accessSync(dir, fs.constants.W_OK);
         return [ok('stack', `${stack.source}: ${what}`), ok('logs', `${path.join(dir, stateName)} is writable`)];

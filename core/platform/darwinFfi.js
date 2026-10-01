@@ -3,8 +3,8 @@
 //
 // Struct offsets and constants come from the SDK headers, not from memory: regenerate them with
 //   clang -o /tmp/offsets scripts/darwin-offsets.c && /tmp/offsets
-// A load-time self-check reads Kestrel's own process and compares it with what Node reports; on any
-// mismatch (a layout change in a future macOS) this returns null and Kestrel falls back to ps/lsof.
+// A load-time self-check reads StackPilot's own process and compares it with what Node reports; on any
+// mismatch (a layout change in a future macOS) this returns null and StackPilot falls back to ps/lsof.
 const { formatIpv6 } = require('./net');
 
 const PROC_PIDLISTFDS = 1;

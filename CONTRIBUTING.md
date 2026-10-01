@@ -31,7 +31,7 @@ checkout, and it finishes by running lint, the type check and the test suites. `
 and `--yes` accepts every default.
 
 **Windows:** StackPilot monitors and manages macOS and Linux processes, and its process tests use POSIX
-process groups. So the full setup (running Kestrel and every test suite) happens in **WSL2**: run
+process groups. So the full setup (running StackPilot and every test suite) happens in **WSL2**: run
 `wsl --install`, clone the repository inside WSL, then `./setup.sh`. On a plain Windows checkout,
 `setup.ps1` (or `setup.sh` in Git Bash) prepares the dependencies, hooks, lint and type check, which is
 enough for docs and most UI and config work. CI runs the setup on Linux, macOS and Windows.
@@ -53,7 +53,7 @@ npm run typecheck     # tsc over the JSDoc types in core/ and cli/
 npm test              # core + CLI under Node
 npm run test:bun      # the same under Bun (on macOS this includes the native sampler checks)
 npm run test:ui       # UI frame tests
-sh scripts/e2e/pm-e2e.sh   # optional locally, required in CI: kestrel pm in a real terminal
+sh scripts/e2e/pm-e2e.sh   # optional locally, required in CI: stackpilot pm in a real terminal
 ```
 
 CI runs what your change can affect (the rules are in `scripts/ci-changes.sh`):
@@ -73,7 +73,7 @@ single required check.
 ## How the code is organised
 
 - `core/` is the engine (platform adapters, sampler, store, process manager, stack, config) and has no
-  UI dependencies. The only way in is `createKestrel()` → `{ store, actions }`.
+  UI dependencies. The only way in is `createStackPilot()` → `{ store, actions }`.
 - `cli/` handles argument parsing and commands. `ui/` is the OpenTUI/React interface; it talks only to
   `store` and `actions`.
 - `packaging/` and `scripts/` hold the installer, the npm launcher, builds, benchmarks and end-to-end
@@ -88,7 +88,7 @@ single required check.
   together.
 - **Every action returns `{ ok, data, error, code }` and never throws.** Destructive actions go through
   the safety policy in the core, not only the UI.
-- **Kestrel's own OS calls never use a shell** (`execFile` with argument arrays). Only commands from
+- **StackPilot's own OS calls never use a shell** (`execFile` with argument arrays). Only commands from
   the user's stack config run through a shell.
 - **Child output is untrusted:** the UI strips escape sequences before drawing it.
 - **State updates are immutable.** Local, private buffers in hot paths are the documented exception.

@@ -6,9 +6,9 @@ const path = require('node:path');
 const { createLogFile, formatLine } = require('../../core/processManager/logFile');
 
 function tempDir(t) {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-logs-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-logs-'));
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-    return path.join(dir, '.kestrel', 'logs');
+    return path.join(dir, '.stackpilot', 'logs');
 }
 
 const line = (text, stream = 'stdout') => ({ seq: 1, ts: Date.UTC(2026, 8, 29, 10, 0, 0), stream, text });

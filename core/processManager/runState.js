@@ -1,4 +1,4 @@
-// Run state (PRD P12): `.kestrel/run.json` lists the children Kestrel started, so that after a hard
+// Run state (PRD P12): `.stackpilot/run.json` lists the children StackPilot started, so that after a hard
 // crash (SIGKILL) the next start can find processes left behind and offer to stop them.
 const nodeFs = require('node:fs');
 const path = require('node:path');
@@ -21,10 +21,10 @@ function createRunState({ path: file, pid = process.pid, fs = nodeFs }) {
             }
             fs.mkdirSync(path.dirname(file), { recursive: true, mode: DIR_MODE });
             const tmp = `${file}.tmp`;
-            fs.writeFileSync(tmp, JSON.stringify({ stackpilotPid: pid, kestrelPid: pid, children }), { mode: FILE_MODE });
+            fs.writeFileSync(tmp, JSON.stringify({ stackpilotPid: pid, children }), { mode: FILE_MODE });
             fs.renameSync(tmp, file); // atomic replace: never a half-written file
         },
-        /** @returns {{ stackpilotPid?: number, kestrelPid: number, children: RunChild[] } | null} */
+        /** @returns {{ stackpilotPid: number, children: RunChild[] } | null} */
         readPrevious() {
             try {
                 const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
@@ -42,12 +42,11 @@ function createRunState({ path: file, pid = process.pid, fs = nodeFs }) {
 /**
  * Children from a previous run that are still alive. A child only counts when its current start time
  * matches the recorded one, so an unrelated process that reused the pid is never treated as ours.
- * @param {{ stackpilotPid?: number, kestrelPid?: number, children: RunChild[] } | null} previous
+ * @param {{ stackpilotPid: number, children: RunChild[] } | null} previous
  * @param {{ currentPid: number, startedAtOf: (pid: number) => number|null, toleranceMs?: number }} deps
  */
 function findOrphans(previous, { currentPid, startedAtOf, toleranceMs = START_TOLERANCE_MS }) {
-    const ownerPid = previous?.stackpilotPid ?? previous?.kestrelPid;
-    if (!previous || ownerPid === currentPid) return [];
+    if (!previous || previous.stackpilotPid === currentPid) return [];
     return previous.children.filter((c) => {
         const started = startedAtOf(c.pid);
         return started !== null && Math.abs(started - c.startedAt) <= toleranceMs;

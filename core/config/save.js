@@ -1,5 +1,5 @@
-// Writes kestrel.json (saveAdHoc, the package.json picker, `kestrel init`, `kestrel import pm2`).
-// Every write is validated first, so Kestrel never saves a config it could not load again.
+// Writes stackpilot.json (saveAdHoc, the package.json picker, `stackpilot init`, `stackpilot import pm2`).
+// Every write is validated first, so StackPilot never saves a config it could not load again.
 const nodeFs = require('node:fs');
 const path = require('node:path');
 const { validateConfig } = require('./schema');
@@ -8,7 +8,7 @@ const serialize = (raw) => `${JSON.stringify(raw, null, 2)}\n`;
 
 /**
  * @param {string} file
- * @param {any} raw  a kestrel.json object
+ * @param {any} raw  a stackpilot.json object
  * @param {{ force?: boolean, fs?: any }} [options]
  */
 function writeConfigFile(file, raw, { force = false, fs = nodeFs } = {}) {
@@ -40,7 +40,7 @@ function addProcess(file, name, entry, { fs = nodeFs } = {}) {
     return next;
 }
 
-/** A managed definition → the smallest kestrel.json entry that recreates it. A cwd inside the
+/** A managed definition → the smallest stackpilot.json entry that recreates it. A cwd inside the
  *  project is saved relative (the project can move); one outside it stays absolute. */
 function toConfigEntry(def, baseDir) {
     const relative = path.relative(baseDir, def.cwd);

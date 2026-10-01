@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
-// Builds the standalone `kestrel` binary (BUILD_PLAN §13): one file with the Bun runtime, the UI and
+// Builds the standalone `stackpilot` binary (BUILD_PLAN §13): one file with the Bun runtime, the UI and
 // OpenTUI's native core inside, so a machine needs nothing installed to run it.
 //
-//   bun scripts/build.js              dist/kestrel-<os>-<arch>, smoke-tested
-//   bun scripts/build.js --archive    also dist/kestrel-v<version>-<os>-<arch>.tar.gz + dist/SHA256SUMS
+//   bun scripts/build.js              dist/stackpilot-<os>-<arch>, smoke-tested
+//   bun scripts/build.js --archive    also dist/stackpilot-v<version>-<os>-<arch>.tar.gz + dist/SHA256SUMS
 //
 // OpenTUI ships its native core per platform (@opentui/core-<os>-<arch>), and `bun install` fetches only
 // the one for the machine it runs on. So every target is built on its own OS/arch (the release workflow
@@ -27,7 +27,7 @@ function run(cmd, args, options = {}) {
 }
 
 function build(target) {
-    const outfile = path.join(DIST, `kestrel-${target}`);
+    const outfile = path.join(DIST, `stackpilot-${target}`);
     run('bun', [
         'build', 'cli/index.js', '--compile', `--target=bun-${target}`, `--outfile=${outfile}`,
         // React's production build must be chosen at compile time (see docs/DEV.md).
@@ -39,7 +39,7 @@ function build(target) {
 /** The binary must start, report this version and take a live snapshot. */
 function smokeTest(binary) {
     const reported = run(binary, ['--version']).trim();
-    if (reported !== `kestrel ${version}`) throw new Error(`${binary} reports "${reported}", expected "kestrel ${version}"`);
+    if (reported !== `stackpilot ${version}`) throw new Error(`${binary} reports "${reported}", expected "stackpilot ${version}"`);
     const snapshot = JSON.parse(run(binary, ['sm', '--dump', '--ticks', '1']).trim());
     if (!snapshot.processCount) throw new Error(`${binary} sampled no processes`);
 }
@@ -48,14 +48,14 @@ function sha256(file) {
     return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 }
 
-/** kestrel-v<version>-<target>.tar.gz with the binary (as `kestrel`), LICENSE and README.md. */
+/** stackpilot-v<version>-<target>.tar.gz with the binary (as `stackpilot`), LICENSE and README.md. */
 function archive(binary, target) {
-    const name = `kestrel-v${version}-${target}`;
+    const name = `stackpilot-v${version}-${target}`;
     const staging = path.join(DIST, name);
     fs.rmSync(staging, { recursive: true, force: true });
     fs.mkdirSync(staging, { recursive: true });
-    fs.copyFileSync(binary, path.join(staging, 'kestrel'));
-    fs.chmodSync(path.join(staging, 'kestrel'), 0o755);
+    fs.copyFileSync(binary, path.join(staging, 'stackpilot'));
+    fs.chmodSync(path.join(staging, 'stackpilot'), 0o755);
     for (const file of ['LICENSE', 'README.md']) fs.copyFileSync(path.join(ROOT, file), path.join(staging, file));
     const tarball = `${name}.tar.gz`;
     run('tar', ['-czf', tarball, name], { cwd: DIST });

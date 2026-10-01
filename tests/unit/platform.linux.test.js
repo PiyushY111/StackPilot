@@ -140,7 +140,7 @@ test('readProcText reads small /proc files and treats vanished or forbidden ones
     const fs = require('node:fs');
     const os = require('node:os');
     const path = require('node:path');
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-rpt-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-rpt-'));
     try {
         fs.writeFileSync(path.join(dir, 'stat'), 'x'.repeat(20000));
         assert.equal(linux.readProcText(path.join(dir, 'stat')).length, 20000);

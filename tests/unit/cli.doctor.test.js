@@ -1,4 +1,4 @@
-// `kestrel doctor` (M4): every check reports ok / warn / fail with a fix; only failures exit 1.
+// `stackpilot doctor` (M4): every check reports ok / warn / fail with a fix; only failures exit 1.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -16,7 +16,7 @@ const platform = (overrides = {}) => ({
 });
 
 function run(t, overrides = {}) {
-    const cwd = overrides.cwd || fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-doctor-')));
+    const cwd = overrides.cwd || fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-doctor-')));
     t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));
     const out = [];
     const io = { stdout: { write: (s) => out.push(s), isTTY: true, columns: 120, rows: 40 }, stderr: { write: () => {} }, cwd, env: { COLORTERM: 'truecolor' } };
@@ -64,16 +64,16 @@ test('warnings explain what to do: Node runtime, ps fallback, no terminal, small
     assert.match(text, /! terminal\s+16 colors, 50×12 · the dashboard needs at least 60×16/);
 });
 
-test('the project stack is validated like kestrel pm does', async (t) => {
-    const cwd = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-doctor-')));
-    fs.writeFileSync(path.join(cwd, 'kestrel.json'), JSON.stringify({ version: 1, processes: { api: { cmd: 'x', restart: 'sometimes' } } }));
+test('the project stack is validated like stackpilot pm does', async (t) => {
+    const cwd = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-doctor-')));
+    fs.writeFileSync(path.join(cwd, 'stackpilot.json'), JSON.stringify({ version: 1, processes: { api: { cmd: 'x', restart: 'sometimes' } } }));
     const bad = await run(t, { cwd });
     assert.equal(bad.code, 1);
-    assert.match(bad.out, /✗ stack\s+kestrel\.json has 1 problem/);
+    assert.match(bad.out, /✗ stack\s+stackpilot\.json has 1 problem/);
     assert.match(bad.out, /processes\.api\.restart/);
 
-    fs.writeFileSync(path.join(cwd, 'kestrel.json'), JSON.stringify({ version: 1, processes: { api: { cmd: 'x' }, web: { cmd: 'y' } } }));
+    fs.writeFileSync(path.join(cwd, 'stackpilot.json'), JSON.stringify({ version: 1, processes: { api: { cmd: 'x' }, web: { cmd: 'y' } } }));
     const good = await run(t, { cwd });
     assert.equal(good.code, 0);
-    assert.match(good.out, /✓ stack\s+kestrel\.json: 2 processes \(api, web\)/);
+    assert.match(good.out, /✓ stack\s+stackpilot\.json: 2 processes \(api, web\)/);
 });

@@ -21,7 +21,7 @@ test('write splits chunks into timestamped lines and holds partial lines per str
     assert.deepEqual(texts(buf.lines()), ['stdout:hello', 'stdout:world', 'stderr:boom']);
 });
 
-test('append adds Kestrel system lines', () => {
+test('append adds StackPilot system lines', () => {
     const buf = createLogBuffer({ maxLines: 10, now: clock });
     const line = buf.append('crashed (exit 1)');
     assert.equal(line.stream, 'system');

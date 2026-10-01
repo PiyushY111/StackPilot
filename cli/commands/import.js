@@ -1,5 +1,5 @@
-// `kestrel import pm2 [file]` (PRD §5.2): converts a pm2 setup (running pm2, or an ecosystem file) into
-// kestrel.json. It never starts anything, and a .js ecosystem file is only executed after a yes.
+// `stackpilot import pm2 [file]` (PRD §5.2): converts a pm2 setup (running pm2, or an ecosystem file) into
+// stackpilot.json. It never starts anything, and a .js ecosystem file is only executed after a yes.
 const fs = require('node:fs');
 const path = require('node:path');
 const { importPm2 } = require('../../core/config/pm2');

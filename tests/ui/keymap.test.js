@@ -59,7 +59,7 @@ test('managed: process keys in its own border, log keys in the logs panel border
     expect(resolveKey('managed', 'G', env)).toBe('logs:bottom');
 });
 
-test('manager-only keys are hidden in kestrel sm', () => {
+test('manager-only keys are hidden in stackpilot sm', () => {
     const sm = { managerAvailable: false };
     expect(resolveKey('proc.table', 'L', env)).toBe('logs:failed');
     expect(resolveKey('proc.table', 'L', sm)).toBeNull();

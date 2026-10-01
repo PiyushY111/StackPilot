@@ -1,5 +1,5 @@
 // Finds and loads the project's stack (PRD §5.2). First match wins:
-//   --config <path>  →  stackpilot.json/kestrel.json (walking up)  →  Procfile (cwd)  →  package.json scripts (cwd)
+//   --config <path>  →  stackpilot.json (walking up)  →  Procfile (cwd)  →  package.json scripts (cwd)
 const fs = require('node:fs');
 const path = require('node:path');
 const { validateConfig } = require('./schema');
@@ -7,7 +7,6 @@ const { parseProcfile } = require('./procfile');
 const { detectScripts } = require('./packageJson');
 
 const CONFIG_FILE = 'stackpilot.json';
-const LEGACY_CONFIG_FILE = 'kestrel.json';
 
 /** Nearest `filename` from `startDir` upwards (like git), or null. */
 function findUp(startDir, filename, { stopAt = path.parse(startDir).root } = {}) {
@@ -22,7 +21,7 @@ function findUp(startDir, filename, { stopAt = path.parse(startDir).root } = {})
 
 /**
  * @typedef {Object} StackResult
- * @property {'stackpilot.json'|'kestrel.json'|'Procfile'|'package.json'|null} source
+ * @property {'stackpilot.json'|'Procfile'|'package.json'|null} source
  * @property {string|null} path
  * @property {any} config  normalized config (see schema.js), or null
  * @property {{ path: string, message: string }[]} errors
@@ -35,8 +34,7 @@ const emptyResult = () => ({ source: null, path: null, config: null, errors: [],
 
 /** @returns {StackResult} */
 function loadConfigJson(file) {
-    const filename = path.basename(file).toLowerCase();
-    const source = filename === 'stackpilot.json' ? 'stackpilot.json' : 'kestrel.json';
+    const source = 'stackpilot.json'; // also for a --config file with another name: it has this format
     let raw;
     try {
         raw = JSON.parse(fs.readFileSync(file, 'utf-8'));
@@ -79,8 +77,6 @@ function loadStack({ cwd, configPath, stopAt }) {
     }
     const stackpilotJson = findUp(cwd, CONFIG_FILE, { stopAt });
     if (stackpilotJson) return loadConfigJson(stackpilotJson);
-    const kestrelJson = findUp(cwd, LEGACY_CONFIG_FILE, { stopAt });
-    if (kestrelJson) return loadConfigJson(kestrelJson);
     const procfile = path.join(cwd, 'Procfile');
     if (fs.existsSync(procfile)) return loadProcfile(procfile);
     const packageJson = path.join(cwd, 'package.json');
@@ -88,4 +84,4 @@ function loadStack({ cwd, configPath, stopAt }) {
     return emptyResult();
 }
 
-module.exports = { loadStack, findUp, CONFIG_FILE, LEGACY_CONFIG_FILE, loadKestrelJson: loadConfigJson, loadConfigJson };
+module.exports = { loadStack, findUp, CONFIG_FILE, loadConfigJson };

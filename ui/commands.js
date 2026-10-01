@@ -17,7 +17,7 @@ export function contextFor(state, app) {
     return `proc.${state.ui.monitorView}`;
 }
 
-// The managed box only exists when the process manager does (not in `kestrel sm`).
+// The managed box only exists when the process manager does (not in `stackpilot sm`).
 const focusOrder = (env) => (env.managerAvailable ? ['proc', 'managed', 'ports'] : ['proc', 'ports']);
 
 const targetPid = (d) => (d.app.drawerPid !== null ? d.app.drawerPid : d.getState().ui.selectedPid);

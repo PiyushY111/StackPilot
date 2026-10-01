@@ -127,7 +127,7 @@ test('after maxRestarts consecutive crashes the process is errored and a danger 
 
 test('env precedence reaches the child, and a missing explicit envFile errors clearly', async (t) => {
     const { store, pm } = setup(t);
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-env-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-env-'));
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
     fs.writeFileSync(path.join(dir, '.env'), 'FROM_FILE=file\nOVERRIDE=file\n');
     pm.register(def('envy', fixture('--echo-env FROM_FILE,OVERRIDE'), {
@@ -169,7 +169,7 @@ test('block marks a process blocked by its dependency without starting it', (t) 
 });
 
 test('logs are also written to <logDir>/<id>.log when a log directory is set', async (t) => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-plogs-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-plogs-'));
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
     const { store, pm } = setup(t, { logDir: dir, logFlushMs: 10 });
     pm.register(def('talker', fixture('--ready-line hello-file')));
@@ -180,7 +180,7 @@ test('logs are also written to <logDir>/<id>.log when a log directory is set', a
 });
 
 test('the run state lists live children, and is cleared when everything stops', async (t) => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-prun-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-prun-'));
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
     const runStatePath = path.join(dir, 'run.json');
     const { store, pm } = setup(t, { runStatePath });

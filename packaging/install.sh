@@ -11,7 +11,7 @@
 set -eu
 
 REPO="piyushy111/StackPilot"
-INSTALL_DIR="${STACKPILOT_INSTALL_DIR:-${KESTREL_INSTALL_DIR:-$HOME/.local/bin}}"
+INSTALL_DIR="${STACKPILOT_INSTALL_DIR:-$HOME/.local/bin}"
 
 say() { printf '%s\n' "$*"; }
 die() { printf 'stackpilot installer: %s\n' "$*" >&2; exit 1; }
@@ -62,11 +62,11 @@ sha256_of() {
 
 main() {
     target=$(detect_target)
-    version="${STACKPILOT_VERSION:-${KESTREL_VERSION:-$(latest_version)}}"
+    version="${STACKPILOT_VERSION:-$(latest_version)}"
     [ -n "$version" ] || die "could not find the latest release (set STACKPILOT_VERSION=v0.1.0 to pick one)"
     version="${version#v}"
     asset="stackpilot-v$version-$target.tar.gz"
-    base="${STACKPILOT_DOWNLOAD_BASE:-${KESTREL_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/v$version}}"
+    base="${STACKPILOT_DOWNLOAD_BASE:-https://github.com/$REPO/releases/download/v$version}"
 
     tmp=$(mktemp -d)
     trap 'rm -rf "$tmp"' EXIT INT TERM

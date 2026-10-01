@@ -10,7 +10,7 @@ const pm2 = require('../../core/config/pm2');
 const { validateConfig } = require('../../core/config/schema');
 
 function tempDir(t) {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-cfg-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-cfg-'));
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
     return dir;
 }
@@ -93,7 +93,7 @@ test('detectScripts defaults to npm and reports invalid package.json', () => {
     assert.deepEqual(detectScripts({ packageJsonText: '{}', files: [] }).scripts, []);
 });
 
-test('scriptsToConfig produces a valid kestrel config with safe names', () => {
+test('scriptsToConfig produces a valid stackpilot config with safe names', () => {
     const raw = scriptsToConfig('pnpm', ['dev', 'dev:api']);
     assert.deepEqual(raw, { version: 1, processes: { dev: { cmd: 'pnpm run dev' }, 'dev-api': { cmd: 'pnpm run dev:api' } } });
     assert.equal(validateConfig(raw, { baseDir: '/r' }).ok, true);

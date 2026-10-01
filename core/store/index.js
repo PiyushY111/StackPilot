@@ -23,7 +23,7 @@ class Store extends EventEmitter {
     /** @param {{ meta?: object, thresholds?: { cpu: number[], memMB: number[] } }} [options] */
     constructor(options = {}) {
         super();
-        /** @type {import('./types').KestrelState} */
+        /** @type {import('./types').StackPilotState} */
         this.state = S.createInitialState(options);
         /** @type {import('../sampler/cpu').SampledProcess[]} */
         this.rawProcesses = [];

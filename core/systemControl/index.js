@@ -21,7 +21,7 @@ function assertValidPid(pid) {
     if (!Number.isInteger(pid) || pid < MIN_TARGET_PID) {
         throw new SystemControlError(`Invalid pid "${pid}"`, 'EINVAL');
     }
-    if (pid === process.pid) throw new SystemControlError('Refusing to signal Kestrel itself', 'ESELF');
+    if (pid === process.pid) throw new SystemControlError('Refusing to signal StackPilot itself', 'ESELF');
 }
 
 function translateKillError(err, pid) {

@@ -6,9 +6,9 @@ const path = require('node:path');
 const { createRunState, findOrphans } = require('../../core/processManager/runState');
 
 function tempFile(t) {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-run-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-run-'));
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-    return path.join(dir, '.kestrel', 'run.json');
+    return path.join(dir, '.stackpilot', 'run.json');
 }
 
 test('record writes run.json privately; readPrevious reads it back; clear removes it', (t) => {
@@ -16,9 +16,8 @@ test('record writes run.json privately; readPrevious reads it back; clear remove
     const rs = createRunState({ path: file, pid: 4242 });
     assert.equal(rs.readPrevious(), null);
     rs.record([{ id: 'api', pid: 10, pgid: 10, startedAt: 1000 }]);
-    assert.deepEqual(JSON.parse(fs.readFileSync(file, 'utf-8')), { stackpilotPid: 4242, kestrelPid: 4242, children: [{ id: 'api', pid: 10, pgid: 10, startedAt: 1000 }] });
+    assert.deepEqual(JSON.parse(fs.readFileSync(file, 'utf-8')), { stackpilotPid: 4242, children: [{ id: 'api', pid: 10, pgid: 10, startedAt: 1000 }] });
     assert.equal(fs.statSync(file).mode & 0o777, 0o600);
-    assert.equal(rs.readPrevious().kestrelPid, 4242);
     assert.equal(rs.readPrevious().stackpilotPid, 4242);
     rs.clear();
     assert.equal(fs.existsSync(file), false);
@@ -33,7 +32,7 @@ test('a corrupt run.json is treated as absent', (t) => {
 
 test('findOrphans keeps only live children whose start time matches (so reused pids are ignored)', () => {
     const previous = {
-        kestrelPid: 900,
+        stackpilotPid: 900,
         children: [
             { id: 'api', pid: 10, pgid: 10, startedAt: 100000 },
             { id: 'web', pid: 11, pgid: 11, startedAt: 100000 },
@@ -45,8 +44,8 @@ test('findOrphans keeps only live children whose start time matches (so reused p
     assert.deepEqual(orphans.map((o) => o.id), ['api']);
 });
 
-test('findOrphans ignores a run file written by this same Kestrel process', () => {
-    const previous = { kestrelPid: 1, children: [{ id: 'api', pid: 10, pgid: 10, startedAt: 100000 }] };
+test('findOrphans ignores a run file written by this same StackPilot process', () => {
+    const previous = { stackpilotPid: 1, children: [{ id: 'api', pid: 10, pgid: 10, startedAt: 100000 }] };
     assert.deepEqual(findOrphans(previous, { currentPid: 1, startedAtOf: () => 100000 }), []);
     assert.deepEqual(findOrphans(null, { currentPid: 1, startedAtOf: () => 0 }), []);
 });

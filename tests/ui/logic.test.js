@@ -152,7 +152,7 @@ import { rowSegments } from '../../ui/components/tables.jsx';
 
 test('a long managed id never widens the NAME column (review finding)', () => {
     const columns = [{ key: 'pid', label: 'PID', width: 7, align: 'right' }, { key: 'name', label: 'NAME', width: 30, align: 'left' }];
-    const row = { pid: 812, name: 'node', managedId: 'a-very-long-managed-process-name-chosen-by-the-user-in-kestrel-json', cpu: 0, memMB: 0 };
+    const row = { pid: 812, name: 'node', managedId: 'a-very-long-managed-process-name-chosen-by-the-user-in-stackpilot-json', cpu: 0, memMB: 0 };
     const text = rowSegments(row, columns, { selected: false, guide: '', thresholds: { cpu: [50, 80], memMB: [500, 1500] } }).map((s) => s.text).join('');
     // selection bar (2) + pid (7+1) + name (30) + trailing space (1)
     expect(text.length).toBe(2 + 8 + 30 + 1);

@@ -1,5 +1,5 @@
-// `kestrel sm`: the interactive Monitor, or `--dump` for headless JSON snapshots.
-const { createKestrel } = require('../../core');
+// `stackpilot sm`: the interactive Monitor, or `--dump` for headless JSON snapshots.
+const { createStackPilot } = require('../../core');
 const { monitor } = require('./interactive');
 
 const DEFAULT_INTERVAL_MS = 1000;
@@ -23,15 +23,15 @@ function snapshot(state, tick) {
 }
 
 async function dump({ ticks, intervalMs }, io) {
-    const kestrel = createKestrel({ intervalMs });
+    const stackpilot = createStackPilot({ intervalMs });
     try {
         for (let tick = 1; tick <= ticks; tick++) {
-            await kestrel.tick();
-            io.stdout.write(`${JSON.stringify(snapshot(kestrel.store.getState(), tick))}\n`);
+            await stackpilot.tick();
+            io.stdout.write(`${JSON.stringify(snapshot(stackpilot.store.getState(), tick))}\n`);
             if (tick < ticks) await sleep(intervalMs);
         }
     } finally {
-        await kestrel.stop();
+        await stackpilot.stop();
     }
     return 0;
 }

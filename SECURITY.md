@@ -29,12 +29,12 @@ In scope, for example:
 - secrets from `.env` files ending up somewhere other than the managed process and its log file.
 
 Working as designed:
-- **Commands in `stackpilot.json` (or `kestrel.json`), a Procfile or package.json run with your privileges** when you start
+- **Commands in `stackpilot.json`, a Procfile or package.json run with your privileges** when you start
   the stack. That is the same trust model as `npm run`. Review configs from untrusted repositories
   before running `stackpilot pm`. Plain `stackpilot` never starts anything on its own, and `stackpilot sm` never
   reads the config.
 - `stackpilot import pm2` executes a `.js` ecosystem file (as pm2 does), but only after you confirm.
-- Saved logs contain whatever your processes print. They are owner-only (0600) under `.stackpilot/` (or legacy `.kestrel/`).
+- Saved logs contain whatever your processes print. They are owner-only (0600) under `.stackpilot/`.
 
 ## How updates are verified
 

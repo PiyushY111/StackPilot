@@ -46,7 +46,7 @@ project's processes, the way pm2 or foreman do. Because it does both, it can tel
 - **See the machine.** CPU history and per-core meters, memory and swap, listening ports with their
   owners, and a process table or tree with filter, sort, details, kill and renice.
 - **Run the stack.**
-  - Starts the processes in `stackpilot.json` (or `kestrel.json`, a Procfile, or package.json scripts) in dependency order.
+  - Starts the processes in `stackpilot.json` (or a Procfile, or package.json scripts) in dependency order.
   - Waits for each to be ready (a port, an HTTP check or a log line) and restarts crashes with backoff.
   - Stops everything cleanly, in reverse order.
 - **Follow it.** A live logs panel per process or interleaved for all of them, with pause and search.
@@ -64,7 +64,7 @@ macOS and Linux, on arm64 and x64. Either way you get one standalone binary; not
 the machine.
 
 ```sh
-npm install -g stackpilot
+npm install -g stackpilot-tui
 ```
 
 ```sh

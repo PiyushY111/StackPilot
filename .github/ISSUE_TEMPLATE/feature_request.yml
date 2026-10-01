@@ -1,5 +1,5 @@
 name: Feature request
-description: An idea for Kestrel
+description: An idea for StackPilot
 labels: [enhancement]
 body:
   - type: textarea
@@ -14,7 +14,7 @@ body:
     id: idea
     attributes:
       label: What would help?
-      description: How you picture it working in Kestrel (a key, a config option, a command…).
+      description: How you picture it working in StackPilot (a key, a config option, a command…).
   - type: textarea
     id: alternatives
     attributes:

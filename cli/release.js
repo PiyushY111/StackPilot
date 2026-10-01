@@ -9,7 +9,7 @@ const BUNDLED_PREFIX = '/$bunfs/';
 /** How to update each kind of install that is not a standalone binary. */
 const UPDATE_COMMANDS = Object.freeze({
     homebrew: 'brew upgrade stackpilot',
-    npm: 'npm install -g stackpilot@latest',
+    npm: 'npm install -g stackpilot-tui@latest',
     source: 'git pull && bun install',
 });
 

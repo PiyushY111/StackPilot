@@ -67,7 +67,7 @@ async function offerGitignore(cwd, prompter, io) {
         if (err.code !== 'ENOENT') throw err;
     }
     if (content === null && !fs.existsSync(path.join(cwd, '.git'))) return;
-    if (/^\/?\.(?:stackpilot|kestrel)\/?\s*$/m.test(content || '')) return;
+    if (/^\/?\.stackpilot\/?\s*$/m.test(content || '')) return;
     if (!(await prompter.confirm('Add .stackpilot/ (logs and run state) to .gitignore?', true))) return;
     // Append, never rewrite: an edit made to .gitignore meanwhile is kept.
     const separator = content && !content.endsWith('\n') ? '\n' : '';

@@ -6,13 +6,13 @@ const path = require('node:path');
 const { writeConfigFile, addProcess, toConfigEntry } = require('../../core/config/save');
 
 function tempDir(t) {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-save-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-save-'));
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
     return dir;
 }
 
 test('writeConfigFile writes pretty JSON and never overwrites without force', (t) => {
-    const file = path.join(tempDir(t), 'kestrel.json');
+    const file = path.join(tempDir(t), 'stackpilot.json');
     const raw = { version: 1, processes: { api: { cmd: 'npm start' } } };
     writeConfigFile(file, raw);
     assert.equal(fs.readFileSync(file, 'utf-8'), `${JSON.stringify(raw, null, 2)}\n`);
@@ -22,22 +22,22 @@ test('writeConfigFile writes pretty JSON and never overwrites without force', (t
 });
 
 test('writeConfigFile refuses a config that would not load', (t) => {
-    const file = path.join(tempDir(t), 'kestrel.json');
+    const file = path.join(tempDir(t), 'stackpilot.json');
     assert.throws(() => writeConfigFile(file, { version: 1, processes: { api: {} } }), /processes\.api\.cmd required/);
     assert.equal(fs.existsSync(file), false);
 });
 
-test('addProcess creates kestrel.json or adds to it, keeping what is there', (t) => {
-    const file = path.join(tempDir(t), 'kestrel.json');
+test('addProcess creates stackpilot.json or adds to it, keeping what is there', (t) => {
+    const file = path.join(tempDir(t), 'stackpilot.json');
     addProcess(file, 'api', { cmd: 'npm start' });
     addProcess(file, 'worker', { cmd: 'node worker.js', env: { QUEUE: 'jobs' } });
     const saved = JSON.parse(fs.readFileSync(file, 'utf-8'));
     assert.deepEqual(saved, { version: 1, processes: { api: { cmd: 'npm start' }, worker: { cmd: 'node worker.js', env: { QUEUE: 'jobs' } } } });
-    assert.throws(() => addProcess(file, 'api', { cmd: 'x' }), /"api" is already in kestrel\.json/);
+    assert.throws(() => addProcess(file, 'api', { cmd: 'x' }), /"api" is already in stackpilot\.json/);
 });
 
-test('addProcess reports a kestrel.json that is not valid JSON instead of replacing it', (t) => {
-    const file = path.join(tempDir(t), 'kestrel.json');
+test('addProcess reports a stackpilot.json that is not valid JSON instead of replacing it', (t) => {
+    const file = path.join(tempDir(t), 'stackpilot.json');
     fs.writeFileSync(file, '{ nope');
     assert.throws(() => addProcess(file, 'api', { cmd: 'npm start' }), /not valid JSON/);
     assert.equal(fs.readFileSync(file, 'utf-8'), '{ nope');

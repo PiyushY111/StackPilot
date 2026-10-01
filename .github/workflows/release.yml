@@ -1,4 +1,4 @@
-# Releases Kestrel (see RELEASING.md). A v*.*.* tag on main runs every stage; publishing waits for a
+# Releases StackPilot (see RELEASING.md). A v*.*.* tag on main runs every stage; publishing waits for a
 # maintainer to approve the `release` environment:
 #   verify     the tag matches package.json, CHANGELOG.md has the section, lint/types/tests pass
 #   build      the standalone binary on each of the four targets (built and smoke-tested natively)
@@ -105,7 +105,7 @@ jobs:
           name: binary-${{ matrix.target }}
           # The raw binary goes into the npm package, the archive into the GitHub Release.
           path: |
-            dist/kestrel-${{ matrix.target }}
+            dist/stackpilot-${{ matrix.target }}
             dist/*.tar.gz
           if-no-files-found: error
 
@@ -134,7 +134,7 @@ jobs:
         run: |
           mv binaries/*.tar.gz release/
           cp packaging/install.sh release/
-          (cd release && sha256sum kestrel-v*.tar.gz > SHA256SUMS && cat SHA256SUMS)
+          (cd release && sha256sum stackpilot-v*.tar.gz > SHA256SUMS && cat SHA256SUMS)
           test "$(wc -l < release/SHA256SUMS)" -eq 4
       - name: npm packages
         run: |
@@ -173,9 +173,9 @@ jobs:
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 --directory release > /dev/null 2>&1 &
           until curl -fsS -o /dev/null http://127.0.0.1:8765/SHA256SUMS; do sleep 0.2; done
-          KESTREL_DOWNLOAD_BASE=http://127.0.0.1:8765 KESTREL_VERSION="v$VERSION" KESTREL_INSTALL_DIR="$RUNNER_TEMP/bin" sh release/install.sh
-          test "$("$RUNNER_TEMP/bin/kestrel" --version)" = "kestrel $VERSION"
-          "$RUNNER_TEMP/bin/kestrel" sm --dump --ticks 1 > /dev/null
+          STACKPILOT_DOWNLOAD_BASE=http://127.0.0.1:8765 STACKPILOT_VERSION="v$VERSION" STACKPILOT_INSTALL_DIR="$RUNNER_TEMP/bin" sh release/install.sh
+          test "$("$RUNNER_TEMP/bin/stackpilot" --version)" = "stackpilot $VERSION"
+          "$RUNNER_TEMP/bin/stackpilot" sm --dump --ticks 1 > /dev/null
       - name: npm, through a throwaway local registry
         run: sh scripts/npm-rehearse.sh release/npm
 
@@ -214,13 +214,13 @@ jobs:
           subject-checksums: release/SHA256SUMS
       - name: Draft GitHub Release (re-runs replace its files)
         run: |
-          set -- release/kestrel-v*.tar.gz release/SHA256SUMS release/install.sh
+          set -- release/stackpilot-v*.tar.gz release/SHA256SUMS release/install.sh
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" "$@" --clobber
           else
-            gh release create "$TAG" "$@" --draft --verify-tag --title "Kestrel $VERSION" --notes-file release/release-notes.md
+            gh release create "$TAG" "$@" --draft --verify-tag --title "StackPilot $VERSION" --notes-file release/release-notes.md
           fi
-      - name: npm (platform packages first, then kestrel-tui; skips what is already published)
+      - name: npm (platform packages first, then stackpilot-tui; skips what is already published)
         env:
           # The one-day bootstrap token for the first release, stored as a secret of the `release`
           # environment. Once trusted publishing is set up (scripts/npm-trust.sh) the secret is
@@ -252,22 +252,22 @@ jobs:
       - name: curl | sh from GitHub
         run: |
           curl -fsSL "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$TAG/packaging/install.sh" \
-            | KESTREL_VERSION="$TAG" KESTREL_INSTALL_DIR="$RUNNER_TEMP/bin" sh
-          test "$("$RUNNER_TEMP/bin/kestrel" --version)" = "kestrel $VERSION"
+            | STACKPILOT_VERSION="$TAG" STACKPILOT_INSTALL_DIR="$RUNNER_TEMP/bin" sh
+          test "$("$RUNNER_TEMP/bin/stackpilot" --version)" = "stackpilot $VERSION"
       - name: The archive's build provenance verifies
         run: |
           target="$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"
-          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "kestrel-$TAG-$target.tar.gz"
-          gh attestation verify "kestrel-$TAG-$target.tar.gz" --repo "$GITHUB_REPOSITORY"
-      - name: npm install -g kestrel-tui (waits for the registry to catch up)
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "stackpilot-$TAG-$target.tar.gz"
+          gh attestation verify "stackpilot-$TAG-$target.tar.gz" --repo "$GITHUB_REPOSITORY"
+      - name: npm install -g stackpilot-tui (waits for the registry to catch up)
         run: |
-          for _ in $(seq 1 30); do npm view "kestrel-tui@$VERSION" version > /dev/null 2>&1 && break; sleep 10; done
-          npm install -g "kestrel-tui@$VERSION"
-          test "$(kestrel --version)" = "kestrel $VERSION"
-          kestrel sm --dump --ticks 1 > /dev/null
+          for _ in $(seq 1 30); do npm view "stackpilot-tui@$VERSION" version > /dev/null 2>&1 && break; sleep 10; done
+          npm install -g "stackpilot-tui@$VERSION"
+          test "$(stackpilot --version)" = "stackpilot $VERSION"
+          stackpilot sm --dump --ticks 1 > /dev/null
       - name: npm signatures and provenance verify
         run: |
           mkdir -p "$RUNNER_TEMP/audit" && cd "$RUNNER_TEMP/audit"
           npm init -y > /dev/null
-          npm install "kestrel-tui@$VERSION"
+          npm install "stackpilot-tui@$VERSION"
           npm audit signatures

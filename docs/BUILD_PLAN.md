@@ -1,4 +1,4 @@
-# Kestrel — Technical Design & Build Plan
+# StackPilot — Technical Design & Build Plan
 
 | | |
 |---|---|
@@ -10,7 +10,7 @@
 
 ## 1. Summary
 
-Kestrel is one binary with three layers:
+StackPilot is one binary with three layers:
 
 - a **CLI** that decides what to run,
 - a **core** engine that samples the OS, supervises processes, and owns all state,
@@ -25,8 +25,8 @@ sits behind one **platform adapter** interface, so the rest of the core is the s
 2. **One store, one direction.** `OS → platform → sampler → store → UI`, and `UI → actions → core modules → store`. The UI subscribes to the store and calls actions; nothing else crosses the boundary.
 3. **Immutable state.** Every store update replaces objects rather than mutating them, so the UI can compare by reference and skip unchanged renders.
 4. **Pure logic separate from I/O.** Parsers, graph ordering, backoff, leak detection, and view derivation are pure functions tested with fixtures. I/O modules stay thin.
-5. **Fail soft, report loudly.** No error from the OS or a child process may crash Kestrel. Every failure becomes a store event with a readable message.
-6. **No shell unless the user wrote the command.** Kestrel's own calls (`ps`, `lsof`, `ss`, `vm_stat`) use `execFile` with argument arrays; renice uses the `setpriority` syscall directly (`os.setPriority`), so it works on minimal images without the `renice` binary. Only commands from the user's config run through a shell (§10).
+5. **Fail soft, report loudly.** No error from the OS or a child process may crash StackPilot. Every failure becomes a store event with a readable message.
+6. **No shell unless the user wrote the command.** StackPilot's own calls (`ps`, `lsof`, `ss`, `vm_stat`) use `execFile` with argument arrays; renice uses the `setpriority` syscall directly (`os.setPriority`), so it works on minimal images without the `renice` binary. Only commands from the user's config run through a shell (§10).
 
 ## 3. Technology stack
 
@@ -44,7 +44,7 @@ sits behind one **platform adapter** interface, so the rest of the core is the s
 ## 4. Data flow
 
 ```
-                ┌──────────────────── kestrel binary ─────────────────────┐
+                ┌──────────────────── stackpilot binary ─────────────────────┐
   argv ──▶ cli/ ─┤                                                          │
                 │   core/                                                   │
                 │   ┌────────────┐ snapshot ┌──────────┐  state/events      │
@@ -56,7 +56,7 @@ sits behind one **platform adapter** interface, so the rest of the core is the s
                 │   │ + stack/   │                         └─────────┘      │      │
                 │   └────────────┘                              ▲           │      │
                 │   ┌────────────┐                              │           │      │
-                │   │ config/    │ kestrel.json│Procfile│pkg│pm2│           │      │
+                │   │ config/    │ stackpilot.json│Procfile│pkg│pm2│           │      │
                 │   └────────────┘                              │           │      │
                 │   ┌────────────┐          ┌──────────┐        │           │      │
                 │   │ sysControl │◀─────────│ actions/ │◀───────┼───────────┼──────┘ user intent
@@ -70,7 +70,7 @@ The project directory is written to be the **root of its own repository**. Every
 to it, so the planned move to a separate repo (§14) is a straight copy.
 
 ```
-kestrel/
+stackpilot/
 ├── cli/
 │   ├── index.js              # entry: alias pre-pass, parseArgs, dispatch
 │   ├── args.js               # alias table + validation (pure)
@@ -90,10 +90,10 @@ kestrel/
 │   │   └── leak.js           # memory-growth detector (pure)
 │   ├── config/
 │   │   ├── index.js          # discovery + source precedence (PRD §5.2)
-│   │   ├── schema.js         # validate + normalize kestrel.json
+│   │   ├── schema.js         # validate + normalize stackpilot.json
 │   │   ├── procfile.js       # parse Procfile
 │   │   ├── packageJson.js    # detect npm scripts
-│   │   ├── pm2.js            # pm2 jlist / ecosystem → kestrel config
+│   │   ├── pm2.js            # pm2 jlist / ecosystem → stackpilot config
 │   │   └── dotenv.js         # parse .env
 │   ├── stack/
 │   │   ├── graph.js          # dependsOn topological sort + cycle detection (pure)
@@ -104,7 +104,7 @@ kestrel/
 │   │   ├── logBuffer.js      # existing (bounded in-memory buffer)
 │   │   ├── logFile.js        # persisted, rotated logs
 │   │   ├── readiness.js      # port / http / log probes
-│   │   └── runState.js       # .kestrel/run.json for orphan recovery
+│   │   └── runState.js       # .stackpilot/run.json for orphan recovery
 │   ├── systemControl/
 │   │   ├── index.js          # existing kill/renice
 │   │   └── policy.js         # safety tier classification (pure)
@@ -114,7 +114,7 @@ kestrel/
 │   │   ├── types.js          # the frozen contract as JSDoc types
 │   │   └── selectors.js      # derived views: sorted/filtered, tree, managed resources
 │   ├── names.js              # shared process-name rule
-│   ├── index.js              # composition root: createKestrel()
+│   ├── index.js              # composition root: createStackPilot()
 │   └── actions/index.js      # the only API the UI may call
 ├── ui/
 │   ├── main.jsx · App.jsx
@@ -126,8 +126,8 @@ kestrel/
 │   └── format.js
 ├── packaging/
 │   ├── install.sh            # curl | sh installer
-│   ├── npm/                  # kestrel-tui launcher + per-platform package template
-│   └── homebrew/kestrel.rb.tmpl
+│   ├── npm/                  # stackpilot-tui launcher + per-platform package template
+│   └── homebrew/stackpilot.rb.tmpl
 ├── scripts/                  # dummy-worker.js, build.js, bench.js
 ├── tests/
 │   ├── unit/ · integration/ · ui/ · e2e/
@@ -146,8 +146,8 @@ from then on UI work can proceed against it with fakes.
 ```js
 state = {
   meta:    { version: '1.0.0', platform: 'darwin', arch: 'arm64', hostname: 'mbp', isRoot: false,
-             startedAt: 1759050000000, configPath: '/repo/kestrel.json' | null,
-             configSource: 'kestrel.json' | 'Procfile' | 'package.json' | null },
+             startedAt: 1759050000000, configPath: '/repo/stackpilot.json' | null,
+             configSource: 'stackpilot.json' | 'Procfile' | 'package.json' | null },
   system:  { cpuPercent: 42.3, cores: [12.1, 80.4, …], load: [1.2, 1.4, 1.1],
              memUsedMB: 8213, memTotalMB: 16384, swapUsedMB: 0, uptimeSec: 134221 },
   history: { cpu: [/* last 60 values */], mem: [/* last 60 values */] },
@@ -184,7 +184,7 @@ Monitor screens are gone); `monitorView` is `table`/`tree` only; `ui.focus` (`pr
   `errors` holds an invalid config's problems (nothing is registered then). `scripts` lists package.json
   candidates for the first-run picker. `phase` is `idle`/`starting`/`running`/`stopping`/`stopped`, and
   `stopProgress` maps each process to `stopping`/`stopped` while the stack stops (the quit progress, S12).
-- `orphans: [{ id, pid, pgid, startedAt }]`: children a previous Kestrel left running (S13).
+- `orphans: [{ id, pid, pgid, startedAt }]`: children a previous StackPilot left running (S13).
 - Managed entries gain `restart` (the policy) and `blockedBy` (the failed dependencies while `blocked`).
 - `ui.focus` gains `'managed'`.
 - New actions: `adoptScripts(names, { save })`, `stopOrphans()`, `dismissOrphans()`. `startStack`,
@@ -282,7 +282,7 @@ A tick is skipped if the previous one is still running (the existing `inFlight` 
 
 ### 8.2 Config
 
-**`kestrel.json` schema (version 1)**
+**`stackpilot.json` schema (version 1)**
 
 ```jsonc
 {
@@ -314,7 +314,7 @@ A tick is skipped if the previous one is still running (the existing `inFlight` 
 - The validator collects **all** errors with their paths (`processes.api.dependsOn[0]: unknown process "dbb"`) instead of stopping at the first.
 - **Procfile** → `{ name: { cmd } }` with default settings. **package.json** → one entry per selected script as `npm run <script>`. With a lockfile present, the matching runner is used instead (`pnpm`, `yarn`, `bun`).
 - `cwd` resolves from the config file's folder. `envFile` resolves from the process's `cwd`, because a `.env` file usually sits next to the app it configures.
-- **pm2**: `pm2 autorestart: true` maps to `restart: "always"`, since pm2 restarts on *any* exit. Env is **not** imported from `pm2 jlist`, because it contains the daemon's entire environment and copying it could leak unrelated secrets; env *is* imported from ecosystem files, where the user declared it. `pm2 jlist` is preferred because it's plain data. For `ecosystem.config.js` the file has to be run to be read, which is what pm2 does too. Kestrel shows `This will execute ecosystem.config.js to read it. Continue? [y/N]` first.
+- **pm2**: `pm2 autorestart: true` maps to `restart: "always"`, since pm2 restarts on *any* exit. Env is **not** imported from `pm2 jlist`, because it contains the daemon's entire environment and copying it could leak unrelated secrets; env *is* imported from ecosystem files, where the user declared it. `pm2 jlist` is preferred because it's plain data. For `ecosystem.config.js` the file has to be run to be read, which is what pm2 does too. StackPilot shows `This will execute ecosystem.config.js to read it. Continue? [y/N]` first.
 - **dotenv**: `KEY=VALUE`, quoted values, `#` comments, `export ` prefix. No variable interpolation in v1 (documented).
 
 ### 8.3 Stack orchestration
@@ -347,7 +347,7 @@ A tick is skipped if the previous one is still running (the existing `inFlight` 
 ```
 
 - Kept from the existing code: its own process group for each child (`detached: true`), group-wide signals, serialized operations per ID, a backoff streak that resets after 30 s of stable running, and SIGKILL after the grace period.
-- **Termination is detected on `close`, not `exit`** (fixed in M1). On Linux, `exit` can arrive before the last stdout/stderr chunk, which would log a crash before the output that explains it. Kestrel waits for `close` (streams drained), but stops waiting 1 s after `exit` in case a background grandchild keeps the pipe open. Both cases have regression tests.
+- **Termination is detected on `close`, not `exit`** (fixed in M1). On Linux, `exit` can arrive before the last stdout/stderr chunk, which would log a crash before the output that explains it. StackPilot waits for `close` (streams drained), but stops waiting 1 s after `exit` in case a background grandchild keeps the pipe open. Both cases have regression tests.
 - **Leftover processes are cleaned up** (fixed in M1, found in code review). When a managed command's main process exits, anything it left running in its process group (e.g. `server &` in a wrapper script) gets SIGTERM, then SIGKILL after the grace period, so it can't be orphaned while holding a port. Stop and shutdown reach the group through the remembered pgid even after the main process is gone. The pgid is forgotten once the group is empty, so a reused pid is never signalled. A consequence: commands that daemonize themselves (fork and exit) aren't supported, which is the same as pm2 and systemd `Type=simple`; run them in the foreground.
 - New in M3 (`supervisor.js`, one per process; `index.js` is the manager facade): restart policies
   (`on-failure`, `always`, `never`), `maxRestarts` consecutive crashes → `errored` plus a danger alert, the
@@ -363,8 +363,8 @@ A tick is skipped if the previous one is still running (the existing `inFlight` 
 - **Log volume** (measured in M3): the in-memory buffer is append-only with amortized trimming. Copying it on
   every line cost about a million element copies per second at 500 lines/s. Log-only updates reach the store
   every 250 ms instead of per line.
-- **Saved logs** (`logFile.js`): lines are appended as `ISO-timestamp stream text` to `.kestrel/logs/<id>.log` (mode 0600, directory 0700). Files rotate at 10 MB, keeping `.1` to `.3`. Writes are buffered and flushed every 250 ms, and flushed synchronously on shutdown.
-- **Run state** (`runState.js`): `.kestrel/run.json` records `{ kestrelPid, children: [{ id, pid, pgid, startedAt }] }`. It is rewritten atomically (0600) whenever the set of live children changes, and removed when none are left. On the next start, entries whose PID is alive **and** has a matching start time (±3 s) count as orphans. Checking the start time guards against a new, unrelated process that reused the PID. If the recorded Kestrel is still alive, nothing counts as an orphan and a warning says another Kestrel manages the stack. Stopping orphans re-verifies each one first, and signals a whole group only when the pid is its group leader.
+- **Saved logs** (`logFile.js`): lines are appended as `ISO-timestamp stream text` to `.stackpilot/logs/<id>.log` (mode 0600, directory 0700). Files rotate at 10 MB, keeping `.1` to `.3`. Writes are buffered and flushed every 250 ms, and flushed synchronously on shutdown.
+- **Run state** (`runState.js`): `.stackpilot/run.json` records `{ stackpilotPid, children: [{ id, pid, pgid, startedAt }] }`. It is rewritten atomically (0600) whenever the set of live children changes, and removed when none are left. On the next start, entries whose PID is alive **and** has a matching start time (±3 s) count as orphans. Checking the start time guards against a new, unrelated process that reused the PID. If the recorded StackPilot is still alive, nothing counts as an orphan and a warning says another StackPilot manages the stack. Stopping orphans re-verifies each one first, and signals a whole group only when the pid is its group leader.
 
 ### 8.5 Resource link and leak detector
 - **Resource link** (a pure selector): build a `ppid → children` map from the process snapshot, walk the tree from each managed root PID, and sum CPU and RSS. It also tags every process in the tree with `managedId`, which the Monitor table uses to show the managed badge.
@@ -374,15 +374,15 @@ A tick is skipped if the previous one is still running (the existing `inFlight` 
 
 | Tier | Condition | Required confirmation |
 |---|---|---|
-| `blocked` | PID ≤ 1, Kestrel's own PID, or Kestrel's parent shell | none; the action is refused with the reason |
+| `blocked` | PID ≤ 1, StackPilot's own PID, or StackPilot's parent shell | none; the action is refused with the reason |
 | `managed` | PID belongs to a managed process tree | one key. The UI offers "stop via manager" instead, so auto-restart doesn't just bring it back |
 | `own` | process user = current user | one key (`y`) |
 | `system` | a different user, or root | type the process name exactly |
 
 ### 8.7 CLI
 - The alias pre-pass maps `-pm`/`--pm` → `pm` and `-sm`/`--sm` → `sm` **before** `util.parseArgs`, so `-p -m` style bundling can't happen.
-- Exit codes: `0` normal, `1` runtime error, `2` usage or config error. That makes `kestrel doctor` usable in scripts.
-- Non-TTY (piped output or CI): interactive commands print a clear error and suggest `kestrel doctor`.
+- Exit codes: `0` normal, `1` runtime error, `2` usage or config error. That makes `stackpilot doctor` usable in scripts.
+- Non-TTY (piped output or CI): interactive commands print a clear error and suggest `stackpilot doctor`.
 
 ## 9. Failure modes
 
@@ -392,9 +392,9 @@ A tick is skipped if the previous one is still running (the existing `inFlight` 
 | Hundreds of processes exit between reads (Linux `/proc` races) | Missing `/proc/[pid]` entries are skipped silently. They're expected, not errors |
 | Managed process never becomes ready | Status `unready`, dependents `blocked`, and an alert with the last 20 log lines one key away |
 | Crash loop | Backoff grows to 30 s, then `errored` after `maxRestarts`, raising a danger alert. Nothing restarts forever |
-| Kestrel receives SIGHUP (SSH dropped) or SIGTERM | Graceful stack shutdown (P11), log flush, then exit |
-| Kestrel is SIGKILLed or crashes | Children survive, since they have their own groups. `run.json` lets the next start detect and offer to stop them (P12) |
-| Invalid `kestrel.json` | `pm` refuses to start and prints every validation error with its path. `sm` isn't affected |
+| StackPilot receives SIGHUP (SSH dropped) or SIGTERM | Graceful stack shutdown (P11), log flush, then exit |
+| StackPilot is SIGKILLed or crashes | Children survive, since they have their own groups. `run.json` lets the next start detect and offer to stop them (P12) |
+| Invalid `stackpilot.json` | `pm` refuses to start and prints every validation error with its path. `sm` isn't affected |
 | Terminal smaller than 60×16 | A "terminal too small" message; sampling continues |
 | Log disk full or write error | One warning toast, and the file sink for that process is disabled; in-memory logs continue |
 
@@ -402,10 +402,10 @@ A tick is skipped if the previous one is still running (the existing `inFlight` 
 
 | Surface | Control |
 |---|---|
-| Config commands | Run through the user's shell **only** when the user types `kestrel pm` or starts a process. `kestrel` and `kestrel sm` never run anything from a config. This is the same trust level as `npm run` |
-| Kestrel's own OS calls | `execFile` with argument arrays and no shell. PIDs, signals, and nice values are validated (the existing checks are kept) |
+| Config commands | Run through the user's shell **only** when the user types `stackpilot pm` or starts a process. `stackpilot` and `stackpilot sm` never run anything from a config. This is the same trust level as `npm run` |
+| StackPilot's own OS calls | `execFile` with argument arrays and no shell. PIDs, signals, and nice values are validated (the existing checks are kept) |
 | Kill and renice | Tiered policy with confirmation tokens enforced in the core (§8.6), not only in the UI |
-| Secrets | Env values masked in the UI. `.kestrel/` files are 0600/0700. `kestrel init` offers to add `.kestrel/` to `.gitignore`. Env values are never logged |
+| Secrets | Env values masked in the UI. `.stackpilot/` files are 0600/0700. `stackpilot init` offers to add `.stackpilot/` to `.gitignore`. Env values are never logged |
 | pm2 ecosystem `.js` | Runs only after an explicit prompt. `pm2 jlist` (plain data) is preferred |
 | Releases | Checksums plus GitHub artifact attestations. The installer and `update` refuse to install if the checksum doesn't match. The installer never uses sudo on its own |
 | Telemetry | None. The update check is one GitHub API request per day and can be turned off |
@@ -429,8 +429,8 @@ A tick is skipped if the previous one is still running (the existing `inFlight` 
 | Metric | Budget |
 |---|---|
 | Time to first frame | < 300 ms |
-| Kestrel's own CPU averaged over a 60 s idle run | < 1% of one core |
-| Kestrel's own RSS after 10 min with 5 managed processes | < 80 MB |
+| StackPilot's own CPU averaged over a 60 s idle run | < 1% of one core |
+| StackPilot's own RSS after 10 min with 5 managed processes | < 80 MB |
 | One sampling tick with 1,000 synthetic processes (pure path) | < 20 ms |
 
 ### 11.1 Measured in M2 (macOS arm64, about 600 processes, 1 s refresh, production build)
@@ -439,7 +439,7 @@ A tick is skipped if the previous one is still running (the existing `inFlight` 
 |---|---|---|---|
 | Time to first frame | < 300 ms | **68 ms** median (220 ms cold) | ✅ |
 | RSS, interactive | < 80 MB | **70 MB** (btop-style dashboard; 62 MB for the v1 UI) | ✅ (engine alone: 35 MB) |
-| Kestrel's own CPU, interactive | < 1% | **2.6%** (v1 UI: 2.4%) | ❌ htop uses 0.23% on the same machine |
+| StackPilot's own CPU, interactive | < 1% | **2.6%** (v1 UI: 2.4%) | ❌ htop uses 0.23% on the same machine |
 | Engine alone (`scripts/bench.js`) | < 1% | **1.4%** | ❌ most of it is spawning and parsing `ps` every second |
 
 Found and fixed while measuring: an explicit `intervalMs: undefined` overrode the default, which sampled `ps`
@@ -451,7 +451,7 @@ startup and switching later crashes with "jsxDEV is not a function".
 native calls through Bun's FFI: `libproc` (`proc_listpids`/`proc_pidinfo`) on macOS and direct `/proc` reads
 (already used) on Linux. Until then `scripts/bench.js` exits non-zero, deliberately.
 
-### 11.2 Measured in M3 (same machine, `kestrel pm`, logs panel on screen)
+### 11.2 Measured in M3 (same machine, `stackpilot pm`, logs panel on screen)
 
 | Scenario | CPU | RSS | Notes |
 |---|---|---|---|
@@ -464,8 +464,8 @@ together with the M4 native sampling, is memoizing the boxes so a log update onl
 
 ### 11.3 Measured in the M4 optimisation pass (2026-09-29)
 
-**The earlier numbers missed the processes Kestrel spawns.** `process.cpuUsage()` and `ps -o time` only
-see Kestrel itself, while most of the cost was in `ps`/`lsof` children. `scripts/bench.js` now measures
+**The earlier numbers missed the processes StackPilot spawns.** `process.cpuUsage()` and `ps -o time` only
+see StackPilot itself, while most of the cost was in `ps`/`lsof` children. `scripts/bench.js` now measures
 the whole tree.
 
 | What | Before | After | Change |
@@ -473,7 +473,7 @@ the whole tree.
 | Engine, macOS, 574 processes (children included) | 7.09% | **1.45–2.08%** | libproc via Bun FFI instead of spawning `ps`/`vm_stat`/`sysctl`/`lsof`; the trimmed `ps` for other users' processes every 5 s costs ~0.35% |
 | Engine, Linux container, 600 processes | 24.4% | **2.7%** | Only `/proc/<pid>/stat` read per tick, synchronously; identity cached per process; `/proc/stat` instead of `os.cpus()`; `ss` probed once; socket owners cached |
 | Selectors, 571 processes, table view | 0.92 ms/tick | **0.31 ms** | Linear child index (it was quadratic per parent), single-pass top 5 |
-| Dashboard (`kestrel sm`), macOS, in a PTY | ~7–8% | **3.1–3.4%**, ~80 MB | The above; the UI itself is ~1% |
+| Dashboard (`stackpilot sm`), macOS, in a PTY | ~7–8% | **3.1–3.4%**, ~80 MB | The above; the UI itself is ~1% |
 
 **What limits the rest:** a native sample costs ~2 ms in a tight loop but ~6–7 ms when it runs once a
 second. Just waking up and listing pids costs ~3.6 ms (user + kernel), and a full native pass adds only
@@ -492,7 +492,7 @@ production React):
 - Memoization cannot remove these updates, because they are real changes. Cutting further means showing
   less or refreshing less (product decisions), or a cheaper text path in OpenTUI itself.
 
-Live dashboard after both passes: **3.16%** of a core, 76 MB (macOS, `kestrel sm`, PTY, children
+Live dashboard after both passes: **3.16%** of a core, 76 MB (macOS, `stackpilot sm`, PTY, children
 included).
 
 ## 12. Milestones
@@ -501,7 +501,7 @@ Every milestone produces something usable and ends with a review. The order foll
 chain: contracts first, then the Monitor (the primary job), then the Manager, then shipping.
 
 ### M0 — Clean slate (done 2026-09-28)
-- The prototype was removed and Kestrel rebuilt from scratch to the §5 layout, as a standalone package (`kestrel-tui`, MIT). Proven logic was *ported* with new tests (§15).
+- The prototype was removed and StackPilot rebuilt from scratch to the §5 layout, as a standalone package (`stackpilot-tui`, MIT). Proven logic was *ported* with new tests (§15).
 - The history starts in this repository (§14).
 
 ### M1 — Foundation (week 1)
@@ -512,7 +512,7 @@ chain: contracts first, then the Monitor (the primary job), then the Manager, th
 5. `cli/`: alias pre-pass, `parseArgs`, dispatch to stub commands, exit codes, and a working `--version`/`--help`.
 6. **Freeze the store and actions contract** (§6).
 7. Brought forward because they are core logic: the safety policy (§8.6, originally M2), `stack/graph.js` (§8.3, originally M3, needed for config cycle checks), and the M1 part of the process manager.
-- **Exit:** a headless `kestrel sm --dump` (developer flag) prints correct JSON snapshots on macOS and in a Linux container (Docker), with tests ≥ 80%.
+- **Exit:** a headless `stackpilot sm --dump` (developer flag) prints correct JSON snapshots on macOS and in a Linux container (Docker), with tests ≥ 80%.
 
 ### M2 — Monitor complete (week 2) — built 2026-09-29; redesigned btop-style (M2b) after the review
 1. Theme tokens and color-depth detection, following UI_SPEC §3.
@@ -520,15 +520,15 @@ chain: contracts first, then the Monitor (the primary job), then the Manager, th
 3. Overview screen with cards and drill-in.
 4. Monitor: table, tree, per-core grid, sparklines, thresholds, filter, sort, detail drawer.
 5. Ports view, kill-by-port, and tiered safety dialogs.
-- **Exit:** `kestrel sm` replaces htop for a full day of daily use. UI tests cover every state in UI_SPEC §7.
+- **Exit:** `stackpilot sm` replaces htop for a full day of daily use. UI tests cover every state in UI_SPEC §7.
 
 ### M3 — Manager complete (week 3) — built 2026-09-29
 1. Supervisor v2: state machine, restart policies, env merging, saved logs, run state.
 2. Readiness probes and the stack orchestrator (waves, blocked, reverse stop).
 3. Manager screen: stack list, log pane (follow, search, all-processes view), env reveal.
 4. Resource link surfaced in the Manager, Overview, and Monitor badge. Leak detector alerts.
-5. `kestrel init`, and `pm` onboarding when no config exists.
-- **Exit:** `kestrel pm` runs a real 3-process fixture stack with a dependency and a readiness check. Killing a child recovers it, and Ctrl+C leaves zero orphans (checked by an E2E test).
+5. `stackpilot init`, and `pm` onboarding when no config exists.
+- **Exit:** `stackpilot pm` runs a real 3-process fixture stack with a dependency and a readiness check. Killing a child recovers it, and Ctrl+C leaves zero orphans (checked by an E2E test).
 - **Status:** built as planned, with two changes. The Manager is a box on the dashboard (logs take the big
   panel while it has focus), not a separate screen. The failed-process alert jumps to its logs with `L`.
   - `tests/fixtures/stack` is the demo stack.
@@ -542,10 +542,10 @@ chain: contracts first, then the Monitor (the primary job), then the Manager, th
 1. **Move to the new repository** (§14). CI can't run before this step.
 2. `ci.yml`: a test matrix on macOS and Ubuntu, type checks, coverage, and a Linux container test for Amazon Linux 2023.
 3. `release.yml` (§13): native builds for 4 targets, E2E test of each binary, checksums, attestations, GitHub Release, npm publish, Homebrew formula bump.
-4. `packaging/install.sh`, the npm launcher, and the Homebrew formula template. `kestrel update` and `doctor`.
+4. `packaging/install.sh`, the npm launcher, and the Homebrew formula template. `stackpilot update` and `doctor`.
 5. Native process sampling on macOS via FFI to meet the CPU budget (§11.1). The release build compiles with `--define process.env.NODE_ENV='"production"'`.
 6. Performance benchmarks as a CI gate. README with the demo GIF, install matrix, and comparison table.
-- **Exit:** on a fresh EC2 instance, `curl … | sh` followed by `kestrel pm` works in under 60 s. The same holds for `brew install` on a Mac and `npx kestrel-tui`.
+- **Exit:** on a fresh EC2 instance, `curl … | sh` followed by `stackpilot pm` works in under 60 s. The same holds for `brew install` on a Mac and `npx stackpilot-tui`.
 
 ## 13. Distribution and release engineering
 
@@ -553,16 +553,16 @@ chain: contracts first, then the Monitor (the primary job), then the Manager, th
 |---|---|
 | Trigger | Pushing a tag `vX.Y.Z` (semver). The changelog is generated from conventional commits |
 | Build matrix | `macos-14` → darwin-arm64 · `macos-13` → darwin-x64 · `ubuntu-latest` → linux-x64 · `ubuntu-24.04-arm` → linux-arm64. Builds must be **native**, because cross-compiling fails (verified 2026-09-28: `Could not resolve "@opentui/core-linux-x64"`) |
-| Command | `bun build --compile --minify --sourcemap ./cli/index.js --outfile dist/kestrel-<os>-<arch>` |
+| Command | `bun build --compile --minify --sourcemap ./cli/index.js --outfile dist/stackpilot-<os>-<arch>` |
 | Verify | Each binary runs the E2E smoke test on its own runner before it's uploaded |
-| Artifacts | `kestrel-<os>-<arch>.tar.gz`, `checksums.txt`, and attestations (`actions/attest-build-provenance`) |
-| Channels | GitHub Release (source of truth) → Homebrew tap repo `3ncryptor/homebrew-tap` (formula bumped by a workflow) → npm: `kestrel-tui` (launcher) plus `kestrel-tui-<os>-<arch>` packages installed through `optionalDependencies` with `os`/`cpu` fields (the esbuild/Biome pattern) |
-| Installer | POSIX `sh` with `set -eu`. Detects `uname -s`/`-m`, downloads the tarball and checksums, checks with `shasum -a 256` or `sha256sum`, installs to `$KESTREL_INSTALL_DIR` or `~/.local/bin`, and prints a PATH hint. It never uses sudo |
+| Artifacts | `stackpilot-<os>-<arch>.tar.gz`, `checksums.txt`, and attestations (`actions/attest-build-provenance`) |
+| Channels | GitHub Release (source of truth) → Homebrew tap repo `piyushy111/homebrew-tap` (formula bumped by a workflow) → npm: `stackpilot-tui` (launcher) plus `stackpilot-tui-<os>-<arch>` packages installed through `optionalDependencies` with `os`/`cpu` fields (the esbuild/Biome pattern) |
+| Installer | POSIX `sh` with `set -eu`. Detects `uname -s`/`-m`, downloads the tarball and checksums, checks with `shasum -a 256` or `sha256sum`, installs to `$STACKPILOT_INSTALL_DIR` or `~/.local/bin`, and prints a PATH hint. It never uses sudo |
 | macOS signing | Bun signs arm64 binaries ad hoc. Notarization is deferred to v1.1, since curl and brew installs don't trigger Gatekeeper |
 
 ## 14. Repository history
 
-Kestrel was developed privately before this repository existed (M0–M3). Its history was reconstructed
+StackPilot was developed privately before this repository existed (M0–M3). Its history was reconstructed
 here as **small, module-by-module commits in dependency order**: scaffold, docs, platform, sampler,
 store, system control, config, process manager, stack, composition and actions, CLI, UI logic, UI,
 end-to-end scripts. Every commit passes its own tests, so the history can be bisected. Later work
@@ -595,6 +595,6 @@ with new tests written against the v2 spec:
 
 | # | Question | Default if not decided |
 |---|---|---|
-| 1 | Where does the Homebrew tap live? | `3ncryptor/homebrew-tap`, next to this repository |
+| 1 | Where does the Homebrew tap live? | `piyushy111/homebrew-tap`, next to this repository |
 
 Resolved: license is **MIT** (`LICENSE` added in M0). Git history: **none kept**, and the first commit happens in the new repo.

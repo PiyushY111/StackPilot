@@ -1,5 +1,5 @@
-// `kestrel import pm2`: converts a running pm2 setup (preferred: plain data) or an ecosystem file
-// into a kestrel.json object. It only produces config, and never starts anything.
+// `stackpilot import pm2`: converts a running pm2 setup (preferred: plain data) or an ecosystem file
+// into a stackpilot.json object. It only produces config, and never starts anything.
 const { execFile } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -40,7 +40,7 @@ function unsupportedWarnings(name, app) {
     const instances = app.instances;
     const multi = instances === 'max' || instances === -1 || (Number.isInteger(instances) && instances > 1);
     if (multi || String(app.exec_mode || '').includes('cluster')) {
-        warnings.push(`${name}: cluster mode / instances=${instances ?? 1} is not supported; Kestrel runs a single instance`);
+        warnings.push(`${name}: cluster mode / instances=${instances ?? 1} is not supported; StackPilot runs a single instance`);
     }
     if (app.watch) warnings.push(`${name}: watch is not supported yet; use your tool's own watch mode (e.g. nodemon, tsx watch)`);
     if (app.cron_restart) warnings.push(`${name}: cron_restart is not supported and was skipped`);
@@ -52,7 +52,7 @@ function stringifyEnv(env) {
     return Object.fromEntries(Object.entries(env).map(([k, v]) => [k, String(v)]));
 }
 
-/** One pm2 app (ecosystem shape) → [name, kestrel process entry, warnings]. */
+/** One pm2 app (ecosystem shape) → [name, stackpilot process entry, warnings]. */
 function mapApp(app, used, { includeEnv }) {
     const base = toProcessName(app.name || path.basename(String(app.script || 'app'), path.extname(String(app.script || ''))));
     const name = uniqueName(base, used);

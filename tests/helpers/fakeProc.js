@@ -23,7 +23,7 @@ function statusText({ comm, uid = 1000 }) {
  * Each process: { pid, comm, cmdline?: string[], uid?, ..statLine fields, sockets?: number[], vanished?: boolean }
  */
 function createFakeRoot(spec) {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-proc-'));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-proc-'));
     const proc = path.join(root, 'proc');
     const etc = path.join(root, 'etc');
     fs.mkdirSync(path.join(proc, 'net'), { recursive: true });

@@ -1,6 +1,5 @@
 // Composition root: wires the engine together and exposes only the UI contract (store + actions)
 // plus lifecycle controls. Presentation layers import this file and nothing else from core/.
-const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { createPlatform } = require('./platform');
@@ -21,9 +20,9 @@ const NO_STACK = Object.freeze({ source: null, path: null, config: null, errors:
  *           meta?: Partial<import('./store/types').Meta>, stack?: import('./config').StackResult | null,
  *           cwd?: string }} [options]
  *   `stack`: the loaded config (core/config loadStack). Its processes are registered idle; nothing starts
- *   until `actions.startStack()`. Logs and run state go to `.stackpilot/` or `.kestrel/` next to the config.
+ *   until `actions.startStack()`. Logs and run state go to `.stackpilot/` next to the config.
  */
-function createKestrel({ platform: platformName, intervalMs, thresholds, meta = {}, stack = null, cwd = process.cwd() } = {}) {
+function createStackPilot({ platform: platformName, intervalMs, thresholds, meta = {}, stack = null, cwd = process.cwd() } = {}) {
     const loaded = stack || NO_STACK;
     const monitor = loaded.config ? loaded.config.monitor : null;
     const platform = createPlatform({ platform: platformName });
@@ -37,7 +36,7 @@ function createKestrel({ platform: platformName, intervalMs, thresholds, meta = 
     });
 
     const dir = stackDir(loaded);
-    const stateDir = dir ? (fs.existsSync(path.join(dir, '.kestrel')) ? path.join(dir, '.kestrel') : path.join(dir, '.stackpilot')) : null;
+    const stateDir = dir ? path.join(dir, '.stackpilot') : null;
     const runStatePath = stateDir ? path.join(stateDir, 'run.json') : null;
     // Read before anything starts: our own children overwrite this file.
     const previousRun = runStatePath ? createRunState({ path: runStatePath }).readPrevious() : null;
@@ -77,4 +76,4 @@ function createKestrel({ platform: platformName, intervalMs, thresholds, meta = 
     return { store, actions, start: () => sampler.start(), tick: () => sampler.tick(), stop };
 }
 
-module.exports = { createKestrel, createStackPilot: createKestrel };
+module.exports = { createStackPilot };

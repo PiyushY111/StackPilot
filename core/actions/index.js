@@ -124,7 +124,7 @@ function systemActions(store, systemControl, context) {
         killPort: (port, /** @type {Token} */ confirmation = undefined, signal = 'SIGTERM') => {
             const listener = store.getState().ports.items.find((p) => p.port === port);
             if (!listener) return fail(new Error(`Nothing is listening on port ${port}`));
-            if (listener.pid === null) return fail(new Error(`The owner of port ${port} is hidden; run Kestrel with sudo to see it`));
+            if (listener.pid === null) return fail(new Error(`The owner of port ${port} is hidden; run StackPilot with sudo to see it`));
             // The token must name the pid the user saw: the port may have changed hands since then.
             if (!confirmation || confirmation.pid !== listener.pid) {
                 return fail(Object.assign(new Error(`The process on port ${port} changed since you confirmed; open the dialog again`), { code: 'ECHANGED' }));

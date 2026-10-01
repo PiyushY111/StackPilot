@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-    Windows entry point for ./setup.sh, the Kestrel development setup.
+    Windows entry point for ./setup.sh, the StackPilot development setup.
 .DESCRIPTION
-    Kestrel runs on macOS and Linux. On Windows, the full setup (running Kestrel and every test suite)
+    StackPilot runs on macOS and Linux. On Windows, the full setup (running StackPilot and every test suite)
     happens inside WSL2: clone the repository in WSL and run ./setup.sh there. On a Windows checkout,
     this script runs setup.sh with Git Bash, which prepares everything for editing: dependencies, the
     git hooks, lint and the type check.
@@ -39,7 +39,7 @@ function Find-GitBash {
 }
 
 if (Get-Command wsl.exe -ErrorAction SilentlyContinue) {
-    Write-Host 'WSL2 is available: for the full setup (running Kestrel and all tests), clone the repository'
+    Write-Host 'WSL2 is available: for the full setup (running StackPilot and all tests), clone the repository'
     Write-Host 'inside WSL and run ./setup.sh there. Continuing with the Windows setup through Git Bash.'
     Write-Host ''
 }

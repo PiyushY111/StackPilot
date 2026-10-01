@@ -8,7 +8,7 @@ afterEach(teardown);
 const NOW = Date.now();
 const line = (seq, text, stream = 'stdout', ts = NOW - 10_000 + seq * 100) => ({ seq, ts, stream, text });
 
-const STACK = { name: 'myapp', source: 'kestrel.json', path: '/work/app/kestrel.json', errors: [], scripts: null };
+const STACK = { name: 'myapp', source: 'stackpilot.json', path: '/work/app/stackpilot.json', errors: [], scripts: null };
 const MANAGED = [
     managedEntry('db', { status: 'running', pid: 812, startedAt: NOW - 60_000, ready: { kind: 'port', target: 5432, ok: true } }),
     managedEntry('api', { status: 'restarting', restartCount: 3, nextRestartAt: NOW + 3500, dependsOn: ['db'] }),
@@ -16,7 +16,7 @@ const MANAGED = [
     managedEntry('cron', { status: 'idle' }),
 ];
 const LOGS = {
-    db: [line(1, 'listening on 5432'), line(2, '\x1b[33mslow query\x1b[0m 120ms', 'stderr'), line(3, 'GET /users 200'), line(4, '[kestrel] restarted', 'system')],
+    db: [line(1, 'listening on 5432'), line(2, '\x1b[33mslow query\x1b[0m 120ms', 'stderr'), line(3, 'GET /users 200'), line(4, '[stackpilot] restarted', 'system')],
     api: [line(1, 'api booting'), line(2, 'crash: ECONNREFUSED', 'stderr')],
 };
 
@@ -55,7 +55,7 @@ test('S2/S3: no stack says how to make one; an invalid config shows its problems
     expect(out).toContain('processes.api.restart');
 });
 
-test('kestrel sm has no managed box, and Tab skips it', async () => {
+test('stackpilot sm has no managed box, and Tab skips it', async () => {
     const { ui, store } = await stackSetup({ env: { managerAvailable: false } });
     expect(await frame(ui)).not.toContain('managed');
     await press(ui, 'tab');
@@ -191,7 +191,7 @@ test('n starts an ad-hoc process from "name: command"', async () => {
     expect(out).toContain('Started web');
 });
 
-test('e shows the env masked until r reveals it; w saves the process to kestrel.json', async () => {
+test('e shows the env masked until r reveals it; w saves the process to stackpilot.json', async () => {
     const { ui, calls } = await stackSetup({ envs: { db: { PGPASSWORD: 'hunter2', PGPORT: '5432' } } });
     await focusManaged(ui);
     const masked = await keys(ui, 'e');
@@ -200,7 +200,7 @@ test('e shows the env masked until r reveals it; w saves the process to kestrel.
     expect(masked).not.toContain('hunter2');
     expect(await keys(ui, 'r')).toContain('hunter2');
     await press(ui, 'escape');
-    expect(await keys(ui, 'w')).toContain('Saved db to /work/app/kestrel.json');
+    expect(await keys(ui, 'w')).toContain('Saved db to /work/app/stackpilot.json');
     expect(calls).toEqual([['saveAdHoc', 'db']]);
 });
 

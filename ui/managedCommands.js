@@ -148,15 +148,12 @@ function confirmQuit(d) {
     d.onQuit();
 }
 
-/** The file `w` saves to: the stack's own config, which a project from before the rename may call kestrel.json. */
-const configName = (d) => (d.getState().stack.source === 'kestrel.json' ? 'kestrel.json' : 'stackpilot.json');
-
 async function submitNew(d, dialog) {
     const parsed = parseAdHoc(dialog.typed);
     if (!parsed) return;
     d.dispatch({ type: 'dialog/close' });
     const res = d.actions.addAdHoc(parsed.name, parsed.cmd);
-    report(d, res, res.ok ? `Started ${res.data.id} · w saves it to ${configName(d)}` : '');
+    report(d, res, res.ok ? `Started ${res.data.id} · w saves it to stackpilot.json` : '');
 }
 
 async function submitPicker(d, dialog, save) {
@@ -165,7 +162,7 @@ async function submitPicker(d, dialog, save) {
     const names = dialog.items.filter((it) => it.checked).map((it) => it.name);
     const res = await d.actions.adoptScripts(names, { save });
     if (!res.ok) return report(d, res);
-    return d.actions.notify('ok', `${describeStart(res.data)}${save ? ` · saved to ${configName(d)}` : ''}`);
+    return d.actions.notify('ok', `${describeStart(res.data)}${save ? ' · saved to stackpilot.json' : ''}`);
 }
 
 /** Keys while a stack dialog is open. */

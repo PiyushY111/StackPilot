@@ -1,5 +1,5 @@
-// `kestrel pm [--config] [--only a,b]` (PRD §5.1): checks the stack, then opens the dashboard with the
-// stack starting and the managed box focused. Config problems exit 2 before any UI, so `kestrel pm`
+// `stackpilot pm [--config] [--only a,b]` (PRD §5.1): checks the stack, then opens the dashboard with the
+// stack starting and the managed box focused. Config problems exit 2 before any UI, so `stackpilot pm`
 // also works as a config check in scripts and CI.
 const path = require('node:path');
 const { loadStack } = require('../../core/config');
@@ -18,13 +18,13 @@ function describeProblems(stack) {
 function checkStack(stack, only, cwd) {
     if (stack.errors.length) return { code: 2, message: describeProblems(stack) };
     if (!stack.source) {
-        return { code: 1, message: `stackpilot: No stack here (no stackpilot.json, kestrel.json, Procfile or package.json in ${cwd}).\nCreate one with: stackpilot init\n` };
+        return { code: 1, message: `stackpilot: No stack here (no stackpilot.json, Procfile or package.json in ${cwd}).\nCreate one with: stackpilot init\n` };
     }
     if (stack.source === 'package.json' && !stack.detected.scripts.length) {
         return { code: 1, message: 'stackpilot: package.json has no scripts to run.\nCreate stackpilot.json with: stackpilot init\n' };
     }
     if (!only.length) return null;
-    if (!stack.config) return { code: 2, message: 'stackpilot: --only needs a stackpilot.json, kestrel.json or Procfile (pick package.json scripts in the UI)\n' };
+    if (!stack.config) return { code: 2, message: 'stackpilot: --only needs a stackpilot.json or Procfile (pick package.json scripts in the UI)\n' };
     const names = stack.config.processes.map((p) => p.name);
     const unknown = only.find((n) => !names.includes(n));
     return unknown ? { code: 2, message: `stackpilot: Unknown process "${unknown}" (the stack has: ${names.join(', ')})\n` } : null;

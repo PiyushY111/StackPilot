@@ -99,7 +99,7 @@ const MIN_PORTS_HEIGHT = 3;
  * Box geometry for the btop-style dashboard (UI_SPEC §4): cpu across the top; mem, managed and ports
  * on the left; the big panel (proc, or logs while managed has focus) on the right. The boxes always
  * tile the given area exactly. `managedRows` is the managed box's content (0: no managed box, as in
- * `kestrel sm`); the box grows with it up to half the left column.
+ * `stackpilot sm`); the box grows with it up to half the left column.
  */
 export function dashboardLayout(width, height, coreCount, bp, managedRows = 0) {
     const cpuHeight = bp === 'compact' ? COMPACT_CPU : Math.min(CPU_MAX, Math.max(CPU_MIN, Math.round(height * CPU_SHARE)));

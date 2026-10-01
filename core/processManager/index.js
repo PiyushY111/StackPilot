@@ -267,7 +267,7 @@ class ProcessManager {
         try {
             this.runState.record(children);
         } catch (err) {
-            this.store.addAlert({ id: 'runstate', level: 'warn', source: 'kestrel', message: `Could not save run state (${err.message})` });
+            this.store.addAlert({ id: 'runstate', level: 'warn', source: 'stackpilot', message: `Could not save run state (${err.message})` });
         }
     }
 

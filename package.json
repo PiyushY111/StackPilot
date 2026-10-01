@@ -27,15 +27,14 @@
     "url": "https://github.com/piyushy111/StackPilot/issues"
   },
   "bin": {
-    "stackpilot": "cli/index.js",
-    "kestrel": "cli/index.js"
+    "stackpilot": "cli/index.js"
   },
   "scripts": {
     "start": "NODE_ENV=production bun cli/index.js",
     "dev": "bun cli/index.js",
     "pm": "NODE_ENV=production bun cli/index.js pm",
     "sm": "NODE_ENV=production bun cli/index.js sm",
-    "demo": "NODE_ENV=production bun cli/index.js pm --config tests/fixtures/stack/kestrel.json",
+    "demo": "NODE_ENV=production bun cli/index.js pm --config tests/fixtures/stack/stackpilot.json",
     "doctor": "bun cli/index.js doctor",
     "test": "node --test --test-timeout=20000 tests/unit/*.test.js tests/integration/*.test.js",
     "test:bun": "bun test --timeout 20000 ./tests/unit ./tests/integration",

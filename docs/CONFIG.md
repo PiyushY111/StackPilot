@@ -1,19 +1,19 @@
 # Configuration reference
 
-Kestrel runs a **stack**: the processes a project needs, described in `kestrel.json`. Every value
-below is checked when the file loads. `kestrel pm` and `kestrel doctor` report *every* problem with
-its path (for example `processes.api.ready.port  must be a port number (1-65535)`), and `kestrel pm`
+StackPilot runs a **stack**: the processes a project needs, described in `stackpilot.json`. Every value
+below is checked when the file loads. `stackpilot pm` and `stackpilot doctor` report *every* problem with
+its path (for example `processes.api.ready.port  must be a port number (1-65535)`), and `stackpilot pm`
 exits with code 2, so the same check works in CI.
 
-## Where Kestrel looks
+## Where StackPilot looks
 
 The first match wins:
 
 1. `--config <path>`
-2. `kestrel.json` in the current directory or any parent directory (like git)
+2. `stackpilot.json` in the current directory or any parent directory (like git)
 3. a `Procfile` in the current directory
-4. `package.json` scripts in the current directory (you pick which ones to run; `kestrel init` saves
-   the choice as `kestrel.json`)
+4. `package.json` scripts in the current directory (you pick which ones to run; `stackpilot init` saves
+   the choice as `stackpilot.json`)
 
 Paths inside the file (`cwd`, `envFile`) are relative to the folder that contains it.
 
@@ -68,7 +68,7 @@ A process name uses letters, digits, `.`, `_` and `-` (at most 64 characters).
 | `env` | object | `{}` | Extra variables; values may be strings, numbers or booleans |
 | `envFile` | path | `.env` in `cwd`, if present | Variables loaded from a dotenv file. A file you name explicitly must exist |
 | `dependsOn` | string[] | `[]` | Processes that must be ready before this one starts |
-| `ready` | object | none | How Kestrel knows the process is up (below) |
+| `ready` | object | none | How StackPilot knows the process is up (below) |
 | `restart` | `on-failure` \| `always` \| `never` | `on-failure` | When to restart after it exits |
 | `maxRestarts` | integer ≥ 0 | `10` | Consecutive crashes before giving up (the process is then `errored`) |
 | `stopSignal` | `SIGTERM` `SIGINT` `SIGHUP` `SIGQUIT` `SIGUSR1` `SIGUSR2` | `SIGTERM` | The signal a stop sends first |
@@ -110,7 +110,7 @@ Processes start in **waves**: a wave starts once every process in the previous o
 
 ### Environment
 
-Precedence, lowest first: the environment Kestrel was started with, then `envFile`, then `env`.
+Precedence, lowest first: the environment StackPilot was started with, then `envFile`, then `env`.
 The dotenv format supports `KEY=value`, `export KEY=value`, `# comments`, single quotes (literal) and
 double quotes (with `\n`-style escapes). An unquoted value ends at ` #`, so URLs with fragments survive.
 Multi-line values aren't supported. The dashboard masks values until you reveal them (`e`, then `r`).
@@ -131,15 +131,15 @@ Multi-line values aren't supported. The dashboard masks values until you reveal 
   `--watch` or `nodemon`) are preselected in the picker. Lifecycle scripts (`install`, `prepare`,
   `pre*`/`post*` hooks) are never offered. Scripts run with the lockfile's package manager (bun, pnpm,
   yarn or npm).
-- **pm2:** `kestrel import pm2 [ecosystem file]` converts a running pm2 (`pm2 jlist`) or an ecosystem
-  file into `kestrel.json`, and lists what it could not convert. A `.js` ecosystem file is only executed
+- **pm2:** `stackpilot import pm2 [ecosystem file]` converts a running pm2 (`pm2 jlist`) or an ecosystem
+  file into `stackpilot.json`, and lists what it could not convert. A `.js` ecosystem file is only executed
   after you confirm.
 
-## Files Kestrel writes
+## Files StackPilot writes
 
-Everything lives in `.kestrel/` next to the config. `kestrel init` offers to add it to `.gitignore`.
+Everything lives in `.stackpilot/` next to the config. `stackpilot init` offers to add it to `.gitignore`.
 
 | File | Contents |
 |---|---|
-| `.kestrel/logs/<name>.log` | Each output line as `ISO-time stream text`. Owner-only (0600, folder 0700), rotated at 10 MB, 3 kept |
-| `.kestrel/run.json` | The processes Kestrel started (pid, process group, start time). After a hard crash, the next start offers to stop the ones still running, verified by start time so a reused pid is never touched |
+| `.stackpilot/logs/<name>.log` | Each output line as `ISO-time stream text`. Owner-only (0600, folder 0700), rotated at 10 MB, 3 kept |
+| `.stackpilot/run.json` | The processes StackPilot started (pid, process group, start time). After a hard crash, the next start offers to stop the ones still running, verified by start time so a reused pid is never touched |

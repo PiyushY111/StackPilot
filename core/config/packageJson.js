@@ -45,7 +45,7 @@ function toProcessName(script) {
     return script.replace(/[^A-Za-z0-9._-]/g, '-').slice(0, 64) || 'script';
 }
 
-/** Selected script names → a raw kestrel.json object. */
+/** Selected script names → a raw stackpilot.json object. */
 function scriptsToConfig(runner, names) {
     const processes = {};
     for (const name of names) processes[toProcessName(name)] = { cmd: `${runner} run ${name}` };

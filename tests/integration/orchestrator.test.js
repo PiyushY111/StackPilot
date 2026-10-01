@@ -71,7 +71,7 @@ test('only starts the selected processes and their dependencies', async (t) => {
 });
 
 test('a failed dependency blocks its dependents (transitively) and their recovery starts them', async (t) => {
-    const flag = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'kestrel-orch-')), 'db-ok');
+    const flag = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'stackpilot-orch-')), 'db-ok');
     t.after(() => fs.rmSync(path.dirname(flag), { recursive: true, force: true }));
     const dbPort = await freePort();
     const { store, pm, orchestrator } = await setup(t, {

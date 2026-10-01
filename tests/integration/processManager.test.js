@@ -186,7 +186,7 @@ test('env and cwd are passed to the child', async (t) => {
     const { store, pm } = setup(t);
     const lines = [];
     store.on('managed:log', (e) => lines.push(e.line.text));
-    pm.spawnManaged('echo "$KESTREL_TEST_VAR in $(pwd)"', { id: 'env', env: { KESTREL_TEST_VAR: 'hello' }, cwd: '/tmp' });
+    pm.spawnManaged('echo "$STACKPILOT_TEST_VAR in $(pwd)"', { id: 'env', env: { STACKPILOT_TEST_VAR: 'hello' }, cwd: '/tmp' });
     while (store.getManaged('env').status !== 'exited') await once(store, 'change');
     assert.ok(lines.some((l) => /^hello in (\/private)?\/tmp$/.test(l)), lines.join('|'));
 });

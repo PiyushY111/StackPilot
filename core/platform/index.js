@@ -8,7 +8,7 @@ const { PlatformError } = require('./errors');
 function createPlatform({ platform = process.platform, ...deps } = {}) {
     if (platform === 'darwin') return require('./darwin').createDarwinAdapter(deps);
     if (platform === 'linux') return require('./linux').createLinuxAdapter(deps);
-    throw new PlatformError(`Kestrel supports macOS and Linux; "${platform}" is not supported yet`, 'EUNSUPPORTED');
+    throw new PlatformError(`StackPilot supports macOS and Linux; "${platform}" is not supported yet`, 'EUNSUPPORTED');
 }
 
 module.exports = { createPlatform, PlatformError };

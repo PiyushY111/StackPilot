@@ -1,6 +1,6 @@
 #!/bin/sh
 # Publishes the npm tarballs of a release (RELEASING.md): the four platform packages first, then the
-# kestrel-tui launcher, so the launcher never points at a version that is not there yet.
+# stackpilot-tui launcher, so the launcher never points at a version that is not there yet.
 #
 #   sh scripts/npm-publish.sh <dir with the npm pack tarballs>
 #
@@ -12,7 +12,7 @@ set -eu
 dir=${1:?usage: sh scripts/npm-publish.sh <dir with the npm pack tarballs>}
 version=$(node -p 'require("./package.json").version')
 
-for pkg in kestrel-tui-darwin-arm64 kestrel-tui-darwin-x64 kestrel-tui-linux-x64 kestrel-tui-linux-arm64 kestrel-tui; do
+for pkg in stackpilot-tui-darwin-arm64 stackpilot-tui-darwin-x64 stackpilot-tui-linux-x64 stackpilot-tui-linux-arm64 stackpilot-tui; do
     tarball="$dir/$pkg-$version.tgz"
     if [ ! -f "$tarball" ]; then
         echo "npm-publish: $tarball is missing" >&2

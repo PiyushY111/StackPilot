@@ -43,7 +43,7 @@ function setup() {
         saveAdHoc: (id) => {
             calls.push(['saveAdHoc', id]);
             if (id === 'nope') throw new Error('This stack comes from Procfile');
-            return { path: '/p/kestrel.json' };
+            return { path: '/p/stackpilot.json' };
         },
         stopOrphans: async () => {
             calls.push(['stopOrphans']);
@@ -201,7 +201,7 @@ test('stack actions delegate to the stack session and report its errors', async 
     assert.equal((await actions.startStack({ only: ['api'] })).ok, true);
     await actions.stopStack();
     await actions.adoptScripts(['dev'], { save: true });
-    assert.deepEqual(actions.saveAdHoc('web').data, { path: '/p/kestrel.json' });
+    assert.deepEqual(actions.saveAdHoc('web').data, { path: '/p/stackpilot.json' });
     assert.match(actions.saveAdHoc('nope').error, /comes from Procfile/);
     assert.deepEqual((await actions.stopOrphans()).data, { stopped: 2 });
     actions.dismissOrphans();

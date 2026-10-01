@@ -35,11 +35,11 @@ class CrashGuard extends Component {
 }
 
 /**
- * @param {{ kestrel: any, env: { managerAvailable: boolean },
+ * @param {{ stackpilot: any, env: { managerAvailable: boolean },
  *           colorEnv: Record<string, string|undefined>, noColor: boolean, stderr?: { write: (s: string) => any } }} options
  * @returns {Promise<number>} exit code
  */
-export async function runInteractive({ kestrel, env, colorEnv, noColor, stderr = process.stderr }) {
+export async function runInteractive({ stackpilot, env, colorEnv, noColor, stderr = process.stderr }) {
     const theme = resolveTheme(detectColorDepth({ env: colorEnv, noColor }));
     const renderer = await createCliRenderer({ exitOnCtrlC: false, targetFps: TARGET_FPS });
 
@@ -51,7 +51,7 @@ export async function runInteractive({ kestrel, env, colorEnv, noColor, stderr =
             process.off('SIGTERM', onSignal);
             process.off('SIGHUP', onSignal);
             try {
-                await kestrel.stop();
+                await stackpilot.stop();
             } finally {
                 renderer.destroy();
                 if (error) stderr.write(`stackpilot: the interface crashed: ${error.message}\n`);
@@ -67,11 +67,11 @@ export async function runInteractive({ kestrel, env, colorEnv, noColor, stderr =
             createRoot(renderer).render(
                 <CrashGuard onCrash={onCrash}>
                     <ThemeContext.Provider value={theme}>
-                        <App store={kestrel.store} actions={kestrel.actions} env={env} onQuit={quit} coalesceMs={COALESCE_MS} />
+                        <App store={stackpilot.store} actions={stackpilot.actions} env={env} onQuit={quit} coalesceMs={COALESCE_MS} />
                     </ThemeContext.Provider>
                 </CrashGuard>
             );
-            kestrel.start();
+            stackpilot.start();
         } catch (error) {
             onCrash(error);
         }

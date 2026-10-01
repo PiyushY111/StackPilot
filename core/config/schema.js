@@ -1,4 +1,4 @@
-// Validates and normalizes kestrel.json (BUILD_PLAN §8.2). Collects EVERY error with its path,
+// Validates and normalizes stackpilot.json (BUILD_PLAN §8.2). Collects EVERY error with its path,
 // so a user fixes the whole file in one pass instead of one error per run.
 const path = require('node:path');
 const { isValidName } = require('../names');

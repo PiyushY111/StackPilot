@@ -29,7 +29,7 @@ const stackDir = (stack) => (stack?.path ? path.dirname(stack.path) : null);
 
 /**
  * @param {{ store: any, pm: any, stack: import('../config').StackResult, cwd: string,
- *           previousRun: { stackpilotPid?: number, kestrelPid?: number, children: any[] } | null, isAlive: (pid: number) => boolean }} deps
+ *           previousRun: { stackpilotPid: number, children: any[] } | null, isAlive: (pid: number) => boolean }} deps
  */
 function createStackSession({ store, pm, stack, cwd, previousRun, isAlive }) {
     const dir = stackDir(stack) || cwd;
@@ -111,18 +111,17 @@ function createStackSession({ store, pm, stack, cwd, previousRun, isAlive }) {
         return startStack();
     }
 
-    /** Adds an ad-hoc process to stackpilot.json/kestrel.json (created when the project has no config yet). */
+    /** Adds an ad-hoc process to stackpilot.json (created when the project has no config yet). */
     function saveAdHoc(id) {
         const { source, path: file } = store.getState().stack;
-        if (source && source !== 'stackpilot.json' && source !== 'kestrel.json') {
+        if (source && source !== 'stackpilot.json') {
             throw new Error(`This stack comes from ${source}; run stackpilot init to create stackpilot.json, then save to it`);
         }
         const target = file || path.join(dir, CONFIG_FILE);
-        const targetSource = target.endsWith('kestrel.json') ? 'kestrel.json' : 'stackpilot.json';
         addProcess(target, id, toConfigEntry(pm.definitionOf(id), path.dirname(target)));
         orchestrator.adopt(id);
-        store.setStack({ source: targetSource, path: target, name: path.basename(path.dirname(target)) });
-        store.setMeta({ configSource: targetSource, configPath: target });
+        store.setStack({ source: 'stackpilot.json', path: target, name: path.basename(path.dirname(target)) });
+        store.setMeta({ configSource: 'stackpilot.json', configPath: target });
         return { path: target };
     }
 
@@ -130,7 +129,7 @@ function createStackSession({ store, pm, stack, cwd, previousRun, isAlive }) {
     function checkOrphans() {
         if (!previousRun) return;
         clearTimeout(gateTimer);
-        const prevPid = previousRun.stackpilotPid ?? previousRun.kestrelPid;
+        const prevPid = previousRun.stackpilotPid;
         if (typeof prevPid === 'number' && isAlive(prevPid)) {
             openGate();
             store.addAlert({
@@ -148,7 +147,7 @@ function createStackSession({ store, pm, stack, cwd, previousRun, isAlive }) {
 
     /** Stops the orphans that are still the same processes (checked again now), SIGTERM then SIGKILL. */
     async function stopOrphans() {
-        const orphans = findOrphans({ kestrelPid: -1, children: store.getState().orphans }, { currentPid: process.pid, startedAtOf });
+        const orphans = findOrphans({ stackpilotPid: -1, children: store.getState().orphans }, { currentPid: process.pid, startedAtOf });
         // Only a verified group leader has its whole group signalled.
         const signal = (o, sig) => (o.pgid === o.pid ? signalPgid(o.pgid, sig) : signalPid(o.pid, sig));
         const alive = (o) => (o.pgid === o.pid ? groupAlive(o.pgid) : isAlive(o.pid));

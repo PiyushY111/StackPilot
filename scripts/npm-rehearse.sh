@@ -1,8 +1,8 @@
 #!/bin/sh
 # Rehearses the npm release against a throwaway local registry (Verdaccio, no uplinks), so nothing
 # reaches npmjs.com: publishes the tarballs with scripts/npm-publish.sh (twice, the second run must
-# skip everything), installs kestrel-tui globally from that registry into a temporary prefix, and
-# runs the installed `kestrel`. The release workflow runs it on Linux and macOS before publishing.
+# skip everything), installs stackpilot-tui globally from that registry into a temporary prefix, and
+# runs the installed `stackpilot`. The release workflow runs it on Linux and macOS before publishing.
 #
 #   sh scripts/npm-rehearse.sh <dir with the npm pack tarballs>
 #
@@ -10,7 +10,7 @@
 set -eu
 
 VERDACCIO=verdaccio@6.10.4
-PORT=${KESTREL_REHEARSE_PORT:-4873}
+PORT=${STACKPILOT_REHEARSE_PORT:-4873}
 REGISTRY="http://127.0.0.1:$PORT/"
 
 dir=$(cd "${1:?usage: sh scripts/npm-rehearse.sh <dir with the npm pack tarballs>}" && pwd)
@@ -69,16 +69,16 @@ if [ "$(echo "$again" | grep -c 'already published')" -ne 5 ]; then
     exit 1
 fi
 
-echo "--- npm install -g kestrel-tui@$version"
-npm install -g "kestrel-tui@$version" --no-fund --no-audit
-kestrel="$NPM_CONFIG_PREFIX/bin/kestrel"
-reported=$("$kestrel" --version)
-if [ "$reported" != "kestrel $version" ]; then
-    echo "npm-rehearse: the installed kestrel reports \"$reported\", expected \"kestrel $version\"" >&2
+echo "--- npm install -g stackpilot-tui@$version"
+npm install -g "stackpilot-tui@$version" --no-fund --no-audit
+stackpilot="$NPM_CONFIG_PREFIX/bin/stackpilot"
+reported=$("$stackpilot" --version)
+if [ "$reported" != "stackpilot $version" ]; then
+    echo "npm-rehearse: the installed stackpilot reports \"$reported\", expected \"stackpilot $version\"" >&2
     exit 1
 fi
-echo "npm-rehearse: $kestrel --version → $reported"
-if [ "${KESTREL_REHEARSE_SNAPSHOT:-1}" = 1 ]; then
-    "$kestrel" sm --dump --ticks 1 | node -e 'let s="";process.stdin.on("data",(d)=>(s+=d)).on("end",()=>{const n=JSON.parse(s).processCount;if(!n)process.exit(1);console.log("npm-rehearse: kestrel sm --dump sampled "+n+" processes")})'
+echo "npm-rehearse: $stackpilot --version → $reported"
+if [ "${STACKPILOT_REHEARSE_SNAPSHOT:-1}" = 1 ]; then
+    "$stackpilot" sm --dump --ticks 1 | node -e 'let s="";process.stdin.on("data",(d)=>(s+=d)).on("end",()=>{const n=JSON.parse(s).processCount;if(!n)process.exit(1);console.log("npm-rehearse: stackpilot sm --dump sampled "+n+" processes")})'
 fi
 echo "npm-rehearse: ok"

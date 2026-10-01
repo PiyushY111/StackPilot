@@ -6,7 +6,7 @@ set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/tests/fixtures/linux/captured"
-IMAGE=${KESTREL_CAPTURE_IMAGE:-node:20-bookworm}
+IMAGE=${STACKPILOT_CAPTURE_IMAGE:-node:20-bookworm}
 mkdir -p "$OUT"
 
 docker run --rm -v "$OUT":/out "$IMAGE" sh -c '

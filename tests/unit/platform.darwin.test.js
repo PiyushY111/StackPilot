@@ -189,13 +189,13 @@ test('the adapter samples natively when the native layer loads, with nanosecond 
     assert.equal(darwin.createDarwinAdapter({ native: null, exec }).sampling, 'ps');
 });
 
-test('KESTREL_NATIVE=0 forces the ps/lsof path (a troubleshooting switch)', () => {
-    const before = process.env.KESTREL_NATIVE;
-    process.env.KESTREL_NATIVE = '0';
+test('STACKPILOT_NATIVE=0 forces the ps/lsof path (a troubleshooting switch)', () => {
+    const before = process.env.STACKPILOT_NATIVE;
+    process.env.STACKPILOT_NATIVE = '0';
     try {
         assert.equal(darwin.createDarwinAdapter({ exec: async () => ({ stdout: '' }) }).sampling, 'ps');
     } finally {
-        if (before === undefined) delete process.env.KESTREL_NATIVE;
-        else process.env.KESTREL_NATIVE = before;
+        if (before === undefined) delete process.env.STACKPILOT_NATIVE;
+        else process.env.STACKPILOT_NATIVE = before;
     }
 });

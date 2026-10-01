@@ -75,7 +75,7 @@ follows the focused stack box, lights its border but not its title.
 | Truecolor (`COLORTERM=truecolor\|24bit`) | Full palette, with the app background painted |
 | 256 colors (`TERM` contains `256color`) | OpenTUI downsamples. The app background is **not** painted |
 | 16 colors / others | Best effort: OpenTUI still emits truecolor, which almost every modern terminal renders |
-| No color (`NO_COLOR`, `--no-color`, `TERM=dumb`) | Kestrel resolves every token to "no color" (OpenTUI ignores `NO_COLOR`). Meaning is carried by dim, bold, underline, reverse video, and glyphs. **Graphs switch to block characters** (`▁▂▃▄▅▆▇█`) so they stay readable |
+| No color (`NO_COLOR`, `--no-color`, `TERM=dumb`) | StackPilot resolves every token to "no color" (OpenTUI ignores `NO_COLOR`). Meaning is carried by dim, bold, underline, reverse video, and glyphs. **Graphs switch to block characters** (`▁▂▃▄▅▆▇█`) so they stay readable |
 
 ### 3.4 Status glyphs (color is never the only signal)
 
@@ -172,10 +172,10 @@ One row across the top, on `mantle`:
 
 ## 5. Navigation and keys
 
-- There's one screen, the **dashboard**. `kestrel pm` opens it with the managed box focused and the stack
-  starting; plain `kestrel` shows the stack `idle` (nothing runs until you press `a` or `s`).
+- There's one screen, the **dashboard**. `stackpilot pm` opens it with the managed box focused and the stack
+  starting; plain `stackpilot` shows the stack `idle` (nothing runs until you press `a` or `s`).
 - **`Tab`** moves focus proc → managed → ports. Keys act on the focused box.
-- `kestrel sm` is the same dashboard without the managed box (Tab: proc → ports).
+- `stackpilot sm` is the same dashboard without the managed box (Tab: proc → ports).
 
 | Context | Border keys (≤ 5) | More (help only) |
 |---|---|---|
@@ -212,7 +212,7 @@ meantime. When not root: `ℹ your processes only · sudo for all`.
 |---|---|
 | own | `Stop process?` · name · pid · user · `y stop  Esc cancel` |
 | system | `Kill a system process` · warning · **type the exact name** · `⏎ kill` only once it matches |
-| managed | `api is managed by Kestrel` · auto-restart warning · `m stop via manager` (a clean stop, no restart) · `y kill anyway` |
+| managed | `api is managed by StackPilot` · auto-restart warning · `m stop via manager` (a clean stop, no restart) · `y kill anyway` |
 | blocked | `Can't do that` · reason · `Esc ok` (no confirm option) |
 | renice | `Change priority` · prefilled with the current nice value · range -20…20 checked |
 
@@ -229,23 +229,23 @@ the others; each key in the dialog's key line is cyan. `Esc` always cancels.
   amber. The mark takes room from the status label first, then the cpu column. It is advisory: nothing is
   stopped, and the store's `leak:<id>` alert lights CAUTION.
 - The title is `stack`, with the running count (`3/4`); the header strip names the stack (§4.3).
-- Empty states: no stack (S2) → `No stack here` · `kestrel init · n add a process`. Invalid config (S3) →
-  `✕ config has N problems` and the first problems with their paths (`kestrel pm` prints all of them and
+- Empty states: no stack (S2) → `No stack here` · `stackpilot init · n add a process`. Invalid config (S3) →
+  `✕ config has N problems` and the first problems with their paths (`stackpilot pm` prints all of them and
   exits 2). A fresh package.json project → `package.json: N scripts` · `⏎ pick the ones to run`.
 
 ### 6.6 Stack dialogs
 
 | Dialog | Content |
 |---|---|
-| Quit (S12) | `Stop N running processes and quit?` · `y stop and quit  Esc cancel`; then `Stopping the stack` lists each process (`◌ stopping…` → `✓ stopped`) in stop order until Kestrel exits. Quitting with nothing running doesn't ask |
-| Left running (S13) | Shown first on start when a previous Kestrel was killed hard: `N processes from a previous Kestrel are still running`, each with its pid · `s stop them  Esc leave them running`. The stack waits for the answer |
-| New process (`n`) | `name: command`, or just a command (the name is derived) · `⏎ start`. `w` later saves it to kestrel.json |
+| Quit (S12) | `Stop N running processes and quit?` · `y stop and quit  Esc cancel`; then `Stopping the stack` lists each process (`◌ stopping…` → `✓ stopped`) in stop order until StackPilot exits. Quitting with nothing running doesn't ask |
+| Left running (S13) | Shown first on start when a previous StackPilot was killed hard: `N processes from a previous StackPilot are still running`, each with its pid · `s stop them  Esc leave them running`. The stack waits for the answer |
+| New process (`n`) | `name: command`, or just a command (the name is derived) · `⏎ start`. `w` later saves it to stackpilot.json |
 | Environment (`e`) | The variables the stack adds (envFile + inline), values masked `••••••••` until `r` |
-| Script picker | package.json scripts with checkboxes, long-running ones (`dev`, `start`, `watch`…) preselected · `␣ toggle  ⏎ start  w start + save`. Opens by itself in `kestrel pm` |
+| Script picker | package.json scripts with checkboxes, long-running ones (`dev`, `start`, `watch`…) preselected · `␣ toggle  ⏎ start  w start + save`. Opens by itself in `stackpilot pm` |
 
 ### 6.7 Logs panel
 - The selected process's output, newest at the bottom: `HH:MM:SS text`. A yellow `▎` marks stderr; StackPilot's
-  own lines (`[kestrel] …`) are muted. `v` interleaves every process by time with a name column.
+  own lines (`[stackpilot] …`) are muted. `v` interleaves every process by time with a name column.
 - **Following** (`following ●`) shows the newest lines. `PgUp`/`g` pause it: the view stays put while new
   lines arrive and the title counts them (`paused · 12 new`). `PgDn` past the newest line, `G` or `f`
   follow again. Selecting another process follows its output.
@@ -270,14 +270,14 @@ the others; each key in the dialog's key line is cyan. `Esc` always cancels.
 | # | State | Presentation |
 |---|---|---|
 | S1 | First sample pending | Figures show `—`, graphs are empty, and the cpu title says `sampling…` |
-| S4 | A data source failed | A warn line at the top: `ports unavailable · ss not found · run kestrel doctor`. Other boxes keep working |
+| S4 | A data source failed | A warn line at the top: `ports unavailable · ss not found · run stackpilot doctor`. Other boxes keep working |
 | S5 | Ports partial | Info line in the ports box |
 | S6 | Filter has no matches | Message in the proc box |
 | S9 | Terminal too small | Centered size message |
 | S10/S11 | Action failed / succeeded | A toast in the proc border (danger 6 s / muted 3 s) |
 | S14 | No color | Attributes, glyphs and block-character graphs only |
 | S2 | No stack here | Managed box empty state (§6.5) |
-| S3 | Invalid config | Managed box lists the problems; `kestrel pm` prints them and exits 2 |
+| S3 | Invalid config | Managed box lists the problems; `stackpilot pm` prints them and exits 2 |
 | S7 | A managed process restarting | `↻ retry 3 in 4s` in the managed box |
 | S8 | A process gave up (`maxRestarts`) | Danger line at the top: `api stopped after 11 crashes (last exit 1) · see its logs · L show logs` |
 | S12 | Quit with processes running | Quit dialog, then the stop progress (§6.6) |

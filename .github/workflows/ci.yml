@@ -101,7 +101,7 @@ jobs:
         run: bun run test:bun
       - name: UI frame tests
         run: bun run test:ui
-      - name: kestrel pm on the demo stack in a real pseudo-terminal
+      - name: stackpilot pm on the demo stack in a real pseudo-terminal
         run: sh scripts/e2e/pm-e2e.sh
 
   linux-distros:
@@ -177,7 +177,7 @@ jobs:
         run: bun scripts/build.js --archive
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: kestrel-${{ matrix.target }}
+          name: stackpilot-${{ matrix.target }}
           path: |
             dist/*.tar.gz
             dist/SHA256SUMS

@@ -136,5 +136,5 @@ test('structural problems are reported clearly', () => {
 });
 
 test('$schema is allowed for editor support', () => {
-    assert.equal(validateConfig({ $schema: './kestrel.schema.json', version: 1, processes: { a: { cmd: 'x' } } }, { baseDir: BASE }).ok, true);
+    assert.equal(validateConfig({ $schema: './stackpilot.schema.json', version: 1, processes: { a: { cmd: 'x' } } }, { baseDir: BASE }).ok, true);
 });

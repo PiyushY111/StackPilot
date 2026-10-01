@@ -3,11 +3,11 @@
 # exercised on a Mac. The core has no runtime dependencies, so no `bun install` is needed inside.
 #
 #   scripts/docker-test.sh                      # default images
-#   KESTREL_TEST_IMAGES="ubuntu:24.04" scripts/docker-test.sh
+#   STACKPILOT_TEST_IMAGES="ubuntu:24.04" scripts/docker-test.sh
 set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-IMAGES=${KESTREL_TEST_IMAGES:-"node:20-bookworm amazonlinux:2023"}
+IMAGES=${STACKPILOT_TEST_IMAGES:-"node:20-bookworm amazonlinux:2023"}
 
 # Installs Node when the image lacks it (Amazon Linux), then runs tests and a 3-tick snapshot.
 # The body runs inside the container, so its $variables must not expand here.
@@ -34,7 +34,7 @@ node cli/index.js sm --dump --ticks 3 --interval 500 | tail -1 | node -e "
 status=0
 for image in $IMAGES; do
   echo "== $image =="
-  if ! docker run --rm -v "$ROOT":/kestrel:ro -w /kestrel "$image" sh -c "$INNER"; then
+  if ! docker run --rm -v "$ROOT":/stackpilot:ro -w /stackpilot "$image" sh -c "$INNER"; then
     echo "FAILED on $image"
     status=1
   fi

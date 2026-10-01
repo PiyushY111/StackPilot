@@ -5,7 +5,7 @@ const { classifyTarget, verifyConfirmation, PolicyError } = require('../../core/
 const ctx = { selfPid: 500, parentPid: 499, currentUser: 'alice' };
 const row = (extra = {}) => ({ pid: 812, name: 'node', user: 'alice', managedId: null, ...extra });
 
-test('pid 0/1, Kestrel itself and its parent shell are blocked', () => {
+test('pid 0/1, StackPilot itself and its parent shell are blocked', () => {
     assert.equal(classifyTarget({ ...ctx, pid: 1, target: row({ pid: 1, name: 'launchd', user: 'root' }) }).tier, 'blocked');
     assert.equal(classifyTarget({ ...ctx, pid: 0, target: null }).tier, 'blocked');
     assert.match(classifyTarget({ ...ctx, pid: 500, target: row({ pid: 500 }) }).reason, /StackPilot itself/);

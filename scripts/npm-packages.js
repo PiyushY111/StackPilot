@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // Generates the npm packages from the release binaries (the esbuild/Biome pattern):
-//   kestrel-tui                  the `kestrel` launcher; one optionalDependency per platform
-//   kestrel-tui-<os>-<arch>      the standalone binary, restricted with os/cpu so npm picks one
+//   stackpilot-tui                  the `stackpilot` launcher; one optionalDependency per platform
+//   stackpilot-tui-<os>-<arch>      the standalone binary, restricted with os/cpu so npm picks one
 //
-//   node scripts/npm-packages.js <dir with kestrel-<os>-<arch> binaries> <out dir>
+//   node scripts/npm-packages.js <dir with stackpilot-<os>-<arch> binaries> <out dir>
 //
 // Every package has the same version and no install scripts. All four platforms must be present:
-// publishing a partial set would break `npm i -g kestrel-tui` on the missing ones.
+// publishing a partial set would break `npm i -g stackpilot-tui` on the missing ones.
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -40,12 +40,12 @@ function platformReadme(target, binary) {
         '| Package | Platform |',
         '|---|---|',
         ...TARGETS.map((t) => {
-            const name = `kestrel-tui-${t}`;
+            const name = `stackpilot-tui-${t}`;
             return t === target ? `| **${name}** (this package) | **${PLATFORMS[t]}** |` : `| [${name}](https://www.npmjs.com/package/${name}) | ${PLATFORMS[t]} |`;
         }),
     ].join('\n');
     const values = {
-        name: `kestrel-tui-${target}`,
+        name: `stackpilot-tui-${target}`,
         platform: PLATFORMS[target],
         requirements: REQUIREMENTS[target.split('-')[0]],
         size: `${Math.max(1, Math.round(fs.statSync(binary).size / 1048576))} MB`,
@@ -71,38 +71,38 @@ function writePackage(dir, manifest, files) {
 
 /** @param {{ binaries: string, out: string }} dirs */
 function generate({ binaries, out }) {
-    const missing = TARGETS.filter((t) => !fs.existsSync(path.join(binaries, `kestrel-${t}`)));
-    if (missing.length) throw new Error(`missing ${missing.map((t) => `kestrel-${t}`).join(', ')} in ${binaries}`);
+    const missing = TARGETS.filter((t) => !fs.existsSync(path.join(binaries, `stackpilot-${t}`)));
+    if (missing.length) throw new Error(`missing ${missing.map((t) => `stackpilot-${t}`).join(', ')} in ${binaries}`);
     fs.rmSync(out, { recursive: true, force: true });
     for (const target of TARGETS) {
         const [os, cpu] = target.split('-');
-        writePackage(path.join(out, `kestrel-tui-${target}`), {
-            name: `kestrel-tui-${target}`,
-            description: `The kestrel binary for ${target} (installed by kestrel-tui)`,
+        writePackage(path.join(out, `stackpilot-tui-${target}`), {
+            name: `stackpilot-tui-${target}`,
+            description: `The stackpilot binary for ${target} (installed by stackpilot-tui)`,
             ...common(),
             os: [os],
             cpu: [cpu],
-            files: ['bin/kestrel', 'README.md', 'LICENSE'],
-        }, [[path.join(binaries, `kestrel-${target}`), 'bin/kestrel', 0o755]]);
-        const binary = path.join(binaries, `kestrel-${target}`);
-        fs.writeFileSync(path.join(out, `kestrel-tui-${target}`, 'README.md'), platformReadme(target, binary));
+            files: ['bin/stackpilot', 'README.md', 'LICENSE'],
+        }, [[path.join(binaries, `stackpilot-${target}`), 'bin/stackpilot', 0o755]]);
+        const binary = path.join(binaries, `stackpilot-${target}`);
+        fs.writeFileSync(path.join(out, `stackpilot-tui-${target}`, 'README.md'), platformReadme(target, binary));
     }
-    writePackage(path.join(out, 'kestrel-tui'), {
-        name: 'kestrel-tui',
+    writePackage(path.join(out, 'stackpilot-tui'), {
+        name: 'stackpilot-tui',
         description: root.description,
         ...common(),
         keywords: root.keywords,
-        bin: { kestrel: 'bin/kestrel.js' },
-        files: ['bin/kestrel.js', 'README.md', 'LICENSE'],
+        bin: { stackpilot: 'bin/stackpilot.js' },
+        files: ['bin/stackpilot.js', 'README.md', 'LICENSE'],
         engines: { node: '>=18' },
         os: root.os,
-        optionalDependencies: Object.fromEntries(TARGETS.map((t) => [`kestrel-tui-${t}`, root.version])),
+        optionalDependencies: Object.fromEntries(TARGETS.map((t) => [`stackpilot-tui-${t}`, root.version])),
     }, [
-        [path.join(NPM_DIR, 'launcher.js'), 'bin/kestrel.js', 0o755],
+        [path.join(NPM_DIR, 'launcher.js'), 'bin/stackpilot.js', 0o755],
         // The npm README, written for people installing the package (the repository README is for contributors).
         [path.join(NPM_DIR, 'README.md'), 'README.md'],
     ]);
-    return TARGETS.map((t) => `kestrel-tui-${t}`).concat('kestrel-tui');
+    return TARGETS.map((t) => `stackpilot-tui-${t}`).concat('stackpilot-tui');
 }
 
 if (require.main === module) {

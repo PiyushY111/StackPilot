@@ -1,13 +1,13 @@
-# kestrel-tui
+# stackpilot-tui
 
 **A system monitor and a process manager in one terminal app, for macOS and Linux.**
 
-[![npm version](https://img.shields.io/npm/v/kestrel-tui.svg)](https://www.npmjs.com/package/kestrel-tui)
-[![npm downloads](https://img.shields.io/npm/dm/kestrel-tui.svg)](https://www.npmjs.com/package/kestrel-tui)
-[![CI](https://github.com/3ncryptor/kestrel/actions/workflows/ci.yml/badge.svg)](https://github.com/3ncryptor/kestrel/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/3ncryptor/kestrel/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/stackpilot-tui.svg)](https://www.npmjs.com/package/stackpilot-tui)
+[![npm downloads](https://img.shields.io/npm/dm/stackpilot-tui.svg)](https://www.npmjs.com/package/stackpilot-tui)
+[![CI](https://github.com/piyushy111/StackPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/piyushy111/StackPilot/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/piyushy111/StackPilot/blob/main/LICENSE)
 
-Kestrel shows what is using your machine, the way htop and btop do. It also starts and supervises your
+StackPilot shows what is using your machine, the way htop and btop do. It also starts and supervises your
 project's processes, the way pm2 or foreman do. Because it does both, it can tell you that *your*
 `api` is the process holding 1.2 GB and climbing, and which port it listens on.
 
@@ -60,28 +60,28 @@ project's processes, the way pm2 or foreman do. Because it does both, it can tel
 - **See the machine.** CPU history and per-core meters, memory and swap, listening TCP ports with the
   process that owns each, and a process table or tree with filter, sort, a details drawer, kill and
   renice.
-- **Run the stack.** Starts the processes in `kestrel.json` (or a Procfile, or package.json scripts) in
+- **Run the stack.** Starts the processes in `stackpilot.json` (or a Procfile, or package.json scripts) in
   dependency order, waits until each is ready (a port, an HTTP check or a log line), restarts crashes
   with backoff, and stops everything cleanly in reverse order.
 - **Follow it.** A live logs panel per process, or all of them interleaved, with pause and search.
-  Logs are also saved to `.kestrel/logs/`, and each managed process shows the CPU and memory of its
+  Logs are also saved to `.stackpilot/logs/`, and each managed process shows the CPU and memory of its
   whole process tree, with a hint when its memory keeps climbing.
 - **Stay safe.** Every kill and renice goes through confirmations: one key for your own processes, the
-  exact name typed for system processes, and Kestrel itself and PID 1 are blocked. After a crash,
-  Kestrel finds the processes it left running and offers to stop them.
+  exact name typed for system processes, and StackPilot itself and PID 1 are blocked. After a crash,
+  StackPilot finds the processes it left running and offers to stop them.
 - **Anywhere.** One standalone binary. It works over SSH, on an EC2 instance or a Raspberry Pi, and in
   16-colour and no-colour terminals.
 
 ## Install
 
 ```sh
-npm install -g kestrel-tui
+npm install -g stackpilot-tui
 ```
 
-That installs the `kestrel` command. You can also try it without installing:
+That installs the `stackpilot` command. You can also try it without installing:
 
 ```sh
-npx kestrel-tui
+npx stackpilot-tui
 ```
 
 **Supported platforms**
@@ -91,24 +91,24 @@ npx kestrel-tui
 | **arm64** | Apple Silicon | AWS Graviton, Raspberry Pi (64-bit OS) |
 | **x64** | Intel Macs | most servers and desktops |
 
-Node.js 18 or newer is needed only to launch the binary; Kestrel itself does not run on Node. Windows is
+Node.js 18 or newer is needed only to launch the binary; StackPilot itself does not run on Node. Windows is
 not supported (use WSL2), and neither are musl-based distributions such as Alpine.
 
 **Without npm**, the same binary installs with a checksum-verifying script:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/3ncryptor/kestrel/main/packaging/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/piyushy111/StackPilot/main/packaging/install.sh | sh
 ```
 
 ## Quick start
 
 ```sh
-kestrel              # the dashboard: this machine, plus this folder's stack (idle until you start it)
-kestrel sm           # the system monitor only
+stackpilot              # the dashboard: this machine, plus this folder's stack (idle until you start it)
+stackpilot sm           # the system monitor only
 cd my-project
-kestrel init         # writes kestrel.json from a Procfile or package.json scripts
-kestrel pm           # starts the stack and opens the process manager
-kestrel doctor       # checks the machine, the terminal and the config
+stackpilot init         # writes stackpilot.json from a Procfile or package.json scripts
+stackpilot pm           # starts the stack and opens the process manager
+stackpilot doctor       # checks the machine, the terminal and the config
 ```
 
 Press `?` anywhere in the app to see every key.
@@ -117,29 +117,29 @@ Press `?` anywhere in the app to see every key.
 
 | Command | What it does |
 |---|---|
-| `kestrel` | The dashboard. The project's stack is shown idle; `a` starts it all, `s` starts one process |
-| `kestrel pm` | Starts the project's stack and opens the dashboard on it (aliases `-pm`, `--pm`) |
-| `kestrel sm` | The system monitor only; never reads or runs a config (aliases `-sm`, `--sm`) |
-| `kestrel init` | Writes `kestrel.json` from a Procfile, package.json scripts or a command you type |
-| `kestrel import pm2 [file]` | Converts a running pm2, or a pm2 ecosystem file, into `kestrel.json` |
-| `kestrel doctor` | Checks what Kestrel needs on this machine and says how to fix what is missing |
-| `kestrel update [--check]` | Updates a standalone (curl) install; for an npm install it prints the npm command |
+| `stackpilot` | The dashboard. The project's stack is shown idle; `a` starts it all, `s` starts one process |
+| `stackpilot pm` | Starts the project's stack and opens the dashboard on it (aliases `-pm`, `--pm`) |
+| `stackpilot sm` | The system monitor only; never reads or runs a config (aliases `-sm`, `--sm`) |
+| `stackpilot init` | Writes `stackpilot.json` from a Procfile, package.json scripts or a command you type |
+| `stackpilot import pm2 [file]` | Converts a running pm2, or a pm2 ecosystem file, into `stackpilot.json` |
+| `stackpilot doctor` | Checks what StackPilot needs on this machine and says how to fix what is missing |
+| `stackpilot update [--check]` | Updates a standalone (curl) install; for an npm install it prints the npm command |
 
 | Option | Meaning |
 |---|---|
-| `--config <path>` | Use this `kestrel.json` instead of searching for one |
+| `--config <path>` | Use this `stackpilot.json` instead of searching for one |
 | `--only <a,b>` | `pm`: start only these processes |
 | `--interval <ms>` | Refresh interval, 250 to 60000 (default 1000) |
-| `--force` | `init`, `import`: replace an existing `kestrel.json` |
+| `--force` | `init`, `import`: replace an existing `stackpilot.json` |
 | `-y`, `--yes` | `init`: take the defaults; `import`: agree to read a `.js` ecosystem file |
 | `--no-color` | Plain output; the `NO_COLOR` environment variable is respected too |
 | `-h`, `--help` / `-v`, `--version` | Help and version |
 
-`kestrel sm --dump --ticks N` prints N JSON snapshots and exits, which is handy for scripts.
+`stackpilot sm --dump --ticks N` prints N JSON snapshots and exits, which is handy for scripts.
 
 ## Running a stack
 
-A stack is the set of processes a project needs, described in `kestrel.json`:
+A stack is the set of processes a project needs, described in `stackpilot.json`:
 
 ```json
 {
@@ -159,17 +159,17 @@ A stack is the set of processes a project needs, described in `kestrel.json`:
 }
 ```
 
-- Kestrel looks for `--config`, then `kestrel.json` in this folder or any parent, then a `Procfile`,
+- StackPilot looks for `--config`, then `stackpilot.json` in this folder or any parent, then a `Procfile`,
   then package.json scripts (you choose which to run).
 - `dependsOn` sets the start order; a process starts once everything it depends on is ready.
 - `ready` is a port, an HTTP URL or a log line (`"log": "listening on"`).
 - `restart` is `on-failure` (the default), `always` or `never`, with backoff and a `maxRestarts` limit.
 - `env` and `envFile` set environment variables; values are masked in the UI until you reveal them.
-- An invalid config is reported with every problem and its path, and `kestrel pm` exits with code 2,
+- An invalid config is reported with every problem and its path, and `stackpilot pm` exits with code 2,
   so the same check works in CI.
 
-Every option and its default: [configuration reference](https://github.com/3ncryptor/kestrel/blob/main/docs/CONFIG.md).
-To keep a stack running after you log out of a server, run `kestrel pm` inside `tmux`.
+Every option and its default: [configuration reference](https://github.com/piyushy111/StackPilot/blob/main/docs/CONFIG.md).
+To keep a stack running after you log out of a server, run `stackpilot pm` inside `tmux`.
 
 ## Keys
 
@@ -185,78 +185,78 @@ The help screen (`?`) is generated from the key bindings, so it always matches w
 
 ## How this package works
 
-`kestrel-tui` is a small launcher. The program itself is a standalone binary, published as one package
+`stackpilot-tui` is a small launcher. The program itself is a standalone binary, published as one package
 per platform:
 
 | Package | Platform |
 |---|---|
-| [`kestrel-tui-darwin-arm64`](https://www.npmjs.com/package/kestrel-tui-darwin-arm64) | macOS, Apple Silicon |
-| [`kestrel-tui-darwin-x64`](https://www.npmjs.com/package/kestrel-tui-darwin-x64) | macOS, Intel |
-| [`kestrel-tui-linux-arm64`](https://www.npmjs.com/package/kestrel-tui-linux-arm64) | Linux, arm64 |
-| [`kestrel-tui-linux-x64`](https://www.npmjs.com/package/kestrel-tui-linux-x64) | Linux, x64 |
+| [`stackpilot-tui-darwin-arm64`](https://www.npmjs.com/package/stackpilot-tui-darwin-arm64) | macOS, Apple Silicon |
+| [`stackpilot-tui-darwin-x64`](https://www.npmjs.com/package/stackpilot-tui-darwin-x64) | macOS, Intel |
+| [`stackpilot-tui-linux-arm64`](https://www.npmjs.com/package/stackpilot-tui-linux-arm64) | Linux, arm64 |
+| [`stackpilot-tui-linux-x64`](https://www.npmjs.com/package/stackpilot-tui-linux-x64) | Linux, x64 |
 
 They are `optionalDependencies` with `os` and `cpu` fields, so npm downloads only the one for your
 machine (a 27 to 39 MB download, 72 to 97 MB on disk). **No install scripts run**: nothing executes during `npm install`. When you run
-`kestrel`, the launcher finds the binary for your platform and runs it with your terminal attached,
+`stackpilot`, the launcher finds the binary for your platform and runs it with your terminal attached,
 passing through arguments, signals and the exit code. All five packages always have the same version.
 
 ## Verifying what you installed
 
 Every release is built by GitHub Actions from a tagged commit of
-[3ncryptor/kestrel](https://github.com/3ncryptor/kestrel), and published with
+[piyushy111/StackPilot](https://github.com/piyushy111/StackPilot), and published with
 [npm provenance](https://docs.npmjs.com/generating-provenance-statements): the npm page of each package
 links to the exact workflow run and commit it came from. To check the signatures and provenance of an
 install:
 
 ```sh
-npm audit signatures        # in a project that depends on kestrel-tui
+npm audit signatures        # in a project that depends on stackpilot-tui
 ```
 
 The release archives on GitHub carry build attestations too
-(`gh attestation verify <archive> --repo 3ncryptor/kestrel`).
+(`gh attestation verify <archive> --repo piyushy111/StackPilot`).
 
 ## Updating and uninstalling
 
 ```sh
-npm install -g kestrel-tui@latest     # update
-npm uninstall -g kestrel-tui          # uninstall
+npm install -g stackpilot-tui@latest     # update
+npm uninstall -g stackpilot-tui          # uninstall
 ```
 
-A project's saved logs and run state live in its `.kestrel/` folder (`kestrel init` offers to add it to
+A project's saved logs and run state live in its `.stackpilot/` folder (`stackpilot init` offers to add it to
 `.gitignore`); delete that folder to remove them.
 
 ## Troubleshooting
 
-**`kestrel: kestrel-tui-<platform> is not installed`.** npm skipped the platform package. That happens
+**`stackpilot: stackpilot-tui-<platform> is not installed`.** npm skipped the platform package. That happens
 when optional dependencies are turned off (`--omit=optional`, `--no-optional`, or `omit=optional` in
 `.npmrc`), or on a platform without a build. Reinstall with optional dependencies enabled:
-`npm install -g kestrel-tui --include=optional`.
+`npm install -g stackpilot-tui --include=optional`.
 
-**`EBADPLATFORM` on Windows, or a binary that won't start on Alpine.** Kestrel supports macOS and
+**`EBADPLATFORM` on Windows, or a binary that won't start on Alpine.** StackPilot supports macOS and
 glibc-based Linux on arm64 and x64. On Windows, install it inside WSL2; on Alpine (musl), use a
 glibc-based image such as Debian slim.
 
 **Other users' processes show no CPU or memory on macOS.** macOS only shares those figures with root.
-Kestrel samples them every 5 seconds from `ps`; run it with `sudo` to see everything.
+StackPilot samples them every 5 seconds from `ps`; run it with `sudo` to see everything.
 
-**Anything else.** Run `kestrel doctor`: it checks the runtime, sampling, ports, the terminal and your
+**Anything else.** Run `stackpilot doctor`: it checks the runtime, sampling, ports, the terminal and your
 config, and says how to fix each problem. When you
-[open an issue](https://github.com/3ncryptor/kestrel/issues/new/choose), include its output.
+[open an issue](https://github.com/piyushy111/StackPilot/issues/new/choose), include its output.
 
 ## Privacy
 
-Kestrel sends no telemetry and has no analytics. It uses the network only for the readiness checks you
-configure (a port or an HTTP URL, usually on localhost) and when you run `kestrel update`, which asks
+StackPilot sends no telemetry and has no analytics. It uses the network only for the readiness checks you
+configure (a port or an HTTP URL, usually on localhost) and when you run `stackpilot update`, which asks
 GitHub for the latest release.
 
 ## Links
 
-- Source and issues: https://github.com/3ncryptor/kestrel
-- Changelog: https://github.com/3ncryptor/kestrel/blob/main/CHANGELOG.md
-- Configuration reference: https://github.com/3ncryptor/kestrel/blob/main/docs/CONFIG.md
-- Security policy: https://github.com/3ncryptor/kestrel/blob/main/SECURITY.md
-- Contributing: https://github.com/3ncryptor/kestrel/blob/main/CONTRIBUTING.md
+- Source and issues: https://github.com/piyushy111/StackPilot
+- Changelog: https://github.com/piyushy111/StackPilot/blob/main/CHANGELOG.md
+- Configuration reference: https://github.com/piyushy111/StackPilot/blob/main/docs/CONFIG.md
+- Security policy: https://github.com/piyushy111/StackPilot/blob/main/SECURITY.md
+- Contributing: https://github.com/piyushy111/StackPilot/blob/main/CONTRIBUTING.md
 
 ## License
 
-[MIT](https://github.com/3ncryptor/kestrel/blob/main/LICENSE) © Aryan Vibhuti
+[MIT](https://github.com/piyushy111/StackPilot/blob/main/LICENSE) © 2026 Piyush Yadav

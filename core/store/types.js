@@ -12,7 +12,7 @@
  * @property {boolean} isRoot
  * @property {number} startedAt
  * @property {string|null} configPath
- * @property {'kestrel.json'|'Procfile'|'package.json'|null} configSource
+ * @property {'stackpilot.json'|'Procfile'|'package.json'|null} configSource
  */
 
 /**
@@ -102,7 +102,7 @@
  * The project's stack (M3). `scripts` lists package.json candidates for the first-run picker.
  * @typedef {Object} StackState
  * @property {string|null} name    folder name of the config
- * @property {'kestrel.json'|'Procfile'|'package.json'|null} source
+ * @property {'stackpilot.json'|'Procfile'|'package.json'|null} source
  * @property {string|null} path
  * @property {{ path: string, message: string }[]} errors  an invalid config: nothing is registered
  * @property {string[]} warnings
@@ -112,12 +112,12 @@
  */
 
 /**
- * A child a previous Kestrel started and left running (it was killed hard). Verified by start time.
+ * A child a previous StackPilot started and left running (it was killed hard). Verified by start time.
  * @typedef {{ id: string, pid: number, pgid: number, startedAt: number }} Orphan
  */
 
 /**
- * @typedef {Object} KestrelState
+ * @typedef {Object} StackPilotState
  * @property {Meta} meta
  * @property {{ thresholds: Thresholds }} settings
  * @property {SystemStats} system

@@ -3,11 +3,11 @@
 # and the process manager in a real PTY. Installs bun and the dependencies inside, so it needs network.
 #
 #   scripts/docker-e2e.sh
-#   KESTREL_TEST_IMAGES="ubuntu:24.04" scripts/docker-e2e.sh
+#   STACKPILOT_TEST_IMAGES="ubuntu:24.04" scripts/docker-e2e.sh
 set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-IMAGES=${KESTREL_TEST_IMAGES:-"node:20-bookworm amazonlinux:2023"}
+IMAGES=${STACKPILOT_TEST_IMAGES:-"node:20-bookworm amazonlinux:2023"}
 BUN_VERSION=${BUN_VERSION:-1.4.0}
 
 # The body runs inside the container, so its $variables must not expand here.
@@ -21,7 +21,7 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 npm install -g --silent "bun@$BUN_VERSION" >/dev/null
 mkdir -p /tmp/k
-(cd /kestrel && tar --exclude=node_modules --exclude=.kestrel -cf - .) | (cd /tmp/k && tar -xf -)
+(cd /stackpilot && tar --exclude=node_modules --exclude=.stackpilot -cf - .) | (cd /tmp/k && tar -xf -)
 cd /tmp/k && bun install --frozen-lockfile >/dev/null
 echo "bun $(bun --version), node $(node --version) on $(. /etc/os-release && echo "$PRETTY_NAME")"
 sh scripts/e2e/pm-e2e.sh
@@ -30,7 +30,7 @@ sh scripts/e2e/pm-e2e.sh
 status=0
 for image in $IMAGES; do
   echo "== $image =="
-  if ! docker run --rm -e BUN_VERSION="$BUN_VERSION" -v "$ROOT":/kestrel:ro "$image" sh -c "$INNER"; then
+  if ! docker run --rm -e BUN_VERSION="$BUN_VERSION" -v "$ROOT":/stackpilot:ro "$image" sh -c "$INNER"; then
     echo "FAILED on $image"
     status=1
   fi

@@ -1,7 +1,6 @@
 node_modules/
 dist/
 coverage/
-.kestrel/
 .stackpilot/
 *.log
 .DS_Store
