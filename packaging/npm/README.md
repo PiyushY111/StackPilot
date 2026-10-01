@@ -1,6 +1,6 @@
 # stackpilot-tui
 
-**A system monitor and a process manager in one terminal app, for macOS and Linux.**
+**htop and pm2 in one terminal app: see what is using your machine, and run your project's processes, from one screen. For macOS and Linux.**
 
 [![npm version](https://img.shields.io/npm/v/stackpilot-tui.svg)](https://www.npmjs.com/package/stackpilot-tui)
 [![npm downloads](https://img.shields.io/npm/dm/stackpilot-tui.svg)](https://www.npmjs.com/package/stackpilot-tui)
@@ -57,22 +57,21 @@ project's processes, the way pm2 or foreman do. Because it does both, it can tel
 
 ## Features
 
-- **See the machine.** CPU history and per-core meters, memory and swap, listening TCP ports with the
-  process that owns each, and a process table or tree with filter, sort, a details drawer, kill and
-  renice.
+- **See the machine.** CPU history and a gauge per core, memory and swap, listening ports with the process
+  that owns each, and a process table or tree with filter, sort, details, kill and renice.
 - **Run the stack.** Starts the processes in `stackpilot.json` (or a Procfile, or package.json scripts) in
-  dependency order, waits until each is ready (a port, an HTTP check or a log line), restarts crashes
-  with backoff, and stops everything cleanly in reverse order.
-- **Follow it.** A live logs panel per process, or all of them interleaved, with pause and search.
-  Logs are also saved to `.stackpilot/logs/`, and each managed process shows the CPU and memory of its
-  whole process tree, with a `▲ leak?` mark when its memory keeps climbing and a details panel with
-  its memory over the last ten minutes. A header line lights CAUTION or WARNING when something needs
-  a look, including a process that keeps crashing.
-- **Stay safe.** Every kill and renice goes through confirmations: one key for your own processes, the
-  exact name typed for system processes, and StackPilot itself and PID 1 are blocked. After a crash,
-  StackPilot finds the processes it left running and offers to stop them.
-- **Anywhere.** One standalone binary. It works over SSH, on an EC2 instance or a Raspberry Pi, and in
-  16-colour and no-colour terminals.
+  dependency order, waits until each is ready (a port, an HTTP check or a log line), restarts crashes with
+  backoff, and stops everything cleanly in reverse order.
+- **Follow it.** A live logs panel per process, or all of them interleaved, with pause and search. Logs are
+  also saved to `.stackpilot/logs/`. Each managed process shows the CPU and memory of its whole process tree.
+- **Notice trouble early.** A header line lights `CAUTION` or `WARNING` only when something needs a look:
+  a process that keeps crashing (`↻ worker 3 in 5m`), a failing data source, or a process whose memory keeps
+  climbing (`▲ leak?`).
+- **Stay safe.** Every kill and renice goes through confirmations enforced in the engine: one key for your own
+  processes, the exact name typed for system processes, and StackPilot itself and PID 1 are blocked. After a
+  crash, StackPilot finds the processes it left running and offers to stop them.
+- **Anywhere.** One binary. It works over SSH, on an EC2 box or a Raspberry Pi, and in 256-colour, 16-colour
+  and no-colour terminals.
 
 ## Install
 
@@ -177,11 +176,12 @@ To keep a stack running after you log out of a server, run `stackpilot pm` insid
 
 | Where | Keys |
 |---|---|
-| Everywhere | `Tab` next box · `?` help · `Esc` back · `q` quit (asks before stopping a running stack) · `L` logs of a failed process |
+| Everywhere | `Tab` next box · `?` help · `Esc` back · `q` quit · `L` logs of a failed process |
 | Process table | `↑↓` select · `/` filter · `s` sort (`S` reverse) · `t` tree · `⏎` details · `x` kill (`X` force) · `r` renice |
+| Process tree | `←→` fold · and the table's keys |
 | Ports | `↑↓` select · `⏎` jump to the owner · `x` kill the owner · `/` filter |
-| Stack box | `↑↓` select · `⏎` details · `p` show in the process table · `s` start · `x` stop · `r` restart · `a` start all · `X` stop all · `n` new · `e` env · `w` save |
-| Logs panel | `f` follow · `/` search · `v` all processes or one · `PgUp`/`PgDn` scroll · `g`/`G` oldest/newest |
+| Stack | `↑↓` select · `⏎` details · `p` show in the process table · `s` start · `x` stop · `r` restart · `a` start all · `X` stop all · `n` new process · `e` env · `w` save to `stackpilot.json` |
+| Logs | `f` follow · `/` search · `v` all processes or one · `PgUp`/`PgDn` scroll · `g`/`G` oldest/newest |
 
 The help screen (`?`) is generated from the key bindings, so it always matches what the keys do.
 

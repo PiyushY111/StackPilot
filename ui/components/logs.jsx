@@ -11,7 +11,8 @@ const INNER = 4;
 const CLOCK_WIDTH = 9; // "14:02:11 "
 const MAX_ID_WIDTH = 10;
 const DRAWER_SHARE = 0.4; // as the proc box's drawer
-const MIN_DRAWER = 26; // narrower than this, the details take the whole panel instead
+const MIN_DRAWER = 30; // the details need this much to fit their rows and key line
+const MIN_LOGS = 24; // with less left for the logs, the details take the whole panel instead
 
 function logInfo({ view, follow, filter, searching }) {
     const parts = follow
@@ -60,7 +61,8 @@ function emptyText({ entry, view, filter }) {
 export function LogsBox({ state, view, entry, scope, searching, layout, hints, details = false, now = Date.now() }) {
     const { logFilter, logFollow } = state.ui;
     const share = Math.floor(layout.width * DRAWER_SHARE);
-    const drawerWidth = !details || !entry ? 0 : share >= MIN_DRAWER ? share : layout.width - INNER;
+    const room = layout.width - INNER;
+    const drawerWidth = !details || !entry ? 0 : room - MIN_DRAWER >= MIN_LOGS ? Math.max(share, MIN_DRAWER) : room;
     const width = layout.width - INNER - drawerWidth;
     const idWidth = scope === 'all' ? Math.min(MAX_ID_WIDTH, Math.max(...state.managed.map((m) => m.id.length), 1)) : 0;
     const title = scope === 'all' ? 'logs · all' : entry ? `logs · ${entry.id}` : 'logs';

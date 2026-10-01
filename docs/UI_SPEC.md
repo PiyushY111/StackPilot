@@ -255,8 +255,8 @@ the others; each key in the dialog's key line is cyan. `Esc` always cancels.
   move the cursor, retitle the terminal or break the layout. Saved log files keep the original bytes.
 
 ### 6.8 Stack details (`⏎` in the stack box)
-- Opens beside the logs, at 40% of the big panel (the whole panel when that would be under 26 columns), with
-  an idle-grey border. It follows the selection (`↑↓`); `Esc` closes it, as does leaving the stack box.
+- Opens beside the logs, at 40% of the big panel and at least 30 columns (the whole panel when that would
+  leave the logs under 24), with an idle-grey border. It follows the selection (`↑↓`); `Esc` closes it, as does leaving the stack box.
 - Rows, top first: the name and `● status`; `pid · up 2m` (or `not running`); `ready` (target, kind, `✓` when
   ready), `needs` (dependsOn), `port` (listeners linked to it), `restart` (policy); `crashes` (`n in 5m ·
   last exit 1`, then how long ago); `memory` (now, amber with `▲ leak?` when suspected), a one-row sparkline
